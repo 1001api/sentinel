@@ -6,6 +6,9 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/hubkudev/sentinel/configs"
+	"github.com/hubkudev/sentinel/routes"
+	"github.com/hubkudev/sentinel/services"
 	"github.com/joho/godotenv"
 )
 
@@ -14,9 +17,15 @@ func main() {
 
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	// initialize database connection
+	db := configs.InitDBCon()
+	defer db.Close()
+
+	// init services
+	eventService := services.EventServiceImpl{}
+
+	// init routes
+	routes.InitEventRoute(app, &eventService)
 
 	PORT := os.Getenv("PORT")
 	if PORT == "" {
