@@ -92,7 +92,7 @@ func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 	// if the user found in the database, then we can just logged in,
 	// if not, then register that user.
 	isExist, err := s.UserService.FindByEmail(profile.Email)
-	if isExist == nil && err == nil {
+	if isExist == nil || err != nil {
 		// register user and save their data into database
 		result, err := s.UserService.CreateUser(profile)
 		if err != nil {
@@ -112,9 +112,6 @@ func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 
 		// return immediately
 		return c.Status(fiber.StatusOK).Redirect("/")
-	} else if err != nil {
-		log.Println(err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to register user")
 	}
 
 	// Store the existed user's id in the session
