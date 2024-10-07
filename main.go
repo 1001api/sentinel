@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
 	repositories "github.com/hubkudev/sentinel/repos"
 	"github.com/hubkudev/sentinel/routes"
@@ -13,10 +14,22 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var (
+	engine = html.New("./views", ".html")
+)
+
 func main() {
 	godotenv.Load()
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
+
+	app.Static("/static", "./views/public", fiber.Static{
+		Compress:  true,
+		ByteRange: true,
+		MaxAge:    3600,
+	})
 
 	// initialize database connection
 	db := configs.InitDBCon()
@@ -47,6 +60,7 @@ func main() {
 	// init routes
 	routes.InitAuthRoute(app, &authService)
 	routes.InitEventRoute(app, &eventService)
+	routes.InitWebRoute(app)
 
 	PORT := os.Getenv("PORT")
 	if PORT == "" {

@@ -5,6 +5,4 @@ import (
 	"github.com/hubkudev/sentinel/services"
 )
 
-func InitEventRoute(app *fiber.App, eventService services.EventService) {
-	app.Get("/", eventService.HelloWorld)
-}
+func InitEventRoute(app *fiber.App, eventService services.EventService) {}
