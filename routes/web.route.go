@@ -2,12 +2,11 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/hubkudev/sentinel/configs"
-	"github.com/hubkudev/sentinel/views/pages"
+	"github.com/hubkudev/sentinel/middlewares"
+	"github.com/hubkudev/sentinel/services"
 )
 
-func InitWebRoute(app *fiber.App) {
-	app.Get("/", func(c *fiber.Ctx) error {
-		return configs.Render(c, pages.IndexPage())
-	})
+func InitWebRoute(app *fiber.App, m middlewares.Middleware, webService services.WebService) {
+	app.Get("/", webService.SendLandingPage)
+	app.Get("/dashboard", m.ProtectedRoute, webService.SendLandingPage)
 }

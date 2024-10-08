@@ -11,6 +11,7 @@ import (
 
 type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
+	CheckIDExist(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, input *dto.CreateUserInput) (*entities.User, error)
 }
 
@@ -33,6 +34,18 @@ func (r *UserRepoImpl) FindByEmail(ctx context.Context, email string) (*entities
 	}
 
 	return &user, nil
+}
+
+func (r *UserRepoImpl) CheckIDExist(ctx context.Context, userID string) (bool, error) {
+	var exist bool
+
+	SQL := "SELECT EXIST(SELECT 1 FROM users WHERE id = $1)"
+	row := r.DB.QueryRow(ctx, SQL, userID)
+	if err := row.Scan(&exist); err != nil {
+		return false, err
+	}
+
+	return exist, nil
 }
 
 func (r *UserRepoImpl) CreateUser(ctx context.Context, input *dto.CreateUserInput) (*entities.User, error) {

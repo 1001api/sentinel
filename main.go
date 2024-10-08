@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
+	"github.com/hubkudev/sentinel/middlewares"
 	repositories "github.com/hubkudev/sentinel/repos"
 	"github.com/hubkudev/sentinel/routes"
 	"github.com/hubkudev/sentinel/services"
@@ -56,11 +57,18 @@ func main() {
 		StateStore:   stateStore,
 	}
 	eventService := services.EventServiceImpl{}
+	webService := services.WebServiceImpl{}
+
+	// init middlewares
+	m := middlewares.MiddlewareImpl{
+		UserRepo:       &userRepo,
+		SessionStorage: sessionStore,
+	}
 
 	// init routes
 	routes.InitAuthRoute(app, &authService)
 	routes.InitEventRoute(app, &eventService)
-	routes.InitWebRoute(app)
+	routes.InitWebRoute(app, &m, &webService)
 
 	PORT := os.Getenv("PORT")
 	if PORT == "" {
