@@ -38,12 +38,16 @@ func (s *UserServiceImpl) FindByID(userID string) (*entities.User, error) {
 }
 
 func (s *UserServiceImpl) CreateUser(payload *dto.GooglePayload) (*entities.User, error) {
+	// generate random 48 long for public key
+	key := s.UtilService.GenerateRandomID(48)
+
 	input := &dto.CreateUserInput{
 		Fullname:      payload.GivenName,
 		Email:         payload.Email,
 		OAuthID:       payload.SUB,
 		OAuthProvider: "google",
 		ProfileURL:    payload.Picture,
+		PublicKey:     key,
 	}
 
 	result, err := s.UserRepo.CreateUser(context.Background(), input)

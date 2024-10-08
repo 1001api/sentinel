@@ -48,7 +48,8 @@ func main() {
 	// init services
 	utilService := services.UtilServiceImpl{}
 	userService := services.UserServiceImpl{
-		UserRepo: &userRepo,
+		UtilService: &utilService,
+		UserRepo:    &userRepo,
 	}
 	authService := services.AuthServiceImpl{
 		UtilService:  &utilService,

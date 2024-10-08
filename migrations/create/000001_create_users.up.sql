@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     oauth_provider VARCHAR(50) NOT NULL,
     oauth_id VARCHAR(255),
     profile_url VARCHAR(255),
+    public_key VARCHAR(255) NOT NULL,
 
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ,

@@ -7,4 +7,5 @@ type CreateUserInput struct {
 	OAuthProvider string
 	OAuthID       string
 	ProfileURL    string
+	PublicKey     string
 }

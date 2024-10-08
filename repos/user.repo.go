@@ -69,7 +69,7 @@ func (r *UserRepoImpl) CheckIDExist(ctx context.Context, userID string) (bool, e
 func (r *UserRepoImpl) CreateUser(ctx context.Context, input *dto.CreateUserInput) (*entities.User, error) {
 	var user entities.User
 
-	SQL := "INSERT INTO users(fullname, email, oauth_provider, oauth_id, profile_url) VALUES ($1, $2, $3, $4, $5) RETURNING id, fullname, email, profile_url"
+	SQL := "INSERT INTO users(fullname, email, oauth_provider, oauth_id, profile_url, public_key) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, fullname, email, profile_url"
 
 	tx, err := r.DB.Begin(ctx)
 	if err != nil {
@@ -84,7 +84,7 @@ func (r *UserRepoImpl) CreateUser(ctx context.Context, input *dto.CreateUserInpu
 		}
 	}()
 
-	row := tx.QueryRow(ctx, SQL, input.Fullname, input.Email, input.OAuthProvider, input.OAuthID, input.ProfileURL)
+	row := tx.QueryRow(ctx, SQL, input.Fullname, input.Email, input.OAuthProvider, input.OAuthID, input.ProfileURL, input.PublicKey)
 	if err := row.Scan(
 		&user.ID,
 		&user.Fullname,
