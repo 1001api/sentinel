@@ -3,7 +3,7 @@ module.exports = {
   content: ["./views/**/*.js", "./views/**/*.templ", "./views/**/*.go", "./node_modules/flowbite/**/*.js"],
   theme: {
     fontFamily: {
-      sans: ["Space Mono", "system-ui"]
+      sans: ["Space Grotesk", "system-ui"]
     },
     container: {
       center: true,

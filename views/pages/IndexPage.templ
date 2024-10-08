@@ -1,22 +1,12 @@
 package pages
 
+import "github.com/hubkudev/sentinel/views/components"
+
 templ IndexPage() {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta charset="UTF-8"/>
-			<link rel="stylesheet" href="/static/global.css"/>
-			<title>Sentinel | Admin Dashboard</title>
-			<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-			<link rel="preconnect" href="https://fonts.googleapis.com"/>
-			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
-		</head>
+	@components.Layout("Sentinel") {
 		<body>
 			<h1 class="text-4xl">Hello from Sentinel index page!</h1>
 			<p>Why not you like it <strong>Here!</strong></p>
 		</body>
-	</html>
+	}
 }
