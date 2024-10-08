@@ -23,8 +23,8 @@ type AuthService interface {
 type AuthServiceImpl struct {
 	UtilService  UtilService
 	UserService  UserService
-	SessionStore *session.Store
 	StateStore   *session.Store
+	SessionStore *session.Store
 }
 
 func (s *AuthServiceImpl) GoogleLogin(c *fiber.Ctx) error {
@@ -50,8 +50,10 @@ func (s *AuthServiceImpl) GoogleLogin(c *fiber.Ctx) error {
 
 func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 	// get session store for current context
-	sess, sessErr := s.StateStore.Get(c)
+	// NOTE: stateSess must be first, then sess, the second, I am not sure why is that,
+	// there must be something wrong here.
 	stateSess, stateErr := s.StateStore.Get(c)
+	sess, sessErr := s.SessionStore.Get(c)
 	if sessErr != nil || stateErr != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -111,7 +113,7 @@ func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 		}
 
 		// return immediately
-		return c.Status(fiber.StatusOK).Redirect("/")
+		return c.Status(fiber.StatusOK).Redirect("/misc/auth-redirect")
 	}
 
 	// Store the existed user's id in the session
@@ -122,7 +124,7 @@ func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save user session")
 	}
 
-	return c.Status(fiber.StatusOK).Redirect("/")
+	return c.Status(fiber.StatusOK).Redirect("/misc/auth-redirect")
 }
 
 func (s *AuthServiceImpl) ConvertToken(accessToken string) (*dto.GooglePayload, error) {

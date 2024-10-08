@@ -9,8 +9,9 @@ import (
 func InitWebRoute(app *fiber.App, m middlewares.Middleware, webService services.WebService) {
 	app.Get("/", webService.SendLandingPage)
 	app.Get("/login", webService.SendLoginPage)
-	app.Get("/dashboard", m.ProtectedRoute, webService.SendLandingPage)
+	app.Get("/dashboard", m.ProtectedRoute, webService.SendDashboardPage)
 
 	misc := app.Group("/misc")
 	misc.Get("/tos", webService.SendTOSPage)
+	misc.Get("/auth-redirect", webService.SendAuthRedirectPage)
 }

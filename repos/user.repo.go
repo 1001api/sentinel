@@ -39,7 +39,7 @@ func (r *UserRepoImpl) FindByEmail(ctx context.Context, email string) (*entities
 func (r *UserRepoImpl) CheckIDExist(ctx context.Context, userID string) (bool, error) {
 	var exist bool
 
-	SQL := "SELECT EXIST(SELECT 1 FROM users WHERE id = $1)"
+	SQL := "SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)"
 	row := r.DB.QueryRow(ctx, SQL, userID)
 	if err := row.Scan(&exist); err != nil {
 		return false, err

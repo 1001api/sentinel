@@ -12,6 +12,7 @@ type WebService interface {
 	SendLoginPage(ctx *fiber.Ctx) error
 	SendDashboardPage(ctx *fiber.Ctx) error
 	SendTOSPage(ctx *fiber.Ctx) error
+	SendAuthRedirectPage(ctx *fiber.Ctx) error
 }
 
 type WebServiceImpl struct{}
@@ -25,9 +26,14 @@ func (s *WebServiceImpl) SendLoginPage(c *fiber.Ctx) error {
 }
 
 func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
-	return configs.Render(c, pages.DashboardPage())
+	userID := c.Locals("userID").(string)
+	return configs.Render(c, pages.DashboardPage(userID))
 }
 
 func (s *WebServiceImpl) SendTOSPage(c *fiber.Ctx) error {
 	return configs.Render(c, misc.TOSPage())
+}
+
+func (s *WebServiceImpl) SendAuthRedirectPage(c *fiber.Ctx) error {
+	return configs.Render(c, misc.AuthSuccessPage())
 }

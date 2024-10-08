@@ -2,10 +2,10 @@ package pages
 
 import "github.com/hubkudev/sentinel/views/components"
 
-templ DashboardPage() {
+templ DashboardPage(userID string) {
 	@components.Layout("Sentinel Dashboard") {
 		<body>
-			<h1 class="text-4xl">Hello from Sentinel dashboard page!</h1>
+			<h1 class="text-4xl">Hello robot batch #{ userID }</h1>
 			<p>Why not you like it <strong>Here!</strong></p>
 		</body>
 	}

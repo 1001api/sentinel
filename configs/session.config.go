@@ -9,6 +9,7 @@ import (
 
 func InitSession(storage *redis.Storage) *session.Store {
 	return session.New(session.Config{
+		KeyLookup:      "cookie:session_id",
 		Expiration:     24 * time.Hour * 7, // 7 days
 		CookieHTTPOnly: true,
 		CookieSecure:   true,

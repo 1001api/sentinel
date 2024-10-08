@@ -1,0 +1,12 @@
+package misc
+
+import "github.com/hubkudev/sentinel/views/components"
+
+templ AuthSuccessPage() {
+	@components.Layout("Redirecting back...") {
+		<body class="min-h-screen flex flex-col gap-6 items-center justify-center">
+			<h1>Redirecting you back...</h1>
+			<script src="/static/assets/auth-redirect.js"></script>
+		</body>
+	}
+}
