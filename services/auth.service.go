@@ -18,6 +18,7 @@ type AuthService interface {
 	GoogleLogin(ctx *fiber.Ctx) error
 	GoogleCallback(ctx *fiber.Ctx) error
 	ConvertToken(accessToken string) (*dto.GooglePayload, error)
+	Logout(ctx *fiber.Ctx) error
 }
 
 type AuthServiceImpl struct {
@@ -159,4 +160,16 @@ func (s *AuthServiceImpl) ConvertToken(accessToken string) (*dto.GooglePayload, 
 	}
 
 	return &data, nil
+}
+
+func (s *AuthServiceImpl) Logout(c *fiber.Ctx) error {
+	sess, err := s.SessionStore.Get(c)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	// destroy current user session
+	sess.Destroy()
+
+	return c.Status(fiber.StatusOK).Redirect("/")
 }

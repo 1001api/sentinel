@@ -10,4 +10,5 @@ func InitAuthRoute(app *fiber.App, authService services.AuthService) {
 
 	auth.Get("/google", authService.GoogleLogin)
 	auth.Get("/google/callback", authService.GoogleCallback)
+	auth.Get("/logout", authService.Logout)
 }

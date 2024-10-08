@@ -11,6 +11,7 @@ import (
 
 type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
+	FindByID(ctx context.Context, userID string) (*entities.User, error)
 	CheckIDExist(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, input *dto.CreateUserInput) (*entities.User, error)
 }
@@ -24,6 +25,23 @@ func (r *UserRepoImpl) FindByEmail(ctx context.Context, email string) (*entities
 
 	SQL := "SELECT id, fullname, email, profile_url FROM users WHERE email = $1"
 	row := r.DB.QueryRow(ctx, SQL, email)
+	if err := row.Scan(
+		&user.ID,
+		&user.Fullname,
+		&user.Email,
+		&user.ProfileURL,
+	); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *UserRepoImpl) FindByID(ctx context.Context, userID string) (*entities.User, error) {
+	var user entities.User
+
+	SQL := "SELECT id, fullname, email, profile_url FROM users WHERE id = $1"
+	row := r.DB.QueryRow(ctx, SQL, userID)
 	if err := row.Scan(
 		&user.ID,
 		&user.Fullname,

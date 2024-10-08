@@ -1,8 +1,11 @@
 package pages
 
-import "github.com/hubkudev/sentinel/views/components"
+import (
+	"github.com/hubkudev/sentinel/entities"
+	"github.com/hubkudev/sentinel/views/components"
+)
 
-templ DashboardPage(userID string) {
+templ DashboardPage(user *entities.User) {
 	@components.Layout("Sentinel Dashboard") {
 		<body>
 			<div class="antialiased bg-gray-50 dark:bg-gray-900">
@@ -63,8 +66,9 @@ templ DashboardPage(userID string) {
 								<span class="sr-only">Open user menu</span>
 								<img
 									class="w-8 h-8 rounded-full"
-									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gough.png"
-									alt="user photo"
+									src={ user.ProfileURL.String }
+									alt="avatar"
+									referrerpolicy="no-referrer"
 								/>
 							</button>
 							<!-- Dropdown menu -->
@@ -75,7 +79,7 @@ templ DashboardPage(userID string) {
 								<div class="py-3 px-4">
 									<span
 										class="block text-sm font-semibold text-gray-900 dark:text-white"
-									>Neil Sims</span>
+									>{ user.Fullname }</span>
 								</div>
 								<ul
 									class="py-1 text-gray-700 dark:text-gray-300"
@@ -83,7 +87,7 @@ templ DashboardPage(userID string) {
 								>
 									<li>
 										<a
-											href="#"
+											href="/auth/logout"
 											class="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 										>Sign out</a>
 									</li>

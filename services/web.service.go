@@ -15,7 +15,9 @@ type WebService interface {
 	SendAuthRedirectPage(ctx *fiber.Ctx) error
 }
 
-type WebServiceImpl struct{}
+type WebServiceImpl struct {
+	UserService UserService
+}
 
 func (s *WebServiceImpl) SendLandingPage(c *fiber.Ctx) error {
 	return configs.Render(c, pages.IndexPage())
@@ -27,7 +29,13 @@ func (s *WebServiceImpl) SendLoginPage(c *fiber.Ctx) error {
 
 func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(string)
-	return configs.Render(c, pages.DashboardPage(userID))
+
+	user, err := s.UserService.FindByID(userID)
+	if err != nil {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	return configs.Render(c, pages.DashboardPage(user))
 }
 
 func (s *WebServiceImpl) SendTOSPage(c *fiber.Ctx) error {

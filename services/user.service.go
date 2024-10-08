@@ -10,6 +10,7 @@ import (
 
 type UserService interface {
 	FindByEmail(email string) (*entities.User, error)
+	FindByID(userID string) (*entities.User, error)
 	CreateUser(payload *dto.GooglePayload) (*entities.User, error)
 }
 
@@ -20,6 +21,15 @@ type UserServiceImpl struct {
 
 func (s *UserServiceImpl) FindByEmail(email string) (*entities.User, error) {
 	result, err := s.UserRepo.FindByEmail(context.Background(), email)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *UserServiceImpl) FindByID(userID string) (*entities.User, error) {
+	result, err := s.UserRepo.FindByID(context.Background(), userID)
 	if err != nil {
 		return nil, err
 	}

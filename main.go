@@ -57,7 +57,9 @@ func main() {
 		StateStore:   stateStore,
 	}
 	eventService := services.EventServiceImpl{}
-	webService := services.WebServiceImpl{}
+	webService := services.WebServiceImpl{
+		UserService: &userService,
+	}
 
 	// init middlewares
 	m := middlewares.MiddlewareImpl{
