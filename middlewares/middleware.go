@@ -31,12 +31,12 @@ func (m *MiddlewareImpl) ProtectedRoute(c *fiber.Ctx) error {
 	}
 
 	// check if the user is exist in the database
-	exist, err := m.UserRepo.CheckIDExist(context.Background(), userID.(string))
-	if !exist {
+	exist, err := m.UserRepo.FindByID(context.Background(), userID.(string))
+	if exist == nil {
 		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
 	}
 
-	c.Locals("userID", userID)
+	c.Locals("user", exist)
 
 	return c.Next()
 }

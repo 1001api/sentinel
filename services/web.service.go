@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/hubkudev/sentinel/configs"
+	"github.com/hubkudev/sentinel/entities"
 	"github.com/hubkudev/sentinel/views/pages"
 	"github.com/hubkudev/sentinel/views/pages/misc"
 )
@@ -11,6 +12,7 @@ type WebService interface {
 	SendLandingPage(ctx *fiber.Ctx) error
 	SendLoginPage(ctx *fiber.Ctx) error
 	SendDashboardPage(ctx *fiber.Ctx) error
+	SendProjectsPage(ctx *fiber.Ctx) error
 	SendTOSPage(ctx *fiber.Ctx) error
 	SendAuthRedirectPage(ctx *fiber.Ctx) error
 }
@@ -28,14 +30,13 @@ func (s *WebServiceImpl) SendLoginPage(c *fiber.Ctx) error {
 }
 
 func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
-	userID := c.Locals("userID").(string)
-
-	user, err := s.UserService.FindByID(userID)
-	if err != nil {
-		return c.SendStatus(fiber.StatusUnauthorized)
-	}
-
+	user := c.Locals("user").(*entities.User)
 	return configs.Render(c, pages.DashboardPage(user))
+}
+
+func (s *WebServiceImpl) SendProjectsPage(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+	return configs.Render(c, pages.ProjectsPage(user))
 }
 
 func (s *WebServiceImpl) SendTOSPage(c *fiber.Ctx) error {
