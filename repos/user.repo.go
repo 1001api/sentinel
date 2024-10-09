@@ -12,6 +12,7 @@ import (
 type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
 	FindByID(ctx context.Context, userID string) (*entities.User, error)
+	GetPublicKey(ctx context.Context, userID string) (string, error)
 	CheckIDExist(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, input *dto.CreateUserInput) (*entities.User, error)
 }
@@ -52,6 +53,20 @@ func (r *UserRepoImpl) FindByID(ctx context.Context, userID string) (*entities.U
 	}
 
 	return &user, nil
+}
+
+func (r *UserRepoImpl) GetPublicKey(ctx context.Context, userID string) (string, error) {
+	var key string
+
+	SQL := "SELECT public_key FROM users WHERE id = $1"
+	row := r.DB.QueryRow(ctx, SQL, userID)
+	if err := row.Scan(
+		&key,
+	); err != nil {
+		return "", err
+	}
+
+	return key, nil
 }
 
 func (r *UserRepoImpl) CheckIDExist(ctx context.Context, userID string) (bool, error) {

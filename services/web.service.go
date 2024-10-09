@@ -13,6 +13,7 @@ type WebService interface {
 	SendLoginPage(ctx *fiber.Ctx) error
 	SendDashboardPage(ctx *fiber.Ctx) error
 	SendProjectsPage(ctx *fiber.Ctx) error
+	SendAPIKeysPage(ctx *fiber.Ctx) error
 	SendTOSPage(ctx *fiber.Ctx) error
 	SendAuthRedirectPage(ctx *fiber.Ctx) error
 }
@@ -37,6 +38,17 @@ func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
 func (s *WebServiceImpl) SendProjectsPage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*entities.User)
 	return configs.Render(c, pages.ProjectsPage(user))
+}
+
+func (s *WebServiceImpl) SendAPIKeysPage(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+
+	publicKey, err := s.UserService.GetPublicKey(user.ID)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return configs.Render(c, pages.APIKeysPage(user, publicKey))
 }
 
 func (s *WebServiceImpl) SendTOSPage(c *fiber.Ctx) error {

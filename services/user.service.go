@@ -11,6 +11,7 @@ import (
 type UserService interface {
 	FindByEmail(email string) (*entities.User, error)
 	FindByID(userID string) (*entities.User, error)
+	GetPublicKey(userID string) (string, error)
 	CreateUser(payload *dto.GooglePayload) (*entities.User, error)
 }
 
@@ -32,6 +33,15 @@ func (s *UserServiceImpl) FindByID(userID string) (*entities.User, error) {
 	result, err := s.UserRepo.FindByID(context.Background(), userID)
 	if err != nil {
 		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *UserServiceImpl) GetPublicKey(userID string) (string, error) {
+	result, err := s.UserRepo.GetPublicKey(context.Background(), userID)
+	if err != nil {
+		return "", err
 	}
 
 	return result, nil
