@@ -1,0 +1,16 @@
+package routes
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/hubkudev/sentinel/middlewares"
+	"github.com/hubkudev/sentinel/services"
+)
+
+func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.APIService) {
+	api := app.Group("api")
+
+	project := api.Group("project")
+	project.Post("/create", m.ProtectedRoute, apiService.CreateProject)
+	project.Put("/update", m.ProtectedRoute, apiService.UpdateProject)
+	project.Delete("/delete", m.ProtectedRoute, apiService.DeleteProject)
+}

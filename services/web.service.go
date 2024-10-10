@@ -19,7 +19,8 @@ type WebService interface {
 }
 
 type WebServiceImpl struct {
-	UserService UserService
+	UserService    UserService
+	ProjectService ProjectService
 }
 
 func (s *WebServiceImpl) SendLandingPage(c *fiber.Ctx) error {
@@ -37,7 +38,13 @@ func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
 
 func (s *WebServiceImpl) SendProjectsPage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*entities.User)
-	return configs.Render(c, pages.ProjectsPage(user))
+
+	projects, err := s.ProjectService.GetAllProjects(user.ID)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return configs.Render(c, pages.ProjectsPage(user, projects))
 }
 
 func (s *WebServiceImpl) SendAPIKeysPage(c *fiber.Ctx) error {

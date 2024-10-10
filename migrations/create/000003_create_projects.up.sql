@@ -9,3 +9,5 @@ CREATE TABLE IF NOT EXISTS projects (
 
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects (user_id);

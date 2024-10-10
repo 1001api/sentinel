@@ -46,7 +46,7 @@ func DashboardPage(user *entities.User) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -62,7 +62,7 @@ func DashboardPage(user *entities.User) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4\"><div class=\"border-2 border-dashed border-gray-300 rounded-lg dark:border-gray-600 h-32 md:h-64\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-32 md:h-64\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-32 md:h-64\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-32 md:h-64\"></div></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-96 mb-4\"></div><div class=\"grid grid-cols-2 gap-4 mb-4\"><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-96 mb-4\"></div><div class=\"grid grid-cols-2 gap-4\"><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div><div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -72,7 +72,7 @@ func DashboardPage(user *entities.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -44,6 +44,7 @@ func main() {
 
 	// init repo
 	userRepo := repositories.UserRepoImpl{DB: db}
+	projectRepo := repositories.ProjectRepositoryImpl{DB: db}
 
 	// init services
 	utilService := services.UtilServiceImpl{}
@@ -57,9 +58,16 @@ func main() {
 		SessionStore: sessionStore,
 		StateStore:   stateStore,
 	}
+	projectService := services.ProjectServiceImpl{
+		ProjectRepo: &projectRepo,
+	}
 	eventService := services.EventServiceImpl{}
+	apiService := services.APIServiceImpl{
+		ProjectService: &projectService,
+	}
 	webService := services.WebServiceImpl{
-		UserService: &userService,
+		UserService:    &userService,
+		ProjectService: &projectService,
 	}
 
 	// init middlewares
@@ -71,6 +79,7 @@ func main() {
 	// init routes
 	routes.InitAuthRoute(app, &authService)
 	routes.InitEventRoute(app, &eventService)
+	routes.InitAPIRoute(app, &m, &apiService)
 	routes.InitWebRoute(app, &m, &webService)
 
 	PORT := os.Getenv("PORT")

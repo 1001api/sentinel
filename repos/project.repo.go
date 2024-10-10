@@ -11,7 +11,9 @@ import (
 
 type ProjectRepository interface {
 	CreateProject(ctx context.Context, input *dto.CreateProjectInput) (*entities.Project, error)
+	UpdateProject(ctx context.Context, name string, desc string, projectID int, userID string) error
 	FindAll(ctx context.Context, userID string) ([]entities.Project, error)
+	CountProject(ctx context.Context, userID string) (int, error)
 	DeleteProject(ctx context.Context, userID string, projectID int) error
 }
 
@@ -55,10 +57,40 @@ func (r *ProjectRepositoryImpl) CreateProject(ctx context.Context, input *dto.Cr
 	return &key, nil
 }
 
+func (r *ProjectRepositoryImpl) UpdateProject(ctx context.Context, name string, desc string, projectID int, userID string) error {
+	SQL := "UPDATE projects SET name = $1, description = $2 WHERE id = $3 AND user_id = $4 AND deleted_at IS NULL"
+
+	tx, err := r.DB.Begin(ctx)
+	if err != nil {
+		log.Println("Failed preparing for transaction:", err)
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if rbErr := tx.Rollback(ctx); rbErr != nil {
+				log.Println("Failed to rollback the tx:", err)
+			}
+		}
+	}()
+
+	_, err = tx.Exec(ctx, SQL, name, desc, projectID, userID)
+	if err != nil {
+		log.Println("Failed executing transaction:", err)
+		return err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		log.Println("Failed committing tx:", err)
+		return err
+	}
+
+	return nil
+}
+
 func (r *ProjectRepositoryImpl) FindAll(ctx context.Context, userID string) ([]entities.Project, error) {
 	var projects []entities.Project
 
-	SQL := "SELECT id, name, description, created_at FROM projects WHERE user_id = $1"
+	SQL := "SELECT id, name, description, created_at FROM projects WHERE user_id = $1 AND deleted_at IS NULL"
 
 	rows, err := r.DB.Query(ctx, SQL, userID)
 	if err != nil {
@@ -86,9 +118,25 @@ func (r *ProjectRepositoryImpl) FindAll(ctx context.Context, userID string) ([]e
 	return projects, nil
 }
 
+func (r *ProjectRepositoryImpl) CountProject(ctx context.Context, userID string) (int, error) {
+	var total int
+
+	SQL := "SELECT COUNT(*) FROM projects WHERE user_id = $1 AND deleted_at IS NULL"
+
+	row := r.DB.QueryRow(ctx, SQL, userID)
+	if err := row.Scan(
+		&total,
+	); err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	return total, nil
+}
+
 func (r *ProjectRepositoryImpl) DeleteProject(ctx context.Context, userID string, projectID int) error {
 	SQL := `
-		DELETE FROM projects WHERE user_id = $1 AND id = $2
+		UPDATE projects SET deleted_at = NOW() WHERE user_id = $1 AND id = $2 AND deleted_at IS NULL
 	`
 
 	tx, err := r.DB.Begin(ctx)

@@ -43,7 +43,7 @@ func AuthSuccessPage() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body class=\"min-h-screen flex flex-col gap-6 items-center justify-center\"><h1>Redirecting you back...</h1><script src=\"/static/assets/auth-redirect.js\"></script></body>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
