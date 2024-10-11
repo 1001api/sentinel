@@ -13,6 +13,7 @@ type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
 	FindByID(ctx context.Context, userID string) (*entities.User, error)
 	GetPublicKey(ctx context.Context, userID string) (string, error)
+	FindByPublicKey(ctx context.Context, publicKey string) (*entities.User, error)
 	CheckIDExist(ctx context.Context, userID string) (bool, error)
 	CreateUser(ctx context.Context, input *dto.CreateUserInput) (*entities.User, error)
 }
@@ -67,6 +68,23 @@ func (r *UserRepoImpl) GetPublicKey(ctx context.Context, userID string) (string,
 	}
 
 	return key, nil
+}
+
+func (r *UserRepoImpl) FindByPublicKey(ctx context.Context, publicKey string) (*entities.User, error) {
+	var user entities.User
+
+	SQL := "SELECT id, fullname, email, profile_url FROM users WHERE id = $1"
+	row := r.DB.QueryRow(ctx, SQL, publicKey)
+	if err := row.Scan(
+		&user.ID,
+		&user.Fullname,
+		&user.Email,
+		&user.ProfileURL,
+	); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (r *UserRepoImpl) CheckIDExist(ctx context.Context, userID string) (bool, error) {

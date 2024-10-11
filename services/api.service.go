@@ -11,6 +11,7 @@ type APIService interface {
 	CreateProject(ctx *fiber.Ctx) error
 	UpdateProject(ctx *fiber.Ctx) error
 	DeleteProject(ctx *fiber.Ctx) error
+	SendEvent(c *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
@@ -95,6 +96,11 @@ func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
+	c.Set("HX-Refresh", "true")
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *APIServiceImpl) SendEvent(c *fiber.Ctx) error {
 	c.Set("HX-Refresh", "true")
 	return c.SendStatus(fiber.StatusOK)
 }
