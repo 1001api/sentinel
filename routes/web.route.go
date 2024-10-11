@@ -10,6 +10,7 @@ func InitWebRoute(app *fiber.App, m middlewares.Middleware, webService services.
 	app.Get("/", webService.SendLandingPage)
 	app.Get("/login", webService.SendLoginPage)
 	app.Get("/dashboard", m.ProtectedRoute, webService.SendDashboardPage)
+	app.Get("/events", m.ProtectedRoute, webService.SendEventsPage)
 	app.Get("/projects", m.ProtectedRoute, webService.SendProjectsPage)
 	app.Get("/api-keys", m.ProtectedRoute, webService.SendAPIKeysPage)
 
