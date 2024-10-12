@@ -76,10 +76,12 @@ func main() {
 	}
 	apiService := services.APIServiceImpl{
 		ProjectService: &projectService,
+		EventService:   &eventService,
 	}
 	webService := services.WebServiceImpl{
 		UserService:    &userService,
 		ProjectService: &projectService,
+		EventService:   &eventService,
 	}
 
 	// init middlewares

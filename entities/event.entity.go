@@ -26,4 +26,6 @@ type Event struct {
 	ReceivedAt       time.Time      `json:"received_at" db:"received_at"`
 	UserID           string         `json:"user_id" db:"user_id"`
 	ProjectID        int            `json:"project_id" db:"project_id"`
+
+	ProjectName string
 }

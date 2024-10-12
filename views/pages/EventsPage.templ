@@ -1,14 +1,20 @@
 package pages
 
 import (
+	"fmt"
 	"github.com/hubkudev/sentinel/entities"
 	"github.com/hubkudev/sentinel/views/components"
 )
 
-templ EventsPage(user *entities.User) {
+type EventsPageProps struct {
+	User   *entities.User
+	Events []entities.Event
+}
+
+templ EventsPage(props EventsPageProps) {
 	@components.Layout("Events | Sentinel") {
 		<body>
-			@components.Drawer(user, components.DRAWER_EVENTS) {
+			@components.Drawer(props.User, components.DRAWER_EVENTS) {
 				<div class="px-4 py-6">
 					<nav class="flex" aria-label="Breadcrumb">
 						<ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
@@ -83,11 +89,11 @@ templ EventsPage(user *entities.User) {
 				</div>
 				<section class="flex flex-col gap-4 px-4 mt-12">
 					<div>
-						<h5 class="text-lg font-semibold">Live Events</h5>
+						<h5 class="text-lg font-semibold">Live Events (Last 1 hour)</h5>
 						<p class="text-sm text-gray-700">See incoming events fired from all over your projects.</p>
 					</div>
 					<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-						<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+						<table hx-get="/api/event/live" hx-trigger="every 5s" hx-target="#live-events" hx-swap="outerHTML" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 							<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 								<tr>
 									<th scope="col" class="px-6 py-3">
@@ -97,41 +103,63 @@ templ EventsPage(user *entities.User) {
 										Event Type
 									</th>
 									<th scope="col" class="px-6 py-3">
+										Event Label
+									</th>
+									<th scope="col" class="px-6 py-3">
 										Fired From
 									</th>
 									<th scope="col" class="px-6 py-3">
 										Element Host
 									</th>
 									<th scope="col" class="px-6 py-3">
-										Fired At
+										Time Taken
+									</th>
+									<th scope="col" class="px-6 py-3">
+										Received At
 									</th>
 								</tr>
 							</thead>
-							<tbody>
-								<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-									<td class="px-6 py-4">
-										Dispatch
-									</td>
-									<td class="px-6 py-4">
-										click
-									</td>
-									<td class="px-6 py-4">
-										https://hello.world/url-path
-									</td>
-									<td class="px-6 py-4">
-										button[#something]
-									</td>
-									<td class="px-6 py-4">
-										<div class="flex items-center">
-											<div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> 16:42
-										</div>
-									</td>
-								</tr>
-							</tbody>
+							@EventLiveTableRow(props.Events)
 						</table>
 					</div>
 				</section>
 			}
 		</body>
 	}
+}
+
+templ EventLiveTableRow(events []entities.Event) {
+	<tbody id="live-events">
+		for _, v := range events {
+			<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+				<td class="px-6 py-4">
+					{ v.ProjectName }
+				</td>
+				<td class="px-6 py-4">
+					{ v.EventType }
+				</td>
+				<td class="px-6 py-4">
+					{ v.EventLabel.String }
+				</td>
+				<td class="px-6 py-4">
+					<a href={ templ.SafeURL(v.PageURL.String) } target="_blank" class="underline">
+						{ v.PageURL.String }
+					</a>
+				</td>
+				<td class="px-6 py-4">
+					{ v.ElementPath.String }
+				</td>
+				<td class="px-6 py-4">
+					<div class="flex items-center">
+						{ fmt.Sprintf("%d ms", v.ReceivedAt.UnixMilli() - v.FiredAt.UnixMilli()) }
+					</div>
+				</td>
+				<td class="px-6 py-4">
+					<div class="flex items-center">
+						<div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> { v.ReceivedAt.Format("02/01/2006 15:04:05") }
+					</div>
+				</td>
+			</tr>
+		}
+	</tbody>
 }

@@ -1,18 +1,24 @@
 package services
 
 import (
+	"bytes"
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/hubkudev/sentinel/entities"
+	"github.com/hubkudev/sentinel/views/pages"
 )
 
 type APIService interface {
 	CreateProject(ctx *fiber.Ctx) error
 	UpdateProject(ctx *fiber.Ctx) error
 	DeleteProject(ctx *fiber.Ctx) error
+	LiveEvents(ctx *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
 	ProjectService ProjectService
+	EventService   EventService
 }
 
 func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
@@ -85,4 +91,20 @@ func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
 
 	c.Set("HX-Refresh", "true")
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+
+	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	buf := bytes.Buffer{}
+
+	eventRows := pages.EventLiveTableRow(events)
+	eventRows.Render(context.Background(), &buf)
+
+	return c.SendString(buf.String())
 }

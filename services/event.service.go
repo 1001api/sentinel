@@ -12,6 +12,7 @@ import (
 
 type EventService interface {
 	CreateEvent(c *fiber.Ctx) error
+	GetLiveEvents(ctx context.Context, userID string) ([]entities.Event, error)
 }
 
 type EventServiceImpl struct {
@@ -45,4 +46,8 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *EventServiceImpl) GetLiveEvents(ctx context.Context, userID string) ([]entities.Event, error) {
+	return s.EventRepo.GetLiveEvents(ctx, userID)
 }

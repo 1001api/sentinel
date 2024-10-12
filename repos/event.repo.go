@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"github.com/hubkudev/sentinel/dto"
+	"github.com/hubkudev/sentinel/entities"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type EventRepository interface {
 	CreateEvent(ctx context.Context, input *dto.CreateEventInput, userID string) error
+	GetLiveEvents(ctx context.Context, userID string) ([]entities.Event, error)
 }
 
 type EventRepoImpl struct {
@@ -114,4 +116,54 @@ func (r *EventRepoImpl) CreateEvent(ctx context.Context, input *dto.CreateEventI
 	}
 
 	return nil
+}
+
+func (r *EventRepoImpl) GetLiveEvents(ctx context.Context, userID string) ([]entities.Event, error) {
+	var events []entities.Event
+
+	SQL := `
+		SELECT
+			p.name,
+			e.event_type,
+			e.event_label,
+			e.page_url,
+			e.element_path,
+			e.country,
+			e.fired_at,
+			e.received_at
+		FROM events AS e
+		JOIN projects AS p ON e.project_id = p.id
+		WHERE e.user_id = $1 AND e.received_at >= NOW() - INTERVAL '1 hour'
+		ORDER BY e.received_at DESC
+		LIMIT 100;
+	`
+
+	rows, err := r.DB.Query(ctx, SQL, userID)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var e entities.Event
+
+		if err = rows.Scan(
+			&e.ProjectName,
+			&e.EventType,
+			&e.EventLabel,
+			&e.PageURL,
+			&e.ElementPath,
+			&e.Country,
+			&e.FiredAt,
+			&e.ReceivedAt,
+		); err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		events = append(events, e)
+	}
+
+	return events, nil
 }

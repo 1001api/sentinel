@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/hubkudev/sentinel/configs"
 	"github.com/hubkudev/sentinel/entities"
@@ -22,6 +24,7 @@ type WebService interface {
 type WebServiceImpl struct {
 	UserService    UserService
 	ProjectService ProjectService
+	EventService   EventService
 }
 
 func (s *WebServiceImpl) SendLandingPage(c *fiber.Ctx) error {
@@ -39,7 +42,16 @@ func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
 
 func (s *WebServiceImpl) SendEventsPage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*entities.User)
-	return configs.Render(c, pages.EventsPage(user))
+
+	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return configs.Render(c, pages.EventsPage(pages.EventsPageProps{
+		User:   user,
+		Events: events,
+	}))
 }
 
 func (s *WebServiceImpl) SendProjectsPage(c *fiber.Ctx) error {
