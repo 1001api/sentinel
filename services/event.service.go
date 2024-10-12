@@ -16,6 +16,7 @@ type EventService interface {
 
 type EventServiceImpl struct {
 	UtilService UtilService
+	ProjectRepo repositories.ProjectRepository
 	EventRepo   repositories.EventRepository
 }
 
@@ -30,6 +31,13 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 
 	if err := s.UtilService.ValidateInput(input); err != "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+	}
+
+	// check if the project id exist within user.
+	// if not dont proceed further.
+	exist, _ := s.ProjectRepo.CheckWithinUserID(context.Background(), input.ProjectID, user.ID)
+	if !exist {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project not found"})
 	}
 
 	if err := s.EventRepo.CreateEvent(context.Background(), &input, user.ID); err != nil {

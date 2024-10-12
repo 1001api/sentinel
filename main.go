@@ -71,6 +71,7 @@ func main() {
 	}
 	eventService := services.EventServiceImpl{
 		UtilService: &utilService,
+		ProjectRepo: &projectRepo,
 		EventRepo:   &eventRepo,
 	}
 	apiService := services.APIServiceImpl{
