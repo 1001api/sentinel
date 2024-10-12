@@ -52,13 +52,17 @@ func (m *MiddlewareImpl) APIProtectedRoute(c *fiber.Ctx) error {
 	}
 
 	if key.PublicKey == "" {
-		return c.SendStatus(fiber.StatusUnauthorized)
+		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
+			"error": "valid PublicKey is required",
+		})
 	}
 
 	// check if the key is exist in the database
 	exist, err := m.UserRepo.FindByPublicKey(context.Background(), key.PublicKey)
 	if exist == nil || err != nil {
-		return c.SendStatus(fiber.StatusUnauthorized)
+		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
+			"error": "valid PublicKey is required",
+		})
 	}
 
 	c.Locals("user", exist)

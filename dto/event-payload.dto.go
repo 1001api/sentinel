@@ -1,5 +1,5 @@
 package dto
 
 type KeyPayload struct {
-	PublicKey string `json:"publicKey"`
+	PublicKey string `json:"PublicKey"`
 }

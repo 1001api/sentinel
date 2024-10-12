@@ -12,10 +12,10 @@ import (
 
 type ProjectService interface {
 	CreateProject(name string, desc string, userID string) (*entities.Project, error)
-	UpdateProject(name string, desc string, projectID int, userID string) error
+	UpdateProject(name string, desc string, projectID string, userID string) error
 	GetAllProjects(userID string) ([]entities.Project, error)
 	GetProjectCount(userID string) (int, error)
-	DeleteProject(userID string, keyID int) error
+	DeleteProject(userID string, projectID string) error
 }
 
 type ProjectServiceImpl struct {
@@ -50,7 +50,7 @@ func (s *ProjectServiceImpl) CreateProject(name string, desc string, userID stri
 	return key, nil
 }
 
-func (s *ProjectServiceImpl) UpdateProject(name string, desc string, projectID int, userID string) error {
+func (s *ProjectServiceImpl) UpdateProject(name string, desc string, projectID string, userID string) error {
 	return s.ProjectRepo.UpdateProject(context.Background(), name, desc, projectID, userID)
 }
 
@@ -62,6 +62,6 @@ func (s *ProjectServiceImpl) GetProjectCount(userID string) (int, error) {
 	return s.ProjectRepo.CountProject(context.Background(), userID)
 }
 
-func (s *ProjectServiceImpl) DeleteProject(userID string, keyID int) error {
-	return s.ProjectRepo.DeleteProject(context.Background(), userID, keyID)
+func (s *ProjectServiceImpl) DeleteProject(userID string, projectID string) error {
+	return s.ProjectRepo.DeleteProject(context.Background(), userID, projectID)
 }

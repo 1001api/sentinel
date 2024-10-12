@@ -20,10 +20,12 @@ CREATE TABLE IF NOT EXISTS events (
     device_type VARCHAR(100),
     time_on_page INTEGER,
     screen_resolution VARCHAR(100),
+
     fired_at TIMESTAMPTZ NOT NULL,
+    received_at TIMESTAMPTZ NOT NULL,
 
     user_id UUID NOT NULL,
-    project_id INTEGER NOT NULL,
+    project_id UUID NOT NULL,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(project_id) REFERENCES projects(id)
@@ -32,5 +34,6 @@ CREATE TABLE IF NOT EXISTS events (
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_events_session_id ON events(session_id);
 CREATE INDEX IF NOT EXISTS idx_events_fired_at ON events(fired_at);
+CREATE INDEX IF NOT EXISTS idx_events_received_at ON events(received_at);
 CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id);
 CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id);

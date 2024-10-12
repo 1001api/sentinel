@@ -1,8 +1,6 @@
 package services
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/hubkudev/sentinel/entities"
 )
@@ -11,7 +9,6 @@ type APIService interface {
 	CreateProject(ctx *fiber.Ctx) error
 	UpdateProject(ctx *fiber.Ctx) error
 	DeleteProject(ctx *fiber.Ctx) error
-	SendEvent(c *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
@@ -66,12 +63,7 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	id, err := strconv.Atoi(projectID)
-	if err != nil {
-		return c.SendString("Project ID required")
-	}
-
-	if err = s.ProjectService.UpdateProject(name, desc, id, user.ID); err != nil {
+	if err := s.ProjectService.UpdateProject(name, desc, projectID, user.ID); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
@@ -87,20 +79,10 @@ func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	id, err := strconv.Atoi(projectID)
-	if err != nil {
-		return c.SendString("Project ID required")
-	}
-
-	if err = s.ProjectService.DeleteProject(user.ID, id); err != nil {
+	if err := s.ProjectService.DeleteProject(user.ID, projectID); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
-	c.Set("HX-Refresh", "true")
-	return c.SendStatus(fiber.StatusOK)
-}
-
-func (s *APIServiceImpl) SendEvent(c *fiber.Ctx) error {
 	c.Set("HX-Refresh", "true")
 	return c.SendStatus(fiber.StatusOK)
 }

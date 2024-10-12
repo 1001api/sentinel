@@ -73,7 +73,7 @@ func (r *UserRepoImpl) GetPublicKey(ctx context.Context, userID string) (string,
 func (r *UserRepoImpl) FindByPublicKey(ctx context.Context, publicKey string) (*entities.User, error) {
 	var user entities.User
 
-	SQL := "SELECT id, fullname, email, profile_url FROM users WHERE id = $1"
+	SQL := "SELECT id, fullname, email, profile_url FROM users WHERE public_key = $1"
 	row := r.DB.QueryRow(ctx, SQL, publicKey)
 	if err := row.Scan(
 		&user.ID,

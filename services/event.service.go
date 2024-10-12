@@ -1,13 +1,40 @@
 package services
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"context"
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/hubkudev/sentinel/dto"
+	"github.com/hubkudev/sentinel/entities"
+	repositories "github.com/hubkudev/sentinel/repos"
+)
 
 type EventService interface {
-	HelloWorld(c *fiber.Ctx) error
+	CreateEvent(c *fiber.Ctx) error
 }
 
-type EventServiceImpl struct{}
+type EventServiceImpl struct {
+	UtilService UtilService
+	EventRepo   repositories.EventRepository
+}
 
-func (s *EventServiceImpl) HelloWorld(c *fiber.Ctx) error {
-	return c.SendString("Hello, World!")
+func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+	var input dto.CreateEventInput
+
+	if err := c.BodyParser(&input); err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
+	if err := s.UtilService.ValidateInput(input); err != "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+	}
+
+	if err := s.EventRepo.CreateEvent(context.Background(), &input, user.ID); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.SendStatus(fiber.StatusOK)
 }

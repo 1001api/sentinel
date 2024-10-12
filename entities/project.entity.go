@@ -3,7 +3,7 @@ package entities
 import "time"
 
 type Project struct {
-	ID          int
+	ID          string
 	Name        string
 	Description string
 	UserID      string

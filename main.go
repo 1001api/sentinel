@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
@@ -38,6 +39,10 @@ func main() {
 	defer db.Close()
 	defer redisCon.Close()
 
+	// init class validator
+	var validate = validator.New()
+	_ = validate.RegisterValidation("timestamp", services.IsISO8601Date)
+
 	// init sessions
 	sessionStore := configs.InitSession(redisCon)
 	stateStore := configs.InitStateSession(redisCon)
@@ -45,9 +50,12 @@ func main() {
 	// init repo
 	userRepo := repositories.UserRepoImpl{DB: db}
 	projectRepo := repositories.ProjectRepositoryImpl{DB: db}
+	eventRepo := repositories.EventRepoImpl{DB: db}
 
 	// init services
-	utilService := services.UtilServiceImpl{}
+	utilService := services.UtilServiceImpl{
+		Validate: validate,
+	}
 	userService := services.UserServiceImpl{
 		UtilService: &utilService,
 		UserRepo:    &userRepo,
@@ -61,7 +69,10 @@ func main() {
 	projectService := services.ProjectServiceImpl{
 		ProjectRepo: &projectRepo,
 	}
-	eventService := services.EventServiceImpl{}
+	eventService := services.EventServiceImpl{
+		UtilService: &utilService,
+		EventRepo:   &eventRepo,
+	}
 	apiService := services.APIServiceImpl{
 		ProjectService: &projectService,
 	}
@@ -79,7 +90,7 @@ func main() {
 	// init routes
 	routes.InitAuthRoute(app, &authService)
 	routes.InitEventRoute(app, &eventService)
-	routes.InitAPIRoute(app, &m, &apiService)
+	routes.InitAPIRoute(app, &m, &apiService, &eventService)
 	routes.InitWebRoute(app, &m, &webService)
 
 	PORT := os.Getenv("PORT")

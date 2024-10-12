@@ -11,10 +11,10 @@ import (
 
 type ProjectRepository interface {
 	CreateProject(ctx context.Context, input *dto.CreateProjectInput) (*entities.Project, error)
-	UpdateProject(ctx context.Context, name string, desc string, projectID int, userID string) error
+	UpdateProject(ctx context.Context, name string, desc string, projectID string, userID string) error
 	FindAll(ctx context.Context, userID string) ([]entities.Project, error)
 	CountProject(ctx context.Context, userID string) (int, error)
-	DeleteProject(ctx context.Context, userID string, projectID int) error
+	DeleteProject(ctx context.Context, userID string, projectID string) error
 }
 
 type ProjectRepositoryImpl struct {
@@ -57,7 +57,7 @@ func (r *ProjectRepositoryImpl) CreateProject(ctx context.Context, input *dto.Cr
 	return &key, nil
 }
 
-func (r *ProjectRepositoryImpl) UpdateProject(ctx context.Context, name string, desc string, projectID int, userID string) error {
+func (r *ProjectRepositoryImpl) UpdateProject(ctx context.Context, name string, desc string, projectID string, userID string) error {
 	SQL := "UPDATE projects SET name = $1, description = $2 WHERE id = $3 AND user_id = $4 AND deleted_at IS NULL"
 
 	tx, err := r.DB.Begin(ctx)
@@ -134,7 +134,7 @@ func (r *ProjectRepositoryImpl) CountProject(ctx context.Context, userID string)
 	return total, nil
 }
 
-func (r *ProjectRepositoryImpl) DeleteProject(ctx context.Context, userID string, projectID int) error {
+func (r *ProjectRepositoryImpl) DeleteProject(ctx context.Context, userID string, projectID string) error {
 	SQL := `
 		UPDATE projects SET deleted_at = NOW() WHERE user_id = $1 AND id = $2 AND deleted_at IS NULL
 	`
