@@ -122,7 +122,7 @@ func (r *ProjectRepositoryImpl) FindAll(ctx context.Context, userID string) ([]e
 func (r *ProjectRepositoryImpl) CheckWithinUserID(ctx context.Context, projectID string, userID string) (bool, error) {
 	var exist bool
 
-	SQL := "SELECT EXISTS(SELECT 1 FROM projects WHERE id = $1 AND user_id = $2)"
+	SQL := "SELECT EXISTS(SELECT 1 FROM projects WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL)"
 	row := r.DB.QueryRow(ctx, SQL, projectID, userID)
 	if err := row.Scan(&exist); err != nil {
 		return false, err
@@ -152,6 +152,8 @@ func (r *ProjectRepositoryImpl) DeleteProject(ctx context.Context, userID string
 		UPDATE projects SET deleted_at = NOW() WHERE user_id = $1 AND id = $2 AND deleted_at IS NULL
 	`
 
+	DELETE_EVENT_SQL := "DELETE FROM events WHERE user_id = $1 AND project_id = $2"
+
 	tx, err := r.DB.Begin(ctx)
 	if err != nil {
 		return err
@@ -161,6 +163,12 @@ func (r *ProjectRepositoryImpl) DeleteProject(ctx context.Context, userID string
 	_, err = tx.Exec(ctx, SQL, userID, projectID)
 	if err != nil {
 		log.Println("Failed to delete project:", err)
+		return err
+	}
+
+	_, err = tx.Exec(ctx, DELETE_EVENT_SQL, userID, projectID)
+	if err != nil {
+		log.Println("Failed to delete associated events:", err)
 		return err
 	}
 

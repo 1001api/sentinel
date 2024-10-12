@@ -48,9 +48,15 @@ func (s *WebServiceImpl) SendEventsPage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	projects, err := s.ProjectService.GetAllProjects(user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
 	return configs.Render(c, pages.EventsPage(pages.EventsPageProps{
-		User:   user,
-		Events: events,
+		User:     user,
+		Events:   events,
+		Projects: projects,
 	}))
 }
 
