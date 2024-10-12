@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hubkudev/sentinel/entities"
 	"github.com/hubkudev/sentinel/views/components"
+	"time"
 )
 
 type EventsPageProps struct {
@@ -96,6 +97,7 @@ templ EventsPage(props EventsPageProps) {
 						<table hx-get="/api/event/live" hx-trigger="every 5s" hx-target="#live-events" hx-swap="outerHTML" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 							<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 								<tr>
+									<th scope="col" class="py-3"></th>
 									<th scope="col" class="px-6 py-3">
 										Project
 									</th>
@@ -131,8 +133,15 @@ templ EventsPage(props EventsPageProps) {
 templ EventLiveTableRow(events []entities.Event) {
 	<tbody id="live-events">
 		for _, v := range events {
-			<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-				<td class="px-6 py-4">
+			<tr class={ "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600", templ.KV("animate-zoom-in", time.Now().Sub(v.ReceivedAt) < 5*time.Second) }>
+				<td class="ps-6 py-4">
+					if time.Now().Sub(v.ReceivedAt) < 10*time.Second {
+						<div class="h-2.5 w-2.5 rounded-full bg-green-600 animate-ping"></div>
+					} else if time.Now().Sub(v.ReceivedAt) < 20*time.Second {
+						<div class="h-2.5 w-2.5 rounded-full bg-green-300"></div>
+					}
+				</td>
+				<td class="px-6 py-4 font-bold">
 					{ v.ProjectName }
 				</td>
 				<td class="px-6 py-4">
@@ -156,7 +165,7 @@ templ EventLiveTableRow(events []entities.Event) {
 				</td>
 				<td class="px-6 py-4">
 					<div class="flex items-center">
-						<div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"></div> { v.ReceivedAt.Format("02/01/2006 15:04:05") }
+						{ v.ReceivedAt.Format("02/01/2006 15:04:05") }
 					</div>
 				</td>
 			</tr>

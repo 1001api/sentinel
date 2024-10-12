@@ -52,7 +52,22 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)"
-      }
+      },
+      keyframes: {
+        'zoom-in': {
+          '0%': {
+            transform: 'scale(0.1)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '1',
+          },
+        },
+      },
+      animation: {
+        'zoom-in': 'zoom-in 0.5s ease-in-out forwards',
+      },
     },
   },
   plugins: [
