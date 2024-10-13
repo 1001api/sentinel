@@ -13,6 +13,7 @@ import (
 type ProjectService interface {
 	CreateProject(name string, desc string, userID string) (*entities.Project, error)
 	UpdateProject(name string, desc string, projectID string, userID string) error
+	GetProjectByID(projectID string, userID string) (*entities.Project, error)
 	GetAllProjects(userID string) ([]entities.Project, error)
 	GetProjectCount(userID string) (int, error)
 	DeleteProject(userID string, projectID string) error
@@ -52,6 +53,10 @@ func (s *ProjectServiceImpl) CreateProject(name string, desc string, userID stri
 
 func (s *ProjectServiceImpl) UpdateProject(name string, desc string, projectID string, userID string) error {
 	return s.ProjectRepo.UpdateProject(context.Background(), name, desc, projectID, userID)
+}
+
+func (s *ProjectServiceImpl) GetProjectByID(projectID string, userID string) (*entities.Project, error) {
+	return s.ProjectRepo.GetByID(context.Background(), projectID, userID)
 }
 
 func (s *ProjectServiceImpl) GetAllProjects(userID string) ([]entities.Project, error) {

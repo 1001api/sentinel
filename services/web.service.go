@@ -15,6 +15,7 @@ type WebService interface {
 	SendLoginPage(ctx *fiber.Ctx) error
 	SendDashboardPage(ctx *fiber.Ctx) error
 	SendEventsPage(ctx *fiber.Ctx) error
+	SendEventDetailPage(ctx *fiber.Ctx) error
 	SendProjectsPage(ctx *fiber.Ctx) error
 	SendAPIKeysPage(ctx *fiber.Ctx) error
 	SendTOSPage(ctx *fiber.Ctx) error
@@ -57,6 +58,24 @@ func (s *WebServiceImpl) SendEventsPage(c *fiber.Ctx) error {
 		User:     user,
 		Events:   events,
 		Projects: projects,
+	}))
+}
+
+func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+	projectID := c.Params("id")
+	if projectID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ProjectID is required"})
+	}
+
+	project, err := s.ProjectService.GetProjectByID(projectID, user.ID)
+	if err != nil {
+		return c.SendStatus(fiber.StatusNotFound)
+	}
+
+	return configs.Render(c, pages.EventDetailPage(pages.EventDetailPageProps{
+		User:    user,
+		Project: project,
 	}))
 }
 

@@ -41,11 +41,11 @@ templ EventsPage(props EventsPageProps) {
 				</div>
 				<div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
 					for _, v := range props.Projects {
-						<div class="block max-w-sm pt-6 pb-4 px-4 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+						<a href={ templ.SafeURL(fmt.Sprintf("/events/%s", v.ID)) } class="block max-w-sm pt-6 pb-4 px-4 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
 							<h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{ v.Name }</h5>
 							<p class="font-normal text-sm text-gray-700 dark:text-gray-400">{ v.Description }</p>
 							<div hx-get={ fmt.Sprintf("/api/event/summary/%s", v.ID) } hx-trigger="load, every 10s" hx-swap="innerHTML"></div>
-						</div>
+						</a>
 					}
 					for range 5 - len(props.Projects) {
 						<div

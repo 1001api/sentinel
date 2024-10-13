@@ -13,6 +13,7 @@ type ProjectRepository interface {
 	CreateProject(ctx context.Context, input *dto.CreateProjectInput) (*entities.Project, error)
 	UpdateProject(ctx context.Context, name string, desc string, projectID string, userID string) error
 	FindAll(ctx context.Context, userID string) ([]entities.Project, error)
+	GetByID(ctx context.Context, projectID string, userID string) (*entities.Project, error)
 	CheckWithinUserID(ctx context.Context, projectID string, userID string) (bool, error)
 	CountProject(ctx context.Context, userID string) (int, error)
 	DeleteProject(ctx context.Context, userID string, projectID string) error
@@ -117,6 +118,23 @@ func (r *ProjectRepositoryImpl) FindAll(ctx context.Context, userID string) ([]e
 	}
 
 	return projects, nil
+}
+
+func (r *ProjectRepositoryImpl) GetByID(ctx context.Context, projectID string, userID string) (*entities.Project, error) {
+	var project entities.Project
+
+	SQL := "SELECT id, name, description, created_at FROM projects WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL"
+	row := r.DB.QueryRow(ctx, SQL, projectID, userID)
+	if err := row.Scan(
+		&project.ID,
+		&project.Name,
+		&project.Description,
+		&project.CreatedAt,
+	); err != nil {
+		return nil, err
+	}
+
+	return &project, nil
 }
 
 func (r *ProjectRepositoryImpl) CheckWithinUserID(ctx context.Context, projectID string, userID string) (bool, error) {
