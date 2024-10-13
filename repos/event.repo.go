@@ -13,6 +13,7 @@ import (
 type EventRepository interface {
 	CreateEvent(ctx context.Context, input *dto.CreateEventInput, userID string) error
 	GetLiveEvents(ctx context.Context, userID string) ([]entities.Event, error)
+	GetEventSummary(ctx context.Context, projectID string, userID string) (*entities.EventSummary, error)
 }
 
 type EventRepoImpl struct {
@@ -166,4 +167,42 @@ func (r *EventRepoImpl) GetLiveEvents(ctx context.Context, userID string) ([]ent
 	}
 
 	return events, nil
+}
+
+func (r *EventRepoImpl) GetEventSummary(ctx context.Context, projectID string, userID string) (*entities.EventSummary, error) {
+	var summary entities.EventSummary
+
+	SQL := `
+		SELECT 
+		COUNT(id) AS total_events,
+		COUNT(DISTINCT ip_addr) AS total_unique_users,
+		COUNT(DISTINCT event_type) AS total_event_type,
+		COUNT(DISTINCT country) AS total_country_visited,
+		(
+			SELECT page_url FROM events
+			WHERE user_id = $2 AND project_id = $1
+			GROUP BY page_url ORDER BY COUNT(page_url) DESC LIMIT 1
+		) AS most_visited_url,
+		(
+			SELECT country FROM events
+			WHERE user_id = $2 AND project_id = $1
+			GROUP BY country ORDER BY COUNT(country) DESC LIMIT 1
+		) AS most_country_visited
+		FROM events WHERE user_id = $2 AND project_id = $1;
+	`
+
+	row := r.DB.QueryRow(ctx, SQL, projectID, userID)
+	if err := row.Scan(
+		&summary.TotalEvents,
+		&summary.TotalUniqueUsers,
+		&summary.TotalEventType,
+		&summary.TotalCountryVisited,
+		&summary.MostVisitedURL,
+		&summary.MostCountryVisited,
+	); err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return &summary, nil
 }

@@ -29,3 +29,12 @@ type Event struct {
 
 	ProjectName string
 }
+
+type EventSummary struct {
+	TotalEvents         int            `db:"total_events"`
+	TotalUniqueUsers    int            `db:"total_unique_users"`
+	TotalEventType      int            `db:"total_event_type"`
+	TotalCountryVisited int            `db:"total_country_visited"`
+	MostVisitedURL      sql.NullString `db:"most_visited_url"`
+	MostCountryVisited  sql.NullString `db:"most_country_visited"`
+}

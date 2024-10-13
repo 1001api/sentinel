@@ -64,9 +64,15 @@ module.exports = {
             opacity: '1',
           },
         },
+        'spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '20%': { transform: 'rotate(360deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'zoom-in': 'zoom-in 0.5s ease-in-out forwards',
+        'spin-slow': 'spin 5s linear infinite',
       },
     },
   },
