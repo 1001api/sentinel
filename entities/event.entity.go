@@ -2,6 +2,7 @@ package entities
 
 import (
 	"database/sql"
+	"net"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type Event struct {
 	PageURL          sql.NullString `json:"page_url,omitempty" db:"page_url"`
 	ElementPath      sql.NullString `json:"element_path,omitempty" db:"element_path"`
 	ElementType      sql.NullString `json:"element_type,omitempty" db:"element_type"`
-	IPAddr           sql.NullString `json:"ip_addr,omitempty" db:"ip_addr"`
+	IPAddr           net.IP         `json:"ip_addr,omitempty" db:"ip_addr"`
 	UserAgent        sql.NullString `json:"user_agent,omitempty" db:"user_agent"`
 	BrowserName      sql.NullString `json:"browser_name,omitempty" db:"browser_name"`
 	Country          sql.NullString `json:"country,omitempty" db:"country"`
@@ -37,4 +38,30 @@ type EventSummary struct {
 	TotalCountryVisited int            `db:"total_country_visited"`
 	MostVisitedURL      sql.NullString `db:"most_visited_url"`
 	MostCountryVisited  sql.NullString `db:"most_country_visited"`
+}
+
+type EventTextTotal struct {
+	Name  string `db:"name"`
+	Total int    `db:"total"`
+}
+
+type EventLastUser struct {
+	IP        net.IP    `db:"ip"`
+	Timestamp time.Time `db:"timestamp"`
+}
+
+type EventDetail struct {
+	TotalEvents         int `db:"total_events"`
+	TotalEventType      int `db:"total_event_type"`
+	TotalUniqueUsers    int `db:"total_unique_users"`
+	TotalCountryVisited int `db:"total_country_visited"`
+	TotalPageURL        int `db:"total_page_url"`
+	MostVisitedURLs     []EventTextTotal
+	MostCountryVisited  []EventTextTotal
+	MostCitiesVisited   []EventTextTotal
+	MostElementsFired   []EventTextTotal
+	LastVisitedUsers    []EventLastUser
+	MostUsedBrowsers    []EventTextTotal
+	MostFiredEventType  []EventTextTotal
+	MostFiredEventLabel []EventTextTotal
 }

@@ -16,6 +16,8 @@ func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.
 
 	event := api.Group("event")
 	event.Get("/live", m.ProtectedRoute, apiService.LiveEvents)
+	event.Get("/live/:id", m.ProtectedRoute, apiService.LiveEventDetail)
+	event.Get("/summary/detail/:id", m.ProtectedRoute, apiService.GetEventSummaryDetail)
 	event.Get("/summary/:id", m.ProtectedRoute, apiService.GetEventSummary)
 
 	v1 := api.Group("v1")

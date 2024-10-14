@@ -13,7 +13,9 @@ import (
 type EventService interface {
 	CreateEvent(c *fiber.Ctx) error
 	GetLiveEvents(ctx context.Context, userID string) ([]entities.Event, error)
+	GetLiveEventDetail(ctx context.Context, projectID string, userID string) ([]entities.Event, error)
 	GetEventSummary(ctx context.Context, projectID string, userID string) (*entities.EventSummary, error)
+	GetEventDetailSummary(ctx context.Context, projectID string, userID string) (*entities.EventDetail, error)
 }
 
 type EventServiceImpl struct {
@@ -53,6 +55,14 @@ func (s *EventServiceImpl) GetLiveEvents(ctx context.Context, userID string) ([]
 	return s.EventRepo.GetLiveEvents(ctx, userID)
 }
 
+func (s *EventServiceImpl) GetLiveEventDetail(ctx context.Context, projectID string, userID string) ([]entities.Event, error) {
+	return s.EventRepo.GetLiveEventDetail(ctx, projectID, userID)
+}
+
 func (s *EventServiceImpl) GetEventSummary(ctx context.Context, projectID string, userID string) (*entities.EventSummary, error) {
 	return s.EventRepo.GetEventSummary(ctx, projectID, userID)
+}
+
+func (s *EventServiceImpl) GetEventDetailSummary(ctx context.Context, projectID string, userID string) (*entities.EventDetail, error) {
+	return s.EventRepo.GetEventDetailSummary(ctx, projectID, userID)
 }

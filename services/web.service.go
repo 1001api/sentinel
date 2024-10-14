@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/hubkudev/sentinel/configs"
@@ -73,9 +74,16 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
 
+	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID)
+	if err != nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
 	return configs.Render(c, pages.EventDetailPage(pages.EventDetailPageProps{
 		User:    user,
 		Project: project,
+		Summary: summary,
 	}))
 }
 

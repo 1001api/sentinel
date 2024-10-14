@@ -14,7 +14,9 @@ type APIService interface {
 	UpdateProject(ctx *fiber.Ctx) error
 	DeleteProject(ctx *fiber.Ctx) error
 	LiveEvents(ctx *fiber.Ctx) error
+	LiveEventDetail(ctx *fiber.Ctx) error
 	GetEventSummary(c *fiber.Ctx) error
+	GetEventSummaryDetail(c *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
@@ -110,6 +112,26 @@ func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {
 	return c.SendString(buf.String())
 }
 
+func (s *APIServiceImpl) LiveEventDetail(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+	projectID := c.Params("id")
+	if projectID == "" {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	events, err := s.EventService.GetLiveEventDetail(context.Background(), projectID, user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	buf := bytes.Buffer{}
+
+	eventRows := pages.EventDetailTableRow(events)
+	eventRows.Render(context.Background(), &buf)
+
+	return c.SendString(buf.String())
+}
+
 func (s *APIServiceImpl) GetEventSummary(c *fiber.Ctx) error {
 	user := c.Locals("user").(*entities.User)
 	projectID := c.Params("id")
@@ -125,6 +147,26 @@ func (s *APIServiceImpl) GetEventSummary(c *fiber.Ctx) error {
 	buf := bytes.Buffer{}
 
 	eventRows := pages.ProjectSummaryText(summary)
+	eventRows.Render(context.Background(), &buf)
+
+	return c.SendString(buf.String())
+}
+
+func (s *APIServiceImpl) GetEventSummaryDetail(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+	projectID := c.Params("id")
+	if projectID == "" {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	buf := bytes.Buffer{}
+
+	eventRows := pages.EventDetailSummarySection(summary)
 	eventRows.Render(context.Background(), &buf)
 
 	return c.SendString(buf.String())
