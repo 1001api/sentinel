@@ -16,6 +16,7 @@ type EventService interface {
 	GetLiveEventDetail(ctx context.Context, projectID string, userID string) ([]entities.Event, error)
 	GetEventSummary(ctx context.Context, projectID string, userID string) (*entities.EventSummary, error)
 	GetEventDetailSummary(ctx context.Context, projectID string, userID string) (*entities.EventDetail, error)
+	GetWeeklyEventsChart(ctx context.Context, projectID string, userID string) (*entities.EventSummaryChart, error)
 }
 
 type EventServiceImpl struct {
@@ -65,4 +66,23 @@ func (s *EventServiceImpl) GetEventSummary(ctx context.Context, projectID string
 
 func (s *EventServiceImpl) GetEventDetailSummary(ctx context.Context, projectID string, userID string) (*entities.EventDetail, error) {
 	return s.EventRepo.GetEventDetailSummary(ctx, projectID, userID)
+}
+
+func (s *EventServiceImpl) GetWeeklyEventsChart(ctx context.Context, projectID string, userID string) (*entities.EventSummaryChart, error) {
+	events, err := s.EventRepo.GetWeeklyEventsTime(ctx, projectID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	totalWeekly, err := s.EventRepo.GetWeeklyEventsTotal(ctx, projectID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	summary := entities.EventSummaryChart{
+		Total: totalWeekly,
+		Time:  events,
+	}
+
+	return &summary, nil
 }

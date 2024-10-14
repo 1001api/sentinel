@@ -16,6 +16,8 @@ type EventRepository interface {
 	GetLiveEventDetail(ctx context.Context, projectID string, userID string) ([]entities.Event, error)
 	GetEventSummary(ctx context.Context, projectID string, userID string) (*entities.EventSummary, error)
 	GetEventDetailSummary(ctx context.Context, projectID string, userID string) (*entities.EventDetail, error)
+	GetWeeklyEventsTime(ctx context.Context, projectID string, userID string) ([]entities.EventTimestamp, error)
+	GetWeeklyEventsTotal(ctx context.Context, projectID string, userID string) (int, error)
 }
 
 type EventRepoImpl struct {
@@ -513,4 +515,58 @@ func (r *EventRepoImpl) GetEventDetailSummary(ctx context.Context, projectID str
 	}
 
 	return &summary, nil
+}
+
+func (r *EventRepoImpl) GetWeeklyEventsTime(ctx context.Context, projectID string, userID string) ([]entities.EventTimestamp, error) {
+	var summary []entities.EventTimestamp
+
+	SQL := `
+		SELECT
+		  DATE_TRUNC('day', received_at) AS timestamp,
+		  COUNT(*) AS total
+		FROM events
+		WHERE user_id = $2 AND project_id = $1 AND received_at >= NOW() - INTERVAL '7 days'
+		GROUP BY timestamp ORDER BY timestamp ASC;
+	`
+	rows, err := r.DB.Query(ctx, SQL, projectID, userID)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var e entities.EventTimestamp
+
+		if err = rows.Scan(
+			&e.Timestamp,
+			&e.Total,
+		); err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		summary = append(summary, e)
+	}
+
+	return summary, nil
+}
+
+func (r *EventRepoImpl) GetWeeklyEventsTotal(ctx context.Context, projectID string, userID string) (int, error) {
+	var summary int
+
+	SQL := `
+		SELECT
+		COUNT(id) AS total
+		FROM events WHERE received_at >= NOW() - INTERVAL '7 days'
+		AND user_id = $2 AND project_id = $1;
+	`
+
+	row := r.DB.QueryRow(ctx, SQL, projectID, userID)
+	if err := row.Scan(&summary); err != nil {
+		log.Println(err)
+		return -1, err
+	}
+
+	return summary, nil
 }

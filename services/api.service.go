@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/hubkudev/sentinel/entities"
@@ -17,6 +18,7 @@ type APIService interface {
 	LiveEventDetail(ctx *fiber.Ctx) error
 	GetEventSummary(c *fiber.Ctx) error
 	GetEventSummaryDetail(c *fiber.Ctx) error
+	JSONWeeklyEventChart(c *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
@@ -170,4 +172,20 @@ func (s *APIServiceImpl) GetEventSummaryDetail(c *fiber.Ctx) error {
 	eventRows.Render(context.Background(), &buf)
 
 	return c.SendString(buf.String())
+}
+
+func (s *APIServiceImpl) JSONWeeklyEventChart(c *fiber.Ctx) error {
+	user := c.Locals("user").(*entities.User)
+	projectID := c.Params("id")
+	if projectID == "" {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID)
+	if err != nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(weeklyEvents)
 }

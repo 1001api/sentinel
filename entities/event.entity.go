@@ -50,6 +50,16 @@ type EventLastUser struct {
 	Timestamp time.Time `db:"timestamp"`
 }
 
+type EventSummaryChart struct {
+	Total int `db:"total"`
+	Time  []EventTimestamp
+}
+
+type EventTimestamp struct {
+	Timestamp time.Time `db:"timestamp"`
+	Total     int       `db:"total"`
+}
+
 type EventDetail struct {
 	TotalEvents         int `db:"total_events"`
 	TotalEventType      int `db:"total_event_type"`

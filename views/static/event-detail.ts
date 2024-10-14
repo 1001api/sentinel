@@ -1,10 +1,30 @@
-const lineOptions = {
+function getWeeklyEventTime(arr) {
+    return arr?.map(v => new Date(v.Timestamp).toDateString()) ?? [];
+}
+
+function getWeeklyEventData(arr) {
+    return arr?.map(v => v.Total) ?? [];
+}
+
+const UPDATE_INTERVAL = 10000; // 10 seconds
+const projectID = document.getElementById("project-id")?.textContent;
+const id = projectID ? JSON.parse(projectID) : null;
+const weeklyEventElem = document.getElementById("weekly-events")?.textContent;
+const weeklyEvent = weeklyEventElem ? JSON.parse(weeklyEventElem) : [];
+let weeklyEventTimestamp = getWeeklyEventTime(weeklyEvent);
+let weeklyEventData = getWeeklyEventData(weeklyEvent);
+const weeklyEventTotalElem = document.getElementById("weekly-event-total");
+
+const areaOptions = {
+    markers: {
+        size: [4],
+    },
     chart: {
-        height: "100%",
+        height: "300px",
         maxWidth: "100%",
         type: "area",
         dropShadow: {
-            enabled: false,
+            enabled: true,
         },
         toolbar: {
             show: false,
@@ -19,7 +39,7 @@ const lineOptions = {
     tooltip: {
         enabled: true,
         x: {
-            show: false,
+            show: true,
         },
     },
     fill: {
@@ -52,12 +72,12 @@ const lineOptions = {
     series: [
         {
             name: "Events",
-            data: [6500, 6418, 6456, 6526, 6356, 6456],
+            data: weeklyEventData,
             color: "#1A56DB",
         },
     ],
     xaxis: {
-        categories: ['01 February', '02 February', '03 February', '04 February', '05 February', '06 February', '07 February'],
+        categories: weeklyEventTimestamp,
         labels: {
             show: false,
         },
@@ -77,7 +97,7 @@ const pieOptions = {
     series: [52.8, 26.8, 20.4],
     colors: ["#1C64F2", "#16BDCA", "#9061F9"],
     chart: {
-        height: 420,
+        height: "300px",
         width: "100%",
         type: "pie",
         animations: {
@@ -132,7 +152,7 @@ const pieOptions = {
     },
 }
 
-const barOptions = {
+const columnOptions = {
     colors: ["#1A56DB", "#FDBA8C"],
     series: [
         {
@@ -151,7 +171,7 @@ const barOptions = {
     ],
     chart: {
         type: "bar",
-        height: "320px",
+        height: "300px",
         fontFamily: "Inter, sans-serif",
         toolbar: {
             show: false,
@@ -227,17 +247,41 @@ const barOptions = {
     },
 }
 
-if (document.getElementById("area-chart") && typeof ApexCharts !== 'undefined') {
-    const chart = new ApexCharts(document.getElementById("area-chart"), lineOptions);
-    chart.render();
-}
+const areaChart = new ApexCharts(document.getElementById("area-chart"), areaOptions);
+const pieChart = new ApexCharts(document.getElementById("pie-chart"), pieOptions);
+const columnChart = new ApexCharts(document.getElementById("column-chart"), columnOptions);
 
-if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
-    const chart = new ApexCharts(document.getElementById("pie-chart"), pieOptions);
-    chart.render();
-}
+areaChart.render();
+pieChart.render();
+columnChart.render();
 
-if (document.getElementById("column-chart") && typeof ApexCharts !== 'undefined') {
-    const chart = new ApexCharts(document.getElementById("column-chart"), barOptions);
-    chart.render();
+setInterval(function() {
+    updateAreaChart(areaChart);
+}, UPDATE_INTERVAL);
+
+function updateAreaChart(chart) {
+    $.ajax({
+        url: `/api/json/event/chart/${id}`,
+        type: "GET",
+        success: function(data) {
+            const newSeries = getWeeklyEventData(data.Time);
+
+            // Update total text if available
+            if (weeklyEventTotalElem) {
+                weeklyEventTotalElem.innerText = data.Total ?? 0;
+            }
+
+            // update chart with a new data series
+            chart.updateSeries([
+                {
+                    name: "Events",
+                    data: newSeries,
+                    color: "#1A56DB",
+                },
+            ]);
+        },
+        error: function() {
+            console.log("Error fetching new chart data");
+        }
+    });
 }

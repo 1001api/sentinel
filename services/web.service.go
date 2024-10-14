@@ -80,10 +80,17 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
+	weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID)
+	if err != nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
 	return configs.Render(c, pages.EventDetailPage(pages.EventDetailPageProps{
-		User:    user,
-		Project: project,
-		Summary: summary,
+		User:             user,
+		Project:          project,
+		Summary:          summary,
+		WeeklyEventChart: weeklyEvents,
 	}))
 }
 
