@@ -1,13 +1,12 @@
 package middlewares
 
 import (
-	"context"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/hubkudev/sentinel/dto"
-	repositories "github.com/hubkudev/sentinel/repos"
+	"github.com/hubkudev/sentinel/services"
 )
 
 type Middleware interface {
@@ -16,7 +15,7 @@ type Middleware interface {
 }
 
 type MiddlewareImpl struct {
-	UserRepo       repositories.UserRepository
+	UserService    services.UserService
 	SessionStorage *session.Store
 }
 
@@ -33,7 +32,7 @@ func (m *MiddlewareImpl) ProtectedRoute(c *fiber.Ctx) error {
 	}
 
 	// check if the user is exist in the database
-	exist, err := m.UserRepo.FindByID(context.Background(), userID.(string))
+	exist, err := m.UserService.FindByID(userID.(string))
 	if exist == nil {
 		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
 	}
@@ -58,7 +57,7 @@ func (m *MiddlewareImpl) APIProtectedRoute(c *fiber.Ctx) error {
 	}
 
 	// check if the key is exist in the database
-	exist, err := m.UserRepo.FindByPublicKey(context.Background(), key.PublicKey)
+	exist, err := m.UserService.FindByPublicKey(key.PublicKey)
 	if exist == nil || err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
 			"error": "valid PublicKey is required",

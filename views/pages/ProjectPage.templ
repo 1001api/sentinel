@@ -3,11 +3,12 @@ package pages
 import (
 	"fmt"
 	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/components"
 	"github.com/hubkudev/sentinel/views/components/popups"
 )
 
-templ ProjectsPage(user *entities.User, projects []entities.Project) {
+templ ProjectsPage(user *gen.FindUserByIDRow, projects []entities.Project) {
 	@components.Layout("Projects | Sentinel") {
 		<body x-data={ templ.JSONString(map[string]int{"percentage": (len(projects) * 100 / 5)}) }>
 			@components.Drawer(user, components.DRAWER_PROJECTS) {

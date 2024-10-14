@@ -3,12 +3,13 @@ package pages
 import (
 	"fmt"
 	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/components"
 	"time"
 )
 
 type EventDetailPageProps struct {
-	User             *entities.User
+	User             *gen.FindUserByIDRow
 	Project          *entities.Project
 	Summary          *entities.EventDetail
 	WeeklyEventChart *entities.EventSummaryChart

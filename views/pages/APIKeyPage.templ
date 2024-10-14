@@ -2,12 +2,12 @@ package pages
 
 import (
 	"fmt"
-	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/components"
 	"math"
 )
 
-templ APIKeysPage(user *entities.User, publicKey string) {
+templ APIKeysPage(user *gen.FindUserByIDRow, publicKey string) {
 	@components.Layout("API Keys | Sentinel") {
 		<body>
 			@components.Drawer(user, components.DRAWER_API_KEYS) {

@@ -8,7 +8,7 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/hubkudev/sentinel/entities"
+import gen "github.com/hubkudev/sentinel/gen"
 
 type DrawerType int
 
@@ -19,7 +19,7 @@ const (
 	DRAWER_API_KEYS
 )
 
-func Drawer(user *entities.User, active DrawerType) templ.Component {
+func Drawer(user *gen.FindUserByIDRow, active DrawerType) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -45,7 +45,7 @@ func Drawer(user *entities.User, active DrawerType) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(user.ProfileURL.String)
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(user.ProfileUrl.String)
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/Drawer.templ`, Line: 73, Col: 35}
 		}
