@@ -175,7 +175,7 @@ templ EventDetailPage(props EventDetailPageProps) {
 	}
 }
 
-templ EventDetailTableRow(events []entities.Event) {
+templ EventDetailTableRow(events []gen.GetLiveEventsDetailRow) {
 	for _, v := range events {
 		<tr class={ "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600", templ.KV("animate-zoom-in", time.Now().Sub(v.ReceivedAt) < 5*time.Second) }>
 			<td class="ps-6 py-4">
@@ -192,8 +192,8 @@ templ EventDetailTableRow(events []entities.Event) {
 				{ v.EventLabel.String }
 			</td>
 			<td class="px-6 py-4">
-				<a href={ templ.SafeURL(v.PageURL.String) } target="_blank" class="underline">
-					{ v.PageURL.String }
+				<a href={ templ.SafeURL(v.PageUrl.String) } target="_blank" class="underline">
+					{ v.PageUrl.String }
 				</a>
 			</td>
 			<td class="px-6 py-4">
@@ -203,7 +203,9 @@ templ EventDetailTableRow(events []entities.Event) {
 				{ v.ElementType.String }
 			</td>
 			<td class="px-6 py-4">
-				{ v.IPAddr.String() }
+				if v.IpAddr != nil {
+					{ v.IpAddr.String() }
+				}
 			</td>
 			<td class="px-6 py-4">
 				{ v.UserAgent.String }
@@ -224,7 +226,7 @@ templ EventDetailTableRow(events []entities.Event) {
 				{ v.DeviceType.String }
 			</td>
 			<td class="px-6 py-4">
-				{ fmt.Sprintf("%d", v.TimeOnPage) }
+				{ fmt.Sprintf("%d", v.TimeOnPage.Int32) }
 			</td>
 			<td class="px-6 py-4">
 				{ v.ScreenResolution.String }

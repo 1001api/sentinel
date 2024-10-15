@@ -6,6 +6,7 @@ package gen
 
 import (
 	"net/netip"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -37,8 +38,8 @@ type Event struct {
 	DeviceType       pgtype.Text
 	TimeOnPage       pgtype.Int4
 	ScreenResolution pgtype.Text
-	FiredAt          pgtype.Timestamptz
-	ReceivedAt       pgtype.Timestamptz
+	FiredAt          time.Time
+	ReceivedAt       time.Time
 	UserID           uuid.UUID
 	ProjectID        uuid.UUID
 }

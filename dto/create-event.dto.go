@@ -8,7 +8,7 @@ type CreateEventInput struct {
 	ElementPath      string `json:"ElementPath,omitempty" validate:"omitempty,max=255"`
 	ElementType      string `json:"ElementType,omitempty" validate:"omitempty,max=255"`
 	IPAddr           string `json:"IPAddr,omitempty" validate:"omitempty,ip_addr"`
-	UserAgent        string `json:"UserAgent,omitempty" validate:"omitempty,max=100"`
+	UserAgent        string `json:"UserAgent,omitempty" validate:"omitempty,max=255"`
 	BrowserName      string `json:"BrowserName,omitempty" validate:"omitempty,max=100"`
 	Country          string `json:"Country,omitempty" validate:"omitempty,max=100"`
 	Region           string `json:"Region,omitempty" validate:"omitempty,max=100"`

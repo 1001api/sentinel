@@ -98,7 +98,7 @@ COUNT(DISTINCT e.country) AS total_country_visited,
 ) AS most_country_visited
 FROM events AS e WHERE e.user_id = $2 AND e.project_id = $1;
 
--- name: GetEventSummaryDetailTLDR :one
+-- name: GetTotalEventSummary :one
 SELECT 
     COUNT(id) AS total_events,
     COUNT(DISTINCT event_type) AS total_event_type,
@@ -107,62 +107,99 @@ SELECT
     COUNT(DISTINCT page_url) AS total_page_url
 FROM events WHERE user_id = $2 AND project_id = $1;
 
--- name: GetEventMostVisitedURL :many
-SELECT page_url AS name, COUNT(page_url) AS total
-FROM events WHERE user_id = $2 AND project_id = $1
-GROUP BY page_url ORDER BY COUNT(page_url) DESC LIMIT 5;
+-- name: GetEventDetailSummary :many
+WITH 
+most_visited_url AS (
+    SELECT 'most_visited_url' AS query_type, sub.page_url AS name, COUNT(sub.page_url) AS total
+    FROM events sub
+    WHERE sub.user_id = $2 AND sub.project_id = $1
+    GROUP BY sub.page_url 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 5
+),
+most_visited_country AS (
+    SELECT 'most_visited_country' AS query_type, sub.country AS name, COUNT(sub.country) AS total
+    FROM events sub
+    WHERE sub.country IS NOT NULL AND sub.country <> ''
+    AND sub.user_id = $2 AND sub.project_id = $1
+    GROUP BY sub.country 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 5
+),
+most_visited_city AS (
+    SELECT 'most_visited_city' AS query_type, sub.city AS name, COUNT(sub.city) AS total
+    FROM events sub
+    WHERE sub.city IS NOT NULL AND sub.city <> '' 
+    AND sub.user_id = $2 AND sub.project_id = $1
+    GROUP BY sub.city 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 5
+),
+most_hit_element AS (
+    SELECT 'most_hit_element' AS query_type, sub.element_path AS name, COUNT(sub.element_path) AS total
+    FROM events sub
+    WHERE sub.element_path IS NOT NULL AND sub.element_path <> '' 
+    AND sub.user_id = $2 AND sub.project_id = $1
+    GROUP BY sub.element_path 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 5
+),
+last_visited_user AS (
+    SELECT 'last_visited_user' AS query_type, 
+           sub.ip_addr::text AS name, 
+           sub.received_at AS timestamp
+    FROM events sub
+    WHERE sub.ip_addr IS NOT NULL
+    AND sub.user_id = $2 AND sub.project_id = $1
+    ORDER BY sub.received_at DESC 
+    LIMIT 5
+),
+most_used_browser AS (
+    SELECT 'most_used_browser' AS query_type, sub.browser_name AS name, COUNT(sub.browser_name) AS total
+    FROM events sub
+    WHERE sub.browser_name IS NOT NULL AND sub.browser_name <> ''
+    AND sub.user_id = $2 AND sub.project_id = $1
+    GROUP BY sub.browser_name 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 5
+),
+most_event_type AS (
+    SELECT 'most_event_type' AS query_type, sub.event_type AS name, COUNT(sub.event_type) AS total
+    FROM events sub
+    WHERE sub.event_type IS NOT NULL AND sub.event_type <> ''
+    AND sub.user_id = $2 AND sub.project_id = $1
+    GROUP BY sub.event_type 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 5
+),
+most_event_label AS (
+    SELECT 'most_event_label' AS query_type, sub.event_label AS name, COUNT(sub.event_label) AS total
+    FROM events sub
+    WHERE sub.event_label IS NOT NULL AND sub.event_label <> ''
+    AND sub.user_id = $2 AND sub.project_id = $1
+    GROUP BY sub.event_label 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 5
+)
 
--- name: GetEventMostVisitedCountry :many
-SELECT country AS name, COUNT(country) AS total
-FROM events 
-WHERE country IS NOT NULL AND country <> ''
-AND user_id = $2 AND project_id = $1
-GROUP BY country ORDER BY COUNT(country) DESC LIMIT 5;
+SELECT query_type, name, CAST(total AS text) AS total -- Why cast total as text? so it can be used to also hold the timestamp
+FROM (
+    SELECT * FROM most_visited_url
+    UNION ALL SELECT * FROM most_visited_country
+    UNION ALL SELECT * FROM most_visited_city
+    UNION ALL SELECT * FROM most_hit_element
+    UNION ALL SELECT * FROM most_used_browser
+    UNION ALL SELECT * FROM most_event_type
+    UNION ALL SELECT * FROM most_event_label
+) count_queries
+UNION ALL
 
--- name: GetEventMostVisitedCity :many
-SELECT city AS name, COUNT(city) AS total
-FROM events 
-WHERE city IS NOT NULL AND city <> '' 
-AND user_id = $2 AND project_id = $1
-GROUP BY city ORDER BY COUNT(city) DESC LIMIT 5;
-
--- name: GetEventMostHitElement :many
-SELECT element_path AS name, COUNT(element_path) AS total
-FROM events 
-WHERE element_path IS NOT NULL AND element_path <> '' 
-AND user_id = $2 AND project_id = $1
-GROUP BY element_path ORDER BY COUNT(element_path) DESC LIMIT 5;
-
--- name: GetEventLastVisitedUser :many
-SELECT ip_addr AS ip, received_at AS timestamp
-FROM events
-WHERE user_id = $2 AND project_id = $1
-GROUP BY ip_addr, received_at ORDER BY received_at DESC LIMIT 5;
-
--- name: GetEventMostUsedBrowser :many
-SELECT browser_name AS name, COUNT(browser_name) AS total
-FROM events
-WHERE browser_name IS NOT NULL AND browser_name <> ''
-AND user_id = $2 AND project_id = $1
-GROUP BY browser_name ORDER BY COUNT(browser_name) DESC LIMIT 5;
-
--- name: GetEventMostEventType :many
-SELECT event_type AS name, COUNT(event_type) AS total
-FROM events
-WHERE event_type IS NOT NULL AND event_type <> ''
-AND user_id = $2 AND project_id = $1
-GROUP BY event_type ORDER BY COUNT(event_type) DESC LIMIT 5;
-
--- name: GetEventMostEventLabel :many
-SELECT event_label AS name, COUNT(event_label) AS total
-FROM events
-WHERE event_label IS NOT NULL AND event_label <> ''
-AND user_id = $2 AND project_id = $1
-GROUP BY event_label ORDER BY COUNT(event_label) DESC LIMIT 5;
+SELECT query_type, name, CAST(timestamp AS text) AS total
+FROM last_visited_user;
 
 -- name: GetWeeklyEvents :many
 SELECT
-  DATE_TRUNC('day', received_at) AS timestamp,
+  DATE_TRUNC('day', received_at)::timestamp AS timestamp,
   COUNT(*) AS total
 FROM events
 WHERE user_id = $2 AND project_id = $1 AND received_at >= NOW() - INTERVAL '7 days'

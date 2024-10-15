@@ -10,7 +10,7 @@ import (
 
 type EventsPageProps struct {
 	User     *gen.FindUserByIDRow
-	Events   []entities.Event
+	Events   []gen.GetLiveEventsRow
 	Projects []entities.Project
 }
 
@@ -102,7 +102,7 @@ templ EventsPage(props EventsPageProps) {
 	}
 }
 
-templ EventLiveTableRow(events []entities.Event) {
+templ EventLiveTableRow(events []gen.GetLiveEventsRow) {
 	<tbody id="live-events">
 		for _, v := range events {
 			<tr class={ "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600", templ.KV("animate-zoom-in", time.Now().Sub(v.ReceivedAt) < 5*time.Second) }>
@@ -114,7 +114,7 @@ templ EventLiveTableRow(events []entities.Event) {
 					}
 				</td>
 				<td class="px-6 py-4 font-bold">
-					{ v.ProjectName }
+					{ v.Name }
 				</td>
 				<td class="px-6 py-4">
 					{ v.EventType }
@@ -123,8 +123,8 @@ templ EventLiveTableRow(events []entities.Event) {
 					{ v.EventLabel.String }
 				</td>
 				<td class="px-6 py-4">
-					<a href={ templ.SafeURL(v.PageURL.String) } target="_blank" class="underline">
-						{ v.PageURL.String }
+					<a href={ templ.SafeURL(v.PageUrl.String) } target="_blank" class="underline">
+						{ v.PageUrl.String }
 					</a>
 				</td>
 				<td class="px-6 py-4">
@@ -145,7 +145,7 @@ templ EventLiveTableRow(events []entities.Event) {
 	</tbody>
 }
 
-templ ProjectSummaryText(sum *entities.EventSummary) {
+templ ProjectSummaryText(sum *gen.GetEventSummaryRow) {
 	<ul class="max-w-md mt-4 px-1 space-y-1 text-gray-500 list-inside dark:text-gray-400">
 		<li class="flex items-center text-sm">
 			<svg class="w-3 h-3 me-2 text-green-500 dark:text-green-400 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -174,8 +174,8 @@ templ ProjectSummaryText(sum *entities.EventSummary) {
 				<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"></path>
 			</svg>
 			<div class="flex flex-col">
-				if sum.MostVisitedURL.Valid {
-					<span class="text-ellipsis truncate font-semibold max-w-[160px]">{ fmt.Sprintf("%s", sum.MostVisitedURL.String) }</span>
+				if sum.MostVisitedUrl.Valid {
+					<span class="text-ellipsis truncate font-semibold max-w-[160px]">{ fmt.Sprintf("%s", sum.MostVisitedUrl.String) }</span>
 				} else {
 					<span class="font-semibold">N/A</span>
 				}

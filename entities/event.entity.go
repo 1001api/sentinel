@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"net"
 	"time"
+
+	"github.com/hubkudev/sentinel/gen"
 )
 
 type Event struct {
@@ -41,23 +43,23 @@ type EventSummary struct {
 }
 
 type EventTextTotal struct {
-	Name  string `db:"name"`
-	Total int    `db:"total"`
+	Name  string
+	Total int
 }
 
 type EventLastUser struct {
-	IP        net.IP    `db:"ip"`
-	Timestamp time.Time `db:"timestamp"`
+	IP        net.IP
+	Timestamp time.Time
 }
 
 type EventSummaryChart struct {
-	Total int `db:"total"`
-	Time  []EventTimestamp
+	Total int
+	Time  []gen.GetWeeklyEventsRow
 }
 
 type EventTimestamp struct {
-	Timestamp time.Time `db:"timestamp"`
-	Total     int       `db:"total"`
+	Timestamp time.Time
+	Total     int
 }
 
 type EventDetail struct {

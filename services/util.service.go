@@ -1,7 +1,9 @@
 package services
 
 import (
+	"net/netip"
 	"regexp"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -16,6 +18,8 @@ func IsISO8601Date(fl validator.FieldLevel) bool {
 type UtilService interface {
 	GenerateRandomID(length int) string
 	ValidateInput(payload any) string
+	ParseIP(str string) *netip.Addr
+	ParseTimestamp(str string) time.Time
 }
 
 type UtilServiceImpl struct {
@@ -68,4 +72,20 @@ func (s *UtilServiceImpl) ValidateInput(payload any) string {
 	}
 
 	return errMessage
+}
+
+func (s *UtilServiceImpl) ParseIP(str string) *netip.Addr {
+	if str == "" {
+		return nil
+	}
+	ip, err := netip.ParseAddr(str)
+	if err != nil {
+		return nil
+	}
+	return &ip
+}
+
+func (s *UtilServiceImpl) ParseTimestamp(str string) time.Time {
+	parsedTime, _ := time.Parse(time.RFC3339, str)
+	return parsedTime
 }

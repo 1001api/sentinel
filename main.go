@@ -51,7 +51,6 @@ func main() {
 	// init repo
 	repository := gen.New(db)
 	projectRepo := repositories.ProjectRepositoryImpl{DB: db}
-	eventRepo := repositories.EventRepoImpl{DB: db}
 
 	// init services
 	utilService := services.UtilServiceImpl{
@@ -73,7 +72,7 @@ func main() {
 	eventService := services.EventServiceImpl{
 		UtilService: &utilService,
 		ProjectRepo: &projectRepo,
-		EventRepo:   &eventRepo,
+		Repo:        repository,
 	}
 	apiService := services.APIServiceImpl{
 		ProjectService: &projectService,
