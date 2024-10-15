@@ -4,40 +4,48 @@ import (
 	"context"
 	"time"
 
-	"github.com/hubkudev/sentinel/dto"
-	"github.com/hubkudev/sentinel/entities"
-	repositories "github.com/hubkudev/sentinel/repos"
+	"github.com/google/uuid"
+	"github.com/hubkudev/sentinel/gen"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type APIKeyService interface {
-	CreateAPIKey(name string, userID string) (*entities.APIKey, error)
-	GetAllKeys(userID string) ([]entities.APIKey, error)
+	CreateAPIKey(name string, userID string) (*gen.CreateAPIKeyRow, error)
+	GetAllKeys(userID string) ([]gen.FindAllAPIKeysRow, error)
+	DeleteKey(userID string, keyID int) error
 }
 
 type APIKeyServiceImpl struct {
 	UtilService UtilService
-	APIKeyRepo  repositories.APIKeyRepository
+	Repo        *gen.Queries
 }
 
-func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID string) (*entities.APIKey, error) {
-	input := dto.CreateAPIKeyInput{
-		Name:      name,
-		Token:     s.UtilService.GenerateRandomID(64),
-		UserID:    userID,
-		CreatedAt: time.Now(),
-		ExpiredAt: time.Now().AddDate(0, 3, 0), // 3 months from now
+func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID string) (*gen.CreateAPIKeyRow, error) {
+	userUUID := uuid.MustParse(userID)
+
+	input := gen.CreateAPIKeyParams{
+		Name:   name,
+		Token:  s.UtilService.GenerateRandomID(64),
+		UserID: userUUID,
+		CreatedAt: pgtype.Timestamptz{
+			Time: time.Now(),
+		},
+		ExpiredAt: pgtype.Timestamptz{
+			Time: time.Now().AddDate(0, 3, 0), // 3 months from now
+		},
 	}
 
-	key, err := s.APIKeyRepo.CreateKey(context.Background(), &input)
+	key, err := s.Repo.CreateAPIKey(context.Background(), input)
 	if err != nil {
 		return nil, err
 	}
 
-	return key, nil
+	return &key, nil
 }
 
-func (s *APIKeyServiceImpl) GetAllKeys(userID string) ([]entities.APIKey, error) {
-	key, err := s.APIKeyRepo.FindAll(context.Background(), userID)
+func (s *APIKeyServiceImpl) GetAllKeys(userID string) ([]gen.FindAllAPIKeysRow, error) {
+	userUUID := uuid.MustParse(userID)
+	key, err := s.Repo.FindAllAPIKeys(context.Background(), userUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +53,11 @@ func (s *APIKeyServiceImpl) GetAllKeys(userID string) ([]entities.APIKey, error)
 }
 
 func (s *APIKeyServiceImpl) DeleteKey(userID string, keyID int) error {
-	err := s.APIKeyRepo.DeleteKey(context.Background(), userID, keyID)
+	userUUID := uuid.MustParse(userID)
+	err := s.Repo.DeleteAPIKey(context.Background(), gen.DeleteAPIKeyParams{
+		UserID: userUUID,
+		ID:     int32(keyID),
+	})
 	if err != nil {
 		return err
 	}
