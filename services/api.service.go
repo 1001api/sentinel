@@ -43,7 +43,7 @@ func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 		return c.SendString("Maximum description length is 200 characters")
 	}
 
-	_, err := s.ProjectService.CreateProject(name, desc, user.ID.String())
+	_, err := s.ProjectService.CreateProject(context.Background(), name, desc, user.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -74,7 +74,7 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	if err := s.ProjectService.UpdateProject(name, desc, projectID, user.ID.String()); err != nil {
+	if err := s.ProjectService.UpdateProject(context.Background(), name, desc, projectID, user.ID.String()); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
@@ -90,7 +90,7 @@ func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	if err := s.ProjectService.DeleteProject(user.ID.String(), projectID); err != nil {
+	if err := s.ProjectService.DeleteProject(context.Background(), user.ID.String(), projectID); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 

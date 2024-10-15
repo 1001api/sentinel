@@ -28,10 +28,12 @@ func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID string) (*gen.Creat
 		Token:  s.UtilService.GenerateRandomID(64),
 		UserID: userUUID,
 		CreatedAt: pgtype.Timestamptz{
-			Time: time.Now(),
+			Time:  time.Now(),
+			Valid: true,
 		},
 		ExpiredAt: pgtype.Timestamptz{
-			Time: time.Now().AddDate(0, 3, 0), // 3 months from now
+			Time:  time.Now().AddDate(0, 3, 0), // 3 months from now
+			Valid: true,
 		},
 	}
 

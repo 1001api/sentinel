@@ -105,6 +105,20 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 	return err
 }
 
+const deleteEventByProjectID = `-- name: DeleteEventByProjectID :exec
+DELETE FROM events WHERE user_id = $1 AND project_id = $2
+`
+
+type DeleteEventByProjectIDParams struct {
+	UserID    uuid.UUID
+	ProjectID uuid.UUID
+}
+
+func (q *Queries) DeleteEventByProjectID(ctx context.Context, arg DeleteEventByProjectIDParams) error {
+	_, err := q.db.Exec(ctx, deleteEventByProjectID, arg.UserID, arg.ProjectID)
+	return err
+}
+
 const getEventDetailSummary = `-- name: GetEventDetailSummary :many
 WITH 
 most_visited_url AS (

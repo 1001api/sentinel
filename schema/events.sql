@@ -210,3 +210,6 @@ SELECT
 COUNT(id) AS total
 FROM events WHERE received_at >= NOW() - INTERVAL '7 days'
 AND user_id = $2 AND project_id = $1;
+
+-- name: DeleteEventByProjectID :exec
+DELETE FROM events WHERE user_id = $1 AND project_id = $2;

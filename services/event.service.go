@@ -12,7 +12,6 @@ import (
 	"github.com/hubkudev/sentinel/dto"
 	"github.com/hubkudev/sentinel/entities"
 	"github.com/hubkudev/sentinel/gen"
-	repositories "github.com/hubkudev/sentinel/repos"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -27,7 +26,6 @@ type EventService interface {
 
 type EventServiceImpl struct {
 	UtilService UtilService
-	ProjectRepo repositories.ProjectRepository
 	Repo        *gen.Queries
 }
 
@@ -46,7 +44,11 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 
 	// check if the project id exist within user.
 	// if not dont proceed further.
-	exist, _ := s.ProjectRepo.CheckWithinUserID(context.Background(), input.ProjectID, user.ID.String())
+	projectUUID := uuid.MustParse(input.ProjectID)
+	exist, _ := s.Repo.CheckProjectWithinUserID(context.Background(), gen.CheckProjectWithinUserIDParams{
+		ID:     projectUUID,
+		UserID: user.ID,
+	})
 	if !exist {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project not found"})
 	}

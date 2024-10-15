@@ -50,7 +50,7 @@ func (s *WebServiceImpl) SendEventsPage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	projects, err := s.ProjectService.GetAllProjects(user.ID.String())
+	projects, err := s.ProjectService.GetAllProjects(context.Background(), user.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -69,7 +69,7 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ProjectID is required"})
 	}
 
-	project, err := s.ProjectService.GetProjectByID(projectID, user.ID.String())
+	project, err := s.ProjectService.GetProjectByID(context.Background(), projectID, user.ID.String())
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -97,7 +97,7 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 func (s *WebServiceImpl) SendProjectsPage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 
-	projects, err := s.ProjectService.GetAllProjects(user.ID.String())
+	projects, err := s.ProjectService.GetAllProjects(context.Background(), user.ID.String())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}

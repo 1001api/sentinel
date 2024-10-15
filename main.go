@@ -11,7 +11,6 @@ import (
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/middlewares"
-	repositories "github.com/hubkudev/sentinel/repos"
 	"github.com/hubkudev/sentinel/routes"
 	"github.com/hubkudev/sentinel/services"
 	"github.com/joho/godotenv"
@@ -50,7 +49,6 @@ func main() {
 
 	// init repo
 	repository := gen.New(db)
-	projectRepo := repositories.ProjectRepositoryImpl{DB: db}
 
 	// init services
 	utilService := services.UtilServiceImpl{
@@ -67,11 +65,11 @@ func main() {
 		StateStore:   stateStore,
 	}
 	projectService := services.ProjectServiceImpl{
-		ProjectRepo: &projectRepo,
+		Repo: repository,
+		DB:   db,
 	}
 	eventService := services.EventServiceImpl{
 		UtilService: &utilService,
-		ProjectRepo: &projectRepo,
 		Repo:        repository,
 	}
 	apiService := services.APIServiceImpl{
