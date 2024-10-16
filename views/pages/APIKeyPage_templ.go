@@ -64,7 +64,7 @@ func APIKeysPage(user *gen.FindUserByIDRow, publicKey string) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto lg:px-12\"><!-- PUBLIC KEY --><div class=\"px-4\"><h5 class=\"text-lg font-semibold\">Public Key</h5><p class=\"text-sm text-gray-700\">Use the public key below to securely send data through Sentinel's API. It is safe for use in client environments.</p><div class=\"w-full mt-4 flex items-center relative\" x-data=\"{copied: false, copy() { navigator.clipboard.writeText($refs.publicKeyText.value).then(() =&gt; {\n\t\t\t\t\t\t\t\t\tthis.copied = true                    \n\t\t\t\t\t\t\t\t}).catch((err) =&gt; {                        \n\t\t\t\t\t\t\t\t\tthis.copied = false                    \n\t\t\t\t\t\t\t\t}) }}\"><input x-ref=\"publicKeyText\" type=\"text\" value=\"")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto lg:px-12\"><!-- PUBLIC KEY --><div class=\"px-4 mt-12\"><h1 class=\"text-lg font-semibold\">Public Key</h1><p class=\"text-sm text-gray-700\">Use the public key below to securely send data through Sentinel's API. It is safe for use in client environments.</p><div class=\"w-full mt-4 flex items-center relative\" x-data=\"{copied: false, copy() { navigator.clipboard.writeText($refs.publicKeyText.value).then(() =&gt; {\n\t\t\t\t\t\t\t\t\tthis.copied = true                    \n\t\t\t\t\t\t\t\t}).catch((err) =&gt; {                        \n\t\t\t\t\t\t\t\t\tthis.copied = false                    \n\t\t\t\t\t\t\t\t}) }}\"><input x-ref=\"publicKeyText\" type=\"text\" value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

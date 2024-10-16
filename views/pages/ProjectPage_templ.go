@@ -79,20 +79,20 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto max-w-screen-xl px-4 lg:px-12\"><div><h1 class=\"font-bold text-4xl\">Projects</h1><p class=\"text-xl\">Manage and Send Data Associated with your Specific Project.</p></div><div class=\"mt-6 bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden\"><!-- PROJECTS COUNT --><div class=\"flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4\"><div class=\"w-full md:w-1/2\"><div class=\"max-w-sm mb-6 py-4 px-6 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700\"><h5 class=\"mb-1 text-lg font-bold tracking-tight text-gray-900 dark:text-white\">You've created ")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto max-w-screen-xl px-4 lg:px-12\"><div class=\"px-4 mt-12\"><h1 class=\"font-bold text-lg\">Projects</h1><p class=\"text-sm text-gray-700\">Manage your project and include the project ID when sending data to ensure it's correctly associated with the specific project.</p></div><div class=\"mt-6 bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden\"><!-- PROJECTS COUNT --><div class=\"flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4\"><div class=\"w-full md:w-1/2\"><div class=\"max-w-sm mb-6 py-4 px-6 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700\"><h5 class=\"mb-1 font-bold tracking-tight text-gray-900 dark:text-white\">You've created ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(projects)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 26, Col: 138}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 26, Col: 130}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" out of 5 projects</h5><p class=\"mb-3 font-normal text-gray-700 dark:text-gray-400\">Need more projects?  <a href=\"/pricing\" class=\"underline text-secondary\">Upgrade Plan.</a></p><!-- PROJECTS BAR --><div class=\"max-w-sm bg-gray-200 rounded-full h-2.5 dark:bg-gray-700\"><div id=\"total-project-bar\" class=\"bg-secondary h-2.5 rounded-full\" :style=\"`width: ${percentage}%`\"></div></div></div></div><!-- PROJECTS CREATE BTN --><div class=\"w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" out of 5 projects</h5><p class=\"mb-3 text-sm font-normal text-gray-700 dark:text-gray-400\">Need more projects?  <a href=\"/pricing\" class=\"underline text-secondary\">Upgrade Plan.</a></p><!-- PROJECTS BAR --><div class=\"max-w-sm bg-gray-200 rounded-full h-2.5 dark:bg-gray-700\"><div id=\"total-project-bar\" class=\"bg-secondary h-2.5 rounded-full\" :style=\"`width: ${percentage}%`\"></div></div></div></div><!-- PROJECTS CREATE BTN --><div class=\"w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -384,7 +384,7 @@ func ProjectSizeText(size int64) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("KB<strong>/200MB</strong>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("KB/<strong class=\"text-xs\">200MB</strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
