@@ -112,7 +112,8 @@ WITH
 most_visited_url AS (
     SELECT 'most_visited_url' AS query_type, sub.page_url AS name, COUNT(sub.page_url) AS total
     FROM events sub
-    WHERE sub.user_id = $2 AND sub.project_id = $1
+    WHERE sub.page_url IS NOT NULL AND sub.page_url <> ''
+    AND sub.user_id = $2 AND sub.project_id = $1
     GROUP BY sub.page_url 
     ORDER BY COUNT(*) DESC 
     LIMIT 5

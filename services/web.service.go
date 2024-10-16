@@ -3,9 +3,11 @@ package services
 import (
 	"context"
 	"log"
+	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/hubkudev/sentinel/configs"
+	"github.com/hubkudev/sentinel/entities"
 	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/pages"
 	"github.com/hubkudev/sentinel/views/pages/misc"
@@ -69,43 +71,89 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ProjectID is required"})
 	}
 
-	project, err := s.ProjectService.GetProjectByID(context.Background(), projectID, user.ID.String())
-	if err != nil {
-		return c.SendStatus(fiber.StatusNotFound)
+	type result struct {
+		data interface{}
+		err  error
 	}
 
-	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID.String())
-	if err != nil {
-		log.Println(err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+	var wg sync.WaitGroup
+	multiChan := make([]chan result, 5)
+	for i := range multiChan {
+		multiChan[i] = make(chan result, 1)
 	}
 
-	weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID.String())
-	if err != nil {
-		log.Println(err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		project, err := s.ProjectService.GetProjectByID(context.Background(), projectID, user.ID.String())
+		multiChan[0] <- result{data: project, err: err}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID.String())
+		multiChan[1] <- result{data: summary, err: err}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID.String())
+		multiChan[2] <- result{data: weeklyEvents, err: err}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		eventTypeChart, err := s.EventService.GetEventTypeChart(context.Background(), projectID, user.ID.String())
+		multiChan[3] <- result{data: eventTypeChart, err: err}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		eventLabelChart, err := s.EventService.GetEventLabelChart(context.Background(), projectID, user.ID.String())
+		multiChan[4] <- result{data: eventLabelChart, err: err}
+	}()
+
+	// wait to goroutines to finish
+	wg.Wait()
+
+	// close all channels
+	for _, ch := range multiChan {
+		close(ch)
 	}
 
-	eventTypeChart, err := s.EventService.GetEventTypeChart(context.Background(), projectID, user.ID.String())
-	if err != nil {
-		log.Println(err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+	var response pages.EventDetailPageProps
+
+	// retrieve all data from channels
+	for i, ch := range multiChan {
+		res := <-ch
+
+		// if contains err, return early
+		if res.err != nil {
+			log.Println(res.err)
+			return c.Status(fiber.StatusBadRequest).SendString(res.err.Error())
+		}
+
+		// map data based on the channel index
+		switch i {
+		case 0: // Project
+			response.Project = res.data.(*gen.FindProjectByIDRow)
+		case 1: // Summary
+			response.Summary = res.data.(*entities.EventDetail)
+		case 2: // WeeklyEventChart
+			response.WeeklyEventChart = res.data.(*entities.EventSummaryChart)
+		case 3: // EventTypeChart
+			response.EventTypeChart = res.data.([]gen.GetPercentageEventsTypeRow)
+		case 4: // EventLabelChart
+			response.EventLabelChart = res.data.([]gen.GetPercentageEventsLabelRow)
+		}
 	}
 
-	eventLabelChart, err := s.EventService.GetEventLabelChart(context.Background(), projectID, user.ID.String())
-	if err != nil {
-		log.Println(err)
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	return configs.Render(c, pages.EventDetailPage(pages.EventDetailPageProps{
-		User:             user,
-		Project:          project,
-		Summary:          summary,
-		WeeklyEventChart: weeklyEvents,
-		EventTypeChart:   eventTypeChart,
-		EventLabelChart:  eventLabelChart,
-	}))
+	response.User = user
+	return configs.Render(c, pages.EventDetailPage(response))
 }
 
 func (s *WebServiceImpl) SendProjectsPage(c *fiber.Ctx) error {
