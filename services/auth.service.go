@@ -104,7 +104,7 @@ func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 		}
 
 		// Store the user's id in the session
-		sess.Set("ID", result.ID)
+		sess.Set("ID", result.ID.String())
 
 		// Save into memory session and.
 		// saving also set a session cookie containing session_id
@@ -118,7 +118,7 @@ func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 	}
 
 	// Store the existed user's id in the session
-	sess.Set("ID", isExist.ID)
+	sess.Set("ID", isExist.ID.String())
 
 	if err := sess.Save(); err != nil {
 		log.Printf("Failed to save user session: %v", err)

@@ -10,12 +10,12 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/components"
 	"github.com/hubkudev/sentinel/views/components/popups"
 )
 
-func ProjectsPage(user *entities.User, projects []entities.Project) templ.Component {
+func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -120,9 +120,9 @@ func ProjectsPage(user *entities.User, projects []entities.Project) templ.Compon
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var6 string
-						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(v.ID)
+						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(v.ID.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 91, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 91, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -133,9 +133,9 @@ func ProjectsPage(user *entities.User, projects []entities.Project) templ.Compon
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var7 string
-						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(v.ID)
+						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(v.ID.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 94, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 94, Col: 74}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -159,9 +159,9 @@ func ProjectsPage(user *entities.User, projects []entities.Project) templ.Compon
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var9 string
-						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(v.Description)
+						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(v.Description.String)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 108, Col: 49}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 108, Col: 56}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -172,9 +172,9 @@ func ProjectsPage(user *entities.User, projects []entities.Project) templ.Compon
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var10 string
-						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(v.CreatedAt.Format("02 Jan 2006"))
+						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(v.CreatedAt.Time.Format("02 Jan 2006"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 115, Col: 48}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 115, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {

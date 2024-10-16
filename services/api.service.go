@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/pages"
 )
 
@@ -27,7 +27,7 @@ type APIServiceImpl struct {
 }
 
 func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 	name := c.FormValue("project_name")
 	desc := c.FormValue("project_desc")
 
@@ -43,7 +43,7 @@ func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 		return c.SendString("Maximum description length is 200 characters")
 	}
 
-	_, err := s.ProjectService.CreateProject(name, desc, user.ID)
+	_, err := s.ProjectService.CreateProject(context.Background(), name, desc, user.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -53,7 +53,7 @@ func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 	name := c.FormValue("project_name")
 	desc := c.FormValue("project_desc")
 	projectID := c.FormValue("project_id")
@@ -74,7 +74,7 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	if err := s.ProjectService.UpdateProject(name, desc, projectID, user.ID); err != nil {
+	if err := s.ProjectService.UpdateProject(context.Background(), name, desc, projectID, user.ID.String()); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
@@ -83,14 +83,14 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 	projectID := c.FormValue("project_id")
 
 	if projectID == "" {
 		return c.SendString("Project ID required")
 	}
 
-	if err := s.ProjectService.DeleteProject(user.ID, projectID); err != nil {
+	if err := s.ProjectService.DeleteProject(context.Background(), user.ID.String(), projectID); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
@@ -99,9 +99,9 @@ func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 
-	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID)
+	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -115,13 +115,13 @@ func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) LiveEventDetail(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 	projectID := c.Params("id")
 	if projectID == "" {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	events, err := s.EventService.GetLiveEventDetail(context.Background(), projectID, user.ID)
+	events, err := s.EventService.GetLiveEventDetail(context.Background(), projectID, user.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -135,13 +135,13 @@ func (s *APIServiceImpl) LiveEventDetail(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) GetEventSummary(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 	projectID := c.Params("id")
 	if projectID == "" {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	summary, err := s.EventService.GetEventSummary(context.Background(), projectID, user.ID)
+	summary, err := s.EventService.GetEventSummary(context.Background(), projectID, user.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -155,13 +155,13 @@ func (s *APIServiceImpl) GetEventSummary(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) GetEventSummaryDetail(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 	projectID := c.Params("id")
 	if projectID == "" {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID)
+	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID.String())
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -175,13 +175,13 @@ func (s *APIServiceImpl) GetEventSummaryDetail(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) JSONWeeklyEventChart(c *fiber.Ctx) error {
-	user := c.Locals("user").(*entities.User)
+	user := c.Locals("user").(*gen.FindUserByIDRow)
 	projectID := c.Params("id")
 	if projectID == "" {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID)
+	weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID.String())
 	if err != nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)

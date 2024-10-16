@@ -10,15 +10,15 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/components"
 	"time"
 )
 
 type EventsPageProps struct {
-	User     *entities.User
-	Events   []entities.Event
-	Projects []entities.Project
+	User     *gen.FindUserByIDRow
+	Events   []gen.GetLiveEventsRow
+	Projects []gen.FindAllProjectsRow
 }
 
 func EventsPage(props EventsPageProps) templ.Component {
@@ -102,9 +102,9 @@ func EventsPage(props EventsPageProps) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var6 string
-					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(v.Description)
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(v.Description.String)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 46, Col: 86}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 46, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -166,7 +166,7 @@ func EventsPage(props EventsPageProps) templ.Component {
 	})
 }
 
-func EventLiveTableRow(events []entities.Event) templ.Component {
+func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -230,9 +230,9 @@ func EventLiveTableRow(events []entities.Event) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(v.ProjectName)
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 116, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 116, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -268,7 +268,7 @@ func EventLiveTableRow(events []entities.Event) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var14 templ.SafeURL = templ.SafeURL(v.PageURL.String)
+			var templ_7745c5c3_Var14 templ.SafeURL = templ.SafeURL(v.PageUrl.String)
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var14)))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -278,7 +278,7 @@ func EventLiveTableRow(events []entities.Event) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(v.PageURL.String)
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(v.PageUrl.String)
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 126, Col: 24}
 			}
@@ -338,7 +338,7 @@ func EventLiveTableRow(events []entities.Event) templ.Component {
 	})
 }
 
-func ProjectSummaryText(sum *entities.EventSummary) templ.Component {
+func ProjectSummaryText(sum *gen.GetEventSummaryRow) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -402,13 +402,13 @@ func ProjectSummaryText(sum *entities.EventSummary) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if sum.MostVisitedURL.Valid {
+		if sum.MostVisitedUrl.Valid {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"text-ellipsis truncate font-semibold max-w-[160px]\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var23 string
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s", sum.MostVisitedURL.String))
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s", sum.MostVisitedUrl.String))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 177, Col: 116}
 			}

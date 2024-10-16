@@ -16,9 +16,6 @@ let weeklyEventData = getWeeklyEventData(weeklyEvent);
 const weeklyEventTotalElem = document.getElementById("weekly-event-total");
 
 const areaOptions = {
-    markers: {
-        size: [4],
-    },
     chart: {
         height: "300px",
         maxWidth: "100%",

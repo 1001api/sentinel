@@ -3,43 +3,53 @@ package services
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/dto"
-	"github.com/hubkudev/sentinel/entities"
-	repositories "github.com/hubkudev/sentinel/repos"
+	gen "github.com/hubkudev/sentinel/gen"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type UserService interface {
-	FindByEmail(email string) (*entities.User, error)
-	FindByID(userID string) (*entities.User, error)
+	FindByEmail(email string) (*gen.FindUserByEmailRow, error)
+	FindByID(userID string) (*gen.FindUserByIDRow, error)
+	FindByPublicKey(userID string) (*gen.FindUserByPublicKeyRow, error)
 	GetPublicKey(userID string) (string, error)
-	CreateUser(payload *dto.GooglePayload) (*entities.User, error)
+	CreateUser(payload *dto.GooglePayload) (*gen.CreateUserRow, error)
 }
 
 type UserServiceImpl struct {
 	UtilService UtilService
-	UserRepo    repositories.UserRepository
+	Repo        *gen.Queries
 }
 
-func (s *UserServiceImpl) FindByEmail(email string) (*entities.User, error) {
-	result, err := s.UserRepo.FindByEmail(context.Background(), email)
+func (s *UserServiceImpl) FindByEmail(email string) (*gen.FindUserByEmailRow, error) {
+	result, err := s.Repo.FindUserByEmail(context.Background(), email)
 	if err != nil {
 		return nil, err
 	}
-
-	return result, nil
+	return &result, nil
 }
 
-func (s *UserServiceImpl) FindByID(userID string) (*entities.User, error) {
-	result, err := s.UserRepo.FindByID(context.Background(), userID)
+func (s *UserServiceImpl) FindByID(userID string) (*gen.FindUserByIDRow, error) {
+	id := uuid.MustParse(userID)
+	result, err := s.Repo.FindUserByID(context.Background(), id)
 	if err != nil {
 		return nil, err
 	}
+	return &result, nil
+}
 
-	return result, nil
+func (s *UserServiceImpl) FindByPublicKey(key string) (*gen.FindUserByPublicKeyRow, error) {
+	result, err := s.Repo.FindUserByPublicKey(context.Background(), key)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
 
 func (s *UserServiceImpl) GetPublicKey(userID string) (string, error) {
-	result, err := s.UserRepo.GetPublicKey(context.Background(), userID)
+	id := uuid.MustParse(userID)
+	result, err := s.Repo.FindUserPublicKey(context.Background(), id)
 	if err != nil {
 		return "", err
 	}
@@ -47,23 +57,27 @@ func (s *UserServiceImpl) GetPublicKey(userID string) (string, error) {
 	return result, nil
 }
 
-func (s *UserServiceImpl) CreateUser(payload *dto.GooglePayload) (*entities.User, error) {
+func (s *UserServiceImpl) CreateUser(payload *dto.GooglePayload) (*gen.CreateUserRow, error) {
 	// generate random 48 long for public key
 	key := s.UtilService.GenerateRandomID(48)
 
-	input := &dto.CreateUserInput{
-		Fullname:      payload.GivenName,
-		Email:         payload.Email,
-		OAuthID:       payload.SUB,
-		OAuthProvider: "google",
-		ProfileURL:    payload.Picture,
-		PublicKey:     key,
+	input := gen.CreateUserParams{
+		Fullname: payload.GivenName,
+		Email:    payload.Email,
+		OauthID: pgtype.Text{
+			String: payload.SUB,
+		},
+		OauthProvider: "google",
+		ProfileUrl: pgtype.Text{
+			String: payload.Picture,
+		},
+		PublicKey: key,
 	}
 
-	result, err := s.UserRepo.CreateUser(context.Background(), input)
+	result, err := s.Repo.CreateUser(context.Background(), input)
 	if err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return &result, nil
 }

@@ -2,12 +2,12 @@ package pages
 
 import (
 	"fmt"
-	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/components"
 	"github.com/hubkudev/sentinel/views/components/popups"
 )
 
-templ ProjectsPage(user *entities.User, projects []entities.Project) {
+templ ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) {
 	@components.Layout("Projects | Sentinel") {
 		<body x-data={ templ.JSONString(map[string]int{"percentage": (len(projects) * 100 / 5)}) }>
 			@components.Drawer(user, components.DRAWER_PROJECTS) {
@@ -88,10 +88,10 @@ templ ProjectsPage(user *entities.User, projects []entities.Project) {
 															}) }}"
 												>
 													<p class="truncate text-ellipsis max-w-[100px]">
-														{ v.ID }
+														{ v.ID.String() }
 													</p>
 													<div class="flex items-center justify-center">
-														<input x-ref="projectId" type="hidden" value={ v.ID } class="w-full" disabled/>
+														<input x-ref="projectId" type="hidden" value={ v.ID.String() } class="w-full" disabled/>
 														<button class="rounded-full mx-1 w-fit text-neutral-600/75 hover:bg-neutral-950/10 hover:text-neutral-600 focus:outline-none focus-visible:text-neutral-600 focus-visible:outline focus-visible:outline-offset-0 focus-visible:outline-black active:bg-neutral-950/5 active:-outline-offset-2 dark:text-neutral-300/75 dark:hover:bg-white/10 dark:hover:text-neutral-300 dark:focus-visible:text-neutral-300 dark:focus-visible:outline-white dark:active:bg-white/5" title="Copy" aria-label="Copy" x-on:click="copy()" x-on:click.away="copied = false">
 															<span class="sr-only" x-text="copied ? 'copied' : 'copy the response to clipboard'"></span>
 															<svg x-show="!copied" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
@@ -105,14 +105,14 @@ templ ProjectsPage(user *entities.User, projects []entities.Project) {
 													</div>
 												</td>
 												<th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{ v.Name }</th>
-												<td class="px-4 py-3">{ v.Description }</td>
+												<td class="px-4 py-3">{ v.Description.String }</td>
 												<td class="px-4 py-3">
 													<span class="animate-pulse mt-1 inline-flex items-center justify-center w-3 h-3 text-xs font-semibold bg-secondary rounded-full"></span>
 													A few minutes ago
 												</td>
 												<td class="px-4 py-3">0KB<strong>/1GB</strong></td>
 												<td class="px-4 py-3">
-													{ v.CreatedAt.Format("02 Jan 2006") }
+													{ v.CreatedAt.Time.Format("02 Jan 2006") }
 												</td>
 												<td class="px-4 py-3 flex items-center justify-end">
 													<!-- DROPDOWN TOGGLE -->

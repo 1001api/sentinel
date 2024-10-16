@@ -3,29 +3,34 @@ package services
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
-	"github.com/hubkudev/sentinel/dto"
-	"github.com/hubkudev/sentinel/entities"
-	repositories "github.com/hubkudev/sentinel/repos"
+	"github.com/google/uuid"
+	"github.com/hubkudev/sentinel/gen"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ProjectService interface {
-	CreateProject(name string, desc string, userID string) (*entities.Project, error)
-	UpdateProject(name string, desc string, projectID string, userID string) error
-	GetProjectByID(projectID string, userID string) (*entities.Project, error)
-	GetAllProjects(userID string) ([]entities.Project, error)
-	GetProjectCount(userID string) (int, error)
-	DeleteProject(userID string, projectID string) error
+	CreateProject(ctx context.Context, name string, desc string, userID string) (*gen.CreateProjectRow, error)
+	UpdateProject(ctx context.Context, name string, desc string, projectID string, userID string) error
+	GetProjectByID(ctx context.Context, projectID string, userID string) (*gen.FindProjectByIDRow, error)
+	GetAllProjects(ctx context.Context, userID string) ([]gen.FindAllProjectsRow, error)
+	GetProjectCount(ctx context.Context, userID string) (int64, error)
+	DeleteProject(ctx context.Context, userID string, projectID string) error
 }
 
 type ProjectServiceImpl struct {
-	ProjectRepo repositories.ProjectRepository
+	Repo *gen.Queries
+	DB   *pgxpool.Pool
 }
 
-func (s *ProjectServiceImpl) CreateProject(name string, desc string, userID string) (*entities.Project, error) {
+func (s *ProjectServiceImpl) CreateProject(ctx context.Context, name string, desc string, userID string) (*gen.CreateProjectRow, error) {
+	userUUID := uuid.MustParse(userID)
+
 	// check how many projects already this user has
-	count, err := s.ProjectRepo.CountProject(context.Background(), userID)
+	count, err := s.Repo.CountProject(ctx, userUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,37 +41,95 @@ func (s *ProjectServiceImpl) CreateProject(name string, desc string, userID stri
 		return nil, errors.New("Total project already at max") // reject with error
 	}
 
-	input := dto.CreateProjectInput{
-		Name:        name,
-		Description: desc,
-		UserID:      userID,
-		CreatedAt:   time.Now(),
+	input := gen.CreateProjectParams{
+		Name: name,
+		Description: pgtype.Text{
+			String: desc,
+			Valid:  desc != "",
+		},
+		UserID: userUUID,
+		CreatedAt: pgtype.Timestamptz{
+			Time:  time.Now(),
+			Valid: true,
+		},
 	}
 
-	key, err := s.ProjectRepo.CreateProject(context.Background(), &input)
+	key, err := s.Repo.CreateProject(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	return key, nil
+	return &key, nil
 }
 
-func (s *ProjectServiceImpl) UpdateProject(name string, desc string, projectID string, userID string) error {
-	return s.ProjectRepo.UpdateProject(context.Background(), name, desc, projectID, userID)
+func (s *ProjectServiceImpl) UpdateProject(ctx context.Context, name string, desc string, projectID string, userID string) error {
+	userUUID, projectUUID := uuid.MustParse(userID), uuid.MustParse(projectID)
+	return s.Repo.UpdateProject(ctx, gen.UpdateProjectParams{
+		Name: name,
+		Description: pgtype.Text{
+			String: desc,
+			Valid:  desc != "",
+		},
+		ID:     projectUUID,
+		UserID: userUUID,
+	})
 }
 
-func (s *ProjectServiceImpl) GetProjectByID(projectID string, userID string) (*entities.Project, error) {
-	return s.ProjectRepo.GetByID(context.Background(), projectID, userID)
+func (s *ProjectServiceImpl) GetProjectByID(ctx context.Context, projectID string, userID string) (*gen.FindProjectByIDRow, error) {
+	userUUID, projectUUID := uuid.MustParse(userID), uuid.MustParse(projectID)
+	row, err := s.Repo.FindProjectByID(ctx, gen.FindProjectByIDParams{
+		ID:     projectUUID,
+		UserID: userUUID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &row, nil
 }
 
-func (s *ProjectServiceImpl) GetAllProjects(userID string) ([]entities.Project, error) {
-	return s.ProjectRepo.FindAll(context.Background(), userID)
+func (s *ProjectServiceImpl) GetAllProjects(ctx context.Context, userID string) ([]gen.FindAllProjectsRow, error) {
+	userUUID := uuid.MustParse(userID)
+	return s.Repo.FindAllProjects(ctx, userUUID)
 }
 
-func (s *ProjectServiceImpl) GetProjectCount(userID string) (int, error) {
-	return s.ProjectRepo.CountProject(context.Background(), userID)
+func (s *ProjectServiceImpl) GetProjectCount(ctx context.Context, userID string) (int64, error) {
+	userUUID := uuid.MustParse(userID)
+	return s.Repo.CountProject(ctx, userUUID)
 }
 
-func (s *ProjectServiceImpl) DeleteProject(userID string, projectID string) error {
-	return s.ProjectRepo.DeleteProject(context.Background(), userID, projectID)
+func (s *ProjectServiceImpl) DeleteProject(ctx context.Context, userID string, projectID string) error {
+	userUUID, projectUUID := uuid.MustParse(userID), uuid.MustParse(projectID)
+
+	tx, err := s.DB.Begin(ctx)
+	if err != nil {
+		log.Println("error starting the transaction", err)
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	qtx := s.Repo.WithTx(tx)
+
+	// delete project
+	if err = qtx.DeleteProject(ctx, gen.DeleteProjectParams{
+		UserID: userUUID,
+		ID:     projectUUID,
+	}); err != nil {
+		return err
+	}
+
+	// delete event related to project
+	if err = qtx.DeleteEventByProjectID(ctx, gen.DeleteEventByProjectIDParams{
+		UserID:    userUUID,
+		ProjectID: projectUUID,
+	}); err != nil {
+		return err
+	}
+
+	// commit if everything alright
+	if err = tx.Commit(ctx); err != nil {
+		log.Println("error commiting the transaction", err)
+		return err
+	}
+
+	return nil
 }

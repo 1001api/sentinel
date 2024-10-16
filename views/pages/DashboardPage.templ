@@ -1,11 +1,11 @@
 package pages
 
 import (
-	"github.com/hubkudev/sentinel/entities"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/components"
 )
 
-templ DashboardPage(user *entities.User) {
+templ DashboardPage(user *gen.FindUserByIDRow) {
 	@components.Layout("Sentinel Dashboard") {
 		<body>
 			@components.Drawer(user, components.DRAWER_DASHBOARD) {

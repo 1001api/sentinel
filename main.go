@@ -9,8 +9,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
+	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/middlewares"
-	repositories "github.com/hubkudev/sentinel/repos"
 	"github.com/hubkudev/sentinel/routes"
 	"github.com/hubkudev/sentinel/services"
 	"github.com/joho/godotenv"
@@ -48,9 +48,7 @@ func main() {
 	stateStore := configs.InitStateSession(redisCon)
 
 	// init repo
-	userRepo := repositories.UserRepoImpl{DB: db}
-	projectRepo := repositories.ProjectRepositoryImpl{DB: db}
-	eventRepo := repositories.EventRepoImpl{DB: db}
+	repository := gen.New(db)
 
 	// init services
 	utilService := services.UtilServiceImpl{
@@ -58,7 +56,7 @@ func main() {
 	}
 	userService := services.UserServiceImpl{
 		UtilService: &utilService,
-		UserRepo:    &userRepo,
+		Repo:        repository,
 	}
 	authService := services.AuthServiceImpl{
 		UtilService:  &utilService,
@@ -67,12 +65,12 @@ func main() {
 		StateStore:   stateStore,
 	}
 	projectService := services.ProjectServiceImpl{
-		ProjectRepo: &projectRepo,
+		Repo: repository,
+		DB:   db,
 	}
 	eventService := services.EventServiceImpl{
 		UtilService: &utilService,
-		ProjectRepo: &projectRepo,
-		EventRepo:   &eventRepo,
+		Repo:        repository,
 	}
 	apiService := services.APIServiceImpl{
 		ProjectService: &projectService,
@@ -86,7 +84,7 @@ func main() {
 
 	// init middlewares
 	m := middlewares.MiddlewareImpl{
-		UserRepo:       &userRepo,
+		UserService:    &userService,
 		SessionStorage: sessionStore,
 	}
 
