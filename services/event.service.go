@@ -55,6 +55,16 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project not found"})
 	}
 
+	// check if the project size does not exceed 500MB
+	// if yes dont proceed further.
+	projectSize, _ := s.Repo.CountProjectSize(context.Background(), gen.CountProjectSizeParams{
+		ProjectID: projectUUID,
+		UserID:    user.ID,
+	})
+	if projectSize > 500*1000 { // 500*1000 KB = 500 MB
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project already exceed maximum size"})
+	}
+
 	payload := gen.CreateEventParams{
 		// i need to insert the dto payload here, but its tedious to do it manually, F
 		EventType:        input.EventType,
