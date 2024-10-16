@@ -13,6 +13,8 @@ func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.
 	project.Post("/create", m.ProtectedRoute, apiService.CreateProject)
 	project.Put("/update", m.ProtectedRoute, apiService.UpdateProject)
 	project.Delete("/delete", m.ProtectedRoute, apiService.DeleteProject)
+	project.Get("/size/:id", m.ProtectedRoute, apiService.CountProjectSize)
+	project.Get("/last-data-retrieved/:id", m.ProtectedRoute, apiService.LastDataRetrieved)
 
 	event := api.Group("event")
 	event.Get("/live", m.ProtectedRoute, apiService.LiveEvents)

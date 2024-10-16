@@ -14,6 +14,8 @@ type APIService interface {
 	CreateProject(ctx *fiber.Ctx) error
 	UpdateProject(ctx *fiber.Ctx) error
 	DeleteProject(ctx *fiber.Ctx) error
+	CountProjectSize(ctx *fiber.Ctx) error
+	LastDataRetrieved(c *fiber.Ctx) error
 	LiveEvents(ctx *fiber.Ctx) error
 	LiveEventDetail(ctx *fiber.Ctx) error
 	GetEventSummary(c *fiber.Ctx) error
@@ -98,6 +100,48 @@ func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
 
 	c.Set("HX-Refresh", "true")
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *APIServiceImpl) CountProjectSize(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	projectID := c.Params("id")
+
+	if projectID == "" {
+		return c.SendString("Project ID required")
+	}
+
+	sizeInKB, err := s.ProjectService.CountProjectSize(context.Background(), projectID, user.ID.String())
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	buf := bytes.Buffer{}
+
+	text := pages.ProjectSizeText(sizeInKB)
+	text.Render(context.Background(), &buf)
+
+	return c.SendString(buf.String())
+}
+
+func (s *APIServiceImpl) LastDataRetrieved(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	projectID := c.Params("id")
+
+	if projectID == "" {
+		return c.SendString("Project ID required")
+	}
+
+	lastTime, err := s.ProjectService.LastProjectDataReceived(context.Background(), projectID, user.ID.String())
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	buf := bytes.Buffer{}
+
+	text := pages.ProjectLastDataText(lastTime)
+	text.Render(context.Background(), &buf)
+
+	return c.SendString(buf.String())
 }
 
 func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {

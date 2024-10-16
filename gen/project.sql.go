@@ -7,6 +7,7 @@ package gen
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -37,6 +38,25 @@ func (q *Queries) CountProject(ctx context.Context, userID uuid.UUID) (int64, er
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const countProjectSize = `-- name: CountProjectSize :one
+SELECT 
+    COALESCE(SUM(pg_column_size(events.*)) / 1024, 0)::bigint AS total_project_size
+FROM events 
+WHERE user_id = $1 AND project_id = $2
+`
+
+type CountProjectSizeParams struct {
+	UserID    uuid.UUID
+	ProjectID uuid.UUID
+}
+
+func (q *Queries) CountProjectSize(ctx context.Context, arg CountProjectSizeParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countProjectSize, arg.UserID, arg.ProjectID)
+	var total_project_size int64
+	err := row.Scan(&total_project_size)
+	return total_project_size, err
 }
 
 const createProject = `-- name: CreateProject :one
@@ -147,6 +167,24 @@ func (q *Queries) FindProjectByID(ctx context.Context, arg FindProjectByIDParams
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const lastProjectDataReceived = `-- name: LastProjectDataReceived :one
+SELECT received_at FROM events 
+WHERE user_id = $1 AND project_id = $2
+ORDER BY received_at DESC LIMIT 1
+`
+
+type LastProjectDataReceivedParams struct {
+	UserID    uuid.UUID
+	ProjectID uuid.UUID
+}
+
+func (q *Queries) LastProjectDataReceived(ctx context.Context, arg LastProjectDataReceivedParams) (time.Time, error) {
+	row := q.db.QueryRow(ctx, lastProjectDataReceived, arg.UserID, arg.ProjectID)
+	var received_at time.Time
+	err := row.Scan(&received_at)
+	return received_at, err
 }
 
 const updateProject = `-- name: UpdateProject :exec

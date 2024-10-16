@@ -19,6 +19,8 @@ type ProjectService interface {
 	GetAllProjects(ctx context.Context, userID string) ([]gen.FindAllProjectsRow, error)
 	GetProjectCount(ctx context.Context, userID string) (int64, error)
 	DeleteProject(ctx context.Context, userID string, projectID string) error
+	CountProjectSize(ctx context.Context, projectID string, userID string) (int64, error)
+	LastProjectDataReceived(ctx context.Context, projectID string, userID string) (*time.Time, error)
 }
 
 type ProjectServiceImpl struct {
@@ -132,4 +134,32 @@ func (s *ProjectServiceImpl) DeleteProject(ctx context.Context, userID string, p
 	}
 
 	return nil
+}
+
+func (s *ProjectServiceImpl) CountProjectSize(ctx context.Context, projectID string, userID string) (int64, error) {
+	userUUID, projectUUID := uuid.MustParse(userID), uuid.MustParse(projectID)
+
+	size, err := s.Repo.CountProjectSize(ctx, gen.CountProjectSizeParams{
+		UserID:    userUUID,
+		ProjectID: projectUUID,
+	})
+	if err != nil {
+		return -1, err
+	}
+
+	return size, err
+}
+
+func (s *ProjectServiceImpl) LastProjectDataReceived(ctx context.Context, projectID string, userID string) (*time.Time, error) {
+	userUUID, projectUUID := uuid.MustParse(userID), uuid.MustParse(projectID)
+
+	lastTime, err := s.Repo.LastProjectDataReceived(ctx, gen.LastProjectDataReceivedParams{
+		UserID:    userUUID,
+		ProjectID: projectUUID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &lastTime, err
 }
