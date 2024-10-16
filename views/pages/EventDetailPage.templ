@@ -112,7 +112,7 @@ templ EventDetailPage(props EventDetailPageProps) {
 							</svg>
 							<h5 class="text-lg font-semibold">Live Events (Last 1 hour)</h5>
 						</div>
-						<p class="text-sm text-gray-700">Track real-time events as they occur across all your projects. View incoming events from the past hour, fired from different parts of your system.</p>
+						<p class="text-sm text-gray-700">Track real-time events as they occur in your current project. View incoming events from the past hour.</p>
 					</div>
 					<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 						<table hx-get={ fmt.Sprintf("/api/event/live/%s", props.Project.ID) } hx-trigger="revealed, every 10s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-target="#live-events" hx-swap="innerHTML" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">

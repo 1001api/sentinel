@@ -21,5 +21,5 @@ window.addEventListener("message", (e) => {
     // ensure retrieve only from origin
     if (e.origin !== window.location.origin) return;
     const { success } = e.data;
-    if (success) window.location.href = `${window.location.origin}/dashboard`;
+    if (success) window.location.href = `${window.location.origin}/events`;
 })
