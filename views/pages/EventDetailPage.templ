@@ -14,6 +14,7 @@ type EventDetailPageProps struct {
 	Summary          *entities.EventDetail
 	WeeklyEventChart *entities.EventSummaryChart
 	EventTypeChart   []gen.GetPercentageEventsTypeRow
+	EventLabelChart  []gen.GetPercentageEventsLabelRow
 }
 
 templ EventDetailPage(props EventDetailPageProps) {
@@ -22,6 +23,7 @@ templ EventDetailPage(props EventDetailPageProps) {
 		<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 		@templ.JSONScript("weekly-events", props.WeeklyEventChart.Time)
 		@templ.JSONScript("event-type-chart", props.EventTypeChart)
+		@templ.JSONScript("event-label-chart", props.EventLabelChart)
 		@templ.JSONScript("project-id", props.Project.ID)
 	</head>
 	@components.Layout("Event Detail | Sentinel") {
@@ -93,8 +95,8 @@ templ EventDetailPage(props EventDetailPageProps) {
 						<div class="max-w-sm w-full bg-white rounded-lg dark:bg-gray-800 p-4 md:p-6">
 							<div class="flex justify-between items-start w-full">
 								<div>
-									<h5 class="leading-none text-3xl font-bold text-gray-900 dark:text-white pb-2">240</h5>
-									<p class="text-base font-normal text-gray-500 dark:text-gray-400">Event Labels</p>
+									<h5 class="leading-none text-xl font-bold text-gray-900 dark:text-white pb-2">Event Labels</h5>
+									<p class="text-base text-sm font-normal text-gray-500 dark:text-gray-400">Total of event labels.</p>
 								</div>
 							</div>
 							<div class="p-0 pt-6 h-[300px] max-h-[300px]" id="column-chart"></div>

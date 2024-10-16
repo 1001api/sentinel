@@ -20,6 +20,7 @@ type APIService interface {
 	GetEventSummaryDetail(c *fiber.Ctx) error
 	JSONWeeklyEventChart(c *fiber.Ctx) error
 	JSONEventTypeChart(c *fiber.Ctx) error
+	JSONEventLabelChart(c *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
@@ -205,4 +206,20 @@ func (s *APIServiceImpl) JSONEventTypeChart(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(percentage)
+}
+
+func (s *APIServiceImpl) JSONEventLabelChart(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	projectID := c.Params("id")
+	if projectID == "" {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	labels, err := s.EventService.GetEventLabelChart(context.Background(), projectID, user.ID.String())
+	if err != nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(labels)
 }

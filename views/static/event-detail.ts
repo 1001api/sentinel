@@ -10,6 +10,15 @@ function getEventType(arr) {
     return arr?.map(v => v.EventType) ?? [];
 }
 
+function getEventLabel(arr) {
+    const result = [];
+    arr?.map(v => result.push({
+        x: v.EventLabel,
+        y: v.Total
+    })) ?? [];
+    return result;
+}
+
 const UPDATE_INTERVAL = 10000; // 10 seconds
 const projectID = document.getElementById("project-id")?.textContent;
 const id = projectID ? JSON.parse(projectID) : null;
@@ -17,10 +26,13 @@ const weeklyEventElem = document.getElementById("weekly-events")?.textContent;
 const weeklyEvent = weeklyEventElem ? JSON.parse(weeklyEventElem) : [];
 const eventTypeElem = document.getElementById("event-type-chart")?.textContent;
 const eventTypes = eventTypeElem ? JSON.parse(eventTypeElem) : [];
+const eventLabelElem = document.getElementById("event-label-chart")?.textContent;
+const eventLabels = eventLabelElem ? JSON.parse(eventLabelElem) : [];
 let weeklyEventTimestamp = getWeeklyEventTime(weeklyEvent);
 let weeklyEventData = getTotal(weeklyEvent);
 let eventTypesLabels = getEventType(eventTypes);
 let eventTypesPercentage = getTotal(eventTypes);
+let eventLabelsData = getEventLabel(eventLabels);
 const weeklyEventTotalElem = document.getElementById("weekly-event-total");
 
 const areaOptions = {
@@ -145,26 +157,16 @@ const pieOptions = {
 }
 
 const columnOptions = {
-    colors: ["#1A56DB", "#FDBA8C"],
     series: [
         {
-            name: "Organic",
-            color: "#1A56DB",
-            data: [
-                { x: "Mon", y: 231 },
-                { x: "Tue", y: 122 },
-                { x: "Wed", y: 63 },
-                { x: "Thu", y: 421 },
-                { x: "Fri", y: 122 },
-                { x: "Sat", y: 323 },
-                { x: "Sun", y: 111 },
-            ],
+            name: "X Event Fired",
+            data: eventLabelsData,
         },
     ],
     chart: {
         type: "bar",
-        height: "300px",
-        fontFamily: "Inter, sans-serif",
+        height: "350px",
+        fontFamily: "Space Grotesk, sans-serif",
         toolbar: {
             show: false,
         },
@@ -174,6 +176,7 @@ const columnOptions = {
     },
     plotOptions: {
         bar: {
+            distributed: true,
             horizontal: false,
             columnWidth: "70%",
             borderRadiusApplication: "end",
@@ -184,7 +187,7 @@ const columnOptions = {
         shared: true,
         intersect: false,
         style: {
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "Space Grotesk, sans-serif",
         },
     },
     states: {
@@ -210,25 +213,25 @@ const columnOptions = {
         },
     },
     dataLabels: {
-        enabled: false,
+        enabled: true,
     },
     legend: {
         show: false,
     },
     xaxis: {
-        floating: false,
+        floating: true,
         labels: {
-            show: true,
+            show: false,
             style: {
-                fontFamily: "Inter, sans-serif",
-                cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400'
+                fontFamily: "Space Grotesk, sans-serif",
+                cssClass: 'text-xs font-light fill-gray-500 dark:fill-gray-400'
             }
         },
         axisBorder: {
-            show: false,
+            show: true,
         },
         axisTicks: {
-            show: false,
+            show: true,
         },
     },
     yaxis: {
@@ -251,6 +254,7 @@ setInterval(function() {
     Promise.allSettled([
         updateAreaChart(areaChart),
         updatePieChart(pieChart),
+        updateBarChart(columnChart),
     ])
 }, UPDATE_INTERVAL);
 
@@ -294,6 +298,29 @@ function updatePieChart(chart) {
 
             // update chart with a new data series
             chart.updateOptions(pieOptions);
+        },
+        error: function() {
+            console.log("Error fetching new chart data");
+        }
+    });
+}
+
+function updateBarChart(chart) {
+    $.ajax({
+        url: `/api/json/event-label/chart/${id}`,
+        type: "GET",
+        success: function(data) {
+            const newSeries = getEventLabel(data);
+
+            columnOptions.series = [
+                {
+                    name: "X Event Fired",
+                    data: newSeries,
+                },
+            ];
+
+            // update chart with a new data series
+            chart.updateOptions(columnOptions);
         },
         error: function() {
             console.log("Error fetching new chart data");

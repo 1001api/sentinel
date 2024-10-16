@@ -430,6 +430,45 @@ func (q *Queries) GetLiveEventsDetail(ctx context.Context, arg GetLiveEventsDeta
 	return items, nil
 }
 
+const getPercentageEventsLabel = `-- name: GetPercentageEventsLabel :many
+SELECT event_label, count(event_label) AS total
+FROM events
+WHERE user_id = $2 AND project_id = $1
+GROUP BY event_label
+ORDER BY total DESC
+LIMIT 10
+`
+
+type GetPercentageEventsLabelParams struct {
+	ProjectID uuid.UUID
+	UserID    uuid.UUID
+}
+
+type GetPercentageEventsLabelRow struct {
+	EventLabel pgtype.Text
+	Total      int64
+}
+
+func (q *Queries) GetPercentageEventsLabel(ctx context.Context, arg GetPercentageEventsLabelParams) ([]GetPercentageEventsLabelRow, error) {
+	rows, err := q.db.Query(ctx, getPercentageEventsLabel, arg.ProjectID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPercentageEventsLabelRow
+	for rows.Next() {
+		var i GetPercentageEventsLabelRow
+		if err := rows.Scan(&i.EventLabel, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPercentageEventsType = `-- name: GetPercentageEventsType :many
 SELECT event_type, COUNT(*) AS total
 FROM events
