@@ -44,7 +44,7 @@ templ EventsPage(props EventsPageProps) {
 						<a href={ templ.SafeURL(fmt.Sprintf("/events/%s", v.ID)) } class="block max-w-sm pt-6 pb-4 px-4 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
 							<h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{ v.Name }</h5>
 							<p class="font-normal text-sm text-gray-700 dark:text-gray-400">{ v.Description.String }</p>
-							<div hx-get={ fmt.Sprintf("/api/event/summary/%s", v.ID) } hx-trigger="load, every 10s" hx-swap="innerHTML"></div>
+							<div hx-get={ fmt.Sprintf("/api/event/summary/%s", v.ID) } hx-trigger="revealed, every 10s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-swap="innerHTML"></div>
 						</a>
 					}
 					for range 5 - len(props.Projects) {
@@ -65,7 +65,7 @@ templ EventsPage(props EventsPageProps) {
 						<p class="text-sm text-gray-700">Track real-time events as they occur across all your projects. View incoming events from the past hour, fired from different parts of your system.</p>
 					</div>
 					<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-						<table hx-get="/api/event/live" hx-trigger="every 5s" hx-target="#live-events" hx-swap="outerHTML" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+						<table hx-get="/api/event/live" hx-trigger="revealed, every 5s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-target="#live-events" hx-swap="outerHTML" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 							<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 								<tr>
 									<th scope="col" class="py-3"></th>
