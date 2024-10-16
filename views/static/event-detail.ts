@@ -2,8 +2,12 @@ function getWeeklyEventTime(arr) {
     return arr?.map(v => new Date(v.Timestamp).toDateString()) ?? [];
 }
 
-function getWeeklyEventData(arr) {
+function getTotal(arr) {
     return arr?.map(v => v.Total) ?? [];
+}
+
+function getEventType(arr) {
+    return arr?.map(v => v.EventType) ?? [];
 }
 
 const UPDATE_INTERVAL = 10000; // 10 seconds
@@ -11,8 +15,12 @@ const projectID = document.getElementById("project-id")?.textContent;
 const id = projectID ? JSON.parse(projectID) : null;
 const weeklyEventElem = document.getElementById("weekly-events")?.textContent;
 const weeklyEvent = weeklyEventElem ? JSON.parse(weeklyEventElem) : [];
+const eventTypeElem = document.getElementById("event-type-chart")?.textContent;
+const eventTypes = eventTypeElem ? JSON.parse(eventTypeElem) : [];
 let weeklyEventTimestamp = getWeeklyEventTime(weeklyEvent);
-let weeklyEventData = getWeeklyEventData(weeklyEvent);
+let weeklyEventData = getTotal(weeklyEvent);
+let eventTypesLabels = getEventType(eventTypes);
+let eventTypesPercentage = getTotal(eventTypes);
 const weeklyEventTotalElem = document.getElementById("weekly-event-total");
 
 const areaOptions = {
@@ -91,10 +99,9 @@ const areaOptions = {
 }
 
 const pieOptions = {
-    series: [52.8, 26.8, 20.4],
-    colors: ["#1C64F2", "#16BDCA", "#9061F9"],
+    series: eventTypesPercentage,
     chart: {
-        height: "300px",
+        height: "380px",
         width: "100%",
         type: "pie",
         animations: {
@@ -116,7 +123,7 @@ const pieOptions = {
             }
         },
     },
-    labels: ["Direct", "Organic search", "Referrals"],
+    labels: eventTypesLabels,
     dataLabels: {
         enabled: true,
         style: {
@@ -125,26 +132,14 @@ const pieOptions = {
     },
     legend: {
         position: "bottom",
-        fontFamily: "Inter, sans-serif",
-    },
-    yaxis: {
-        labels: {
-            formatter: function(value) {
-                return value + "%"
-            },
-        },
+        fontFamily: "Space Grotesk, sans-serif",
     },
     xaxis: {
-        labels: {
-            formatter: function(value) {
-                return value + "%"
-            },
-        },
         axisTicks: {
-            show: false,
+            show: true,
         },
         axisBorder: {
-            show: false,
+            show: true,
         },
     },
 }
@@ -253,7 +248,10 @@ pieChart.render();
 columnChart.render();
 
 setInterval(function() {
-    updateAreaChart(areaChart);
+    Promise.allSettled([
+        updateAreaChart(areaChart),
+        updatePieChart(pieChart),
+    ])
 }, UPDATE_INTERVAL);
 
 function updateAreaChart(chart) {
@@ -261,7 +259,7 @@ function updateAreaChart(chart) {
         url: `/api/json/event/chart/${id}`,
         type: "GET",
         success: function(data) {
-            const newSeries = getWeeklyEventData(data.Time);
+            const newSeries = getTotal(data.Time);
 
             // Update total text if available
             if (weeklyEventTotalElem) {
@@ -276,6 +274,26 @@ function updateAreaChart(chart) {
                     color: "#1A56DB",
                 },
             ]);
+        },
+        error: function() {
+            console.log("Error fetching new chart data");
+        }
+    });
+}
+
+function updatePieChart(chart) {
+    $.ajax({
+        url: `/api/json/event-type/chart/${id}`,
+        type: "GET",
+        success: function(data) {
+            const newSeries = getTotal(data);
+            const newLabels = getEventType(data);
+
+            pieOptions.labels = newLabels;
+            pieOptions.series = newSeries;
+
+            // update chart with a new data series
+            chart.updateOptions(pieOptions);
         },
         error: function() {
             console.log("Error fetching new chart data");

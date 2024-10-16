@@ -22,6 +22,7 @@ func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.
 
 	json := api.Group("json")
 	json.Get("/event/chart/:id", m.ProtectedRoute, apiService.JSONWeeklyEventChart)
+	json.Get("/event-type/chart/:id", m.ProtectedRoute, apiService.JSONEventTypeChart)
 
 	v1 := api.Group("v1")
 	v1.Post("/event", m.APIProtectedRoute, eventService.CreateEvent)

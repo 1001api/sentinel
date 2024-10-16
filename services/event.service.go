@@ -22,6 +22,7 @@ type EventService interface {
 	GetEventSummary(ctx context.Context, projectID string, userID string) (*gen.GetEventSummaryRow, error)
 	GetEventDetailSummary(ctx context.Context, projectID string, userID string) (*entities.EventDetail, error)
 	GetWeeklyEventsChart(ctx context.Context, projectID string, userID string) (*entities.EventSummaryChart, error)
+	GetEventTypeChart(ctx context.Context, projectID string, userID string) ([]gen.GetPercentageEventsTypeRow, error)
 }
 
 type EventServiceImpl struct {
@@ -207,4 +208,12 @@ func (s *EventServiceImpl) GetWeeklyEventsChart(ctx context.Context, projectID s
 	}
 
 	return &summary, nil
+}
+
+func (s *EventServiceImpl) GetEventTypeChart(ctx context.Context, projectID string, userID string) ([]gen.GetPercentageEventsTypeRow, error) {
+	projectUUID, userUUID := uuid.MustParse(projectID), uuid.MustParse(userID)
+	return s.Repo.GetPercentageEventsType(ctx, gen.GetPercentageEventsTypeParams{
+		ProjectID: projectUUID,
+		UserID:    userUUID,
+	})
 }
