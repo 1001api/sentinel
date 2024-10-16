@@ -61,7 +61,7 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		ProjectID: projectUUID,
 		UserID:    user.ID,
 	})
-	if projectSize > 500*1000 { // 500*1000 KB = 500 MB
+	if projectSize > 200*1000 { // 200*1000 KB = 200 MB
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project already exceed maximum size"})
 	}
 

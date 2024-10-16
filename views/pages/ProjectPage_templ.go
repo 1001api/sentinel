@@ -384,7 +384,7 @@ func ProjectSizeText(size int64) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("KB<strong>/500MB</strong>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("KB<strong>/200MB</strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

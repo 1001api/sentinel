@@ -176,7 +176,7 @@ templ ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow)
 }
 
 templ ProjectSizeText(size int64) {
-	{ fmt.Sprintf("%d", size) }KB<strong>/500MB</strong>
+	{ fmt.Sprintf("%d", size) }KB<strong>/200MB</strong>
 }
 
 templ ProjectLastDataText(lastTime *time.Time) {
