@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/hubkudev/sentinel/middlewares"
 	"github.com/hubkudev/sentinel/services"
 )
@@ -20,4 +21,5 @@ func InitWebRoute(app *fiber.App, m middlewares.Middleware, webService services.
 	misc := app.Group("/misc")
 	misc.Get("/tos", webService.SendTOSPage)
 	misc.Get("/auth-redirect", webService.SendAuthRedirectPage)
+	misc.Get("/metrics", monitor.New())
 }
