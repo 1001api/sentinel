@@ -17,6 +17,7 @@ type WebService interface {
 	SendLandingPage(ctx *fiber.Ctx) error
 	SendLoginPage(ctx *fiber.Ctx) error
 	SendDashboardPage(ctx *fiber.Ctx) error
+	SendPricingPage(ctx *fiber.Ctx) error
 	SendEventsPage(ctx *fiber.Ctx) error
 	SendEventDetailPage(ctx *fiber.Ctx) error
 	SendProjectsPage(ctx *fiber.Ctx) error
@@ -42,6 +43,10 @@ func (s *WebServiceImpl) SendLoginPage(c *fiber.Ctx) error {
 func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 	return configs.Render(c, pages.DashboardPage(user))
+}
+
+func (s *WebServiceImpl) SendPricingPage(c *fiber.Ctx) error {
+	return configs.Render(c, pages.PricingPage())
 }
 
 func (s *WebServiceImpl) SendEventsPage(c *fiber.Ctx) error {
