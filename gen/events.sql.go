@@ -14,6 +14,19 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countUserMonthlyEvents = `-- name: CountUserMonthlyEvents :one
+SELECT COUNT(id) FROM events 
+WHERE user_id = $1
+AND received_at > date_trunc('month', NOW())
+`
+
+func (q *Queries) CountUserMonthlyEvents(ctx context.Context, userID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countUserMonthlyEvents, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createEvent = `-- name: CreateEvent :exec
 INSERT INTO events (
     event_type,

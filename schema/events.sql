@@ -230,3 +230,8 @@ WHERE user_id = $2 AND project_id = $1
 GROUP BY event_label
 ORDER BY total DESC
 LIMIT 10;
+
+-- name: CountUserMonthlyEvents :one
+SELECT COUNT(id) FROM events 
+WHERE user_id = $1
+AND received_at > date_trunc('month', NOW());

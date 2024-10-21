@@ -47,13 +47,36 @@ templ EventsPage(props EventsPageProps) {
 							<div hx-get={ fmt.Sprintf("/api/event/summary/%s", v.ID) } hx-trigger="revealed, every 10s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-swap="innerHTML"></div>
 						</a>
 					}
-					for range 5 - len(props.Projects) {
-						<div
-							class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-32 md:h-full"
-						></div>
-					}
 				</div>
-				<section class="flex flex-col gap-4 px-4 mt-12">
+				<section class="flex flex-col gap-4 mt-12">
+					<div class="p-4 mb-4 flex items-center overflow-hidden justify-between border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800" role="alert">
+						<div>
+							<div class="flex gap-1 items-end">
+								<h3 class="text-2xl font-medium">
+									<span hx-get="/api/event/monthly/count" hx-trigger="load, every 30s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document">0</span>/<span class="text-sm">100.000</span>
+								</h3>
+								<p class="text-sm mb-[2px]">
+									Events this month
+								</p>
+							</div>
+							<div class="mt-2 mb-4 text-sm">
+								You are currently on the free tier, which limits the total number of events to a maximum of 100,000 per month.
+							</div>
+							<div class="flex">
+								<a href="/pricing" class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex gap-1 items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59"></path>
+									</svg>
+									Upgrade to remove limit
+								</a>
+							</div>
+						</div>
+						<span class="px-12 flex items-center scale-[11] mr-14">
+							🦹
+						</span>
+					</div>
+				</section>
+				<section class="flex flex-col gap-4 px-4 mt-6">
 					<div>
 						<div class="flex items-center gap-1">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5 animate-spin-slow">

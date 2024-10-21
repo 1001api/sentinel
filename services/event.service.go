@@ -24,12 +24,13 @@ type EventService interface {
 	GetWeeklyEventsChart(ctx context.Context, projectID string, userID string) (*entities.EventSummaryChart, error)
 	GetEventTypeChart(ctx context.Context, projectID string, userID string) ([]gen.GetPercentageEventsTypeRow, error)
 	GetEventLabelChart(ctx context.Context, projectID string, userID string) ([]gen.GetPercentageEventsLabelRow, error)
+	CountUserMonthlyEvents(ctx context.Context, userID uuid.UUID) (int64, error)
 }
 
 type EventServiceImpl struct {
 	UtilService UtilService
-	Repo        *gen.Queries
 	SubService  SubService
+	Repo        *gen.Queries
 }
 
 func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
@@ -73,6 +74,16 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		// if yes dont proceed further.
 		if projectSize > 100*1000 { // 100*1000 KB = 100 MB
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project already exceed maximum size"})
+		}
+
+		// limit event per months to 100K
+		monthlyEvents, err := s.CountUserMonthlyEvents(context.Background(), user.ID)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		}
+
+		if monthlyEvents > 100_000 {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{"error": "your account already reached 100K events limit this month"})
 		}
 	}
 
@@ -246,4 +257,8 @@ func (s *EventServiceImpl) GetEventLabelChart(ctx context.Context, projectID str
 		ProjectID: projectUUID,
 		UserID:    userUUID,
 	})
+}
+
+func (s *EventServiceImpl) CountUserMonthlyEvents(ctx context.Context, userID uuid.UUID) (int64, error) {
+	return s.Repo.CountUserMonthlyEvents(ctx, userID)
 }

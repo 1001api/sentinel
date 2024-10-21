@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,6 +16,7 @@ type APIService interface {
 	UpdateProject(ctx *fiber.Ctx) error
 	DeleteProject(ctx *fiber.Ctx) error
 	CountProjectSize(ctx *fiber.Ctx) error
+	CountMonthlyEvents(ctx *fiber.Ctx) error
 	LastDataRetrieved(c *fiber.Ctx) error
 	LiveEvents(ctx *fiber.Ctx) error
 	LiveEventDetail(ctx *fiber.Ctx) error
@@ -266,4 +268,15 @@ func (s *APIServiceImpl) JSONEventLabelChart(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(labels)
+}
+
+func (s *APIServiceImpl) CountMonthlyEvents(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+
+	monthlyEvents, err := s.EventService.CountUserMonthlyEvents(context.Background(), user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	return c.SendString(fmt.Sprintf("%d", monthlyEvents))
 }
