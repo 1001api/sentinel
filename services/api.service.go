@@ -133,7 +133,7 @@ func (s *APIServiceImpl) LastDataRetrieved(c *fiber.Ctx) error {
 
 	lastTime, err := s.ProjectService.LastProjectDataReceived(context.Background(), projectID, user.ID.String())
 	if err != nil {
-		return c.Status(fiber.StatusOK).SendString(err.Error())
+		return c.Status(fiber.StatusOK).SendString("N/A")
 	}
 
 	buf := bytes.Buffer{}
