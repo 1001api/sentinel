@@ -8,7 +8,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
-	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
@@ -33,9 +32,6 @@ func main() {
 	app.Use(encryptcookie.New(encryptcookie.Config{
 		Key: os.Getenv("COOKIE_SALT"),
 	}))
-
-	// Helmet Config
-	app.Use(helmet.New())
 
 	app.Static("/static", "./views/public", fiber.Static{
 		Compress:  true,
