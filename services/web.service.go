@@ -16,6 +16,7 @@ import (
 type WebService interface {
 	SendLandingPage(ctx *fiber.Ctx) error
 	SendLoginPage(ctx *fiber.Ctx) error
+	SendDocsPage(ctx *fiber.Ctx) error
 	SendDashboardPage(ctx *fiber.Ctx) error
 	SendPricingPage(ctx *fiber.Ctx) error
 	SendEventsPage(ctx *fiber.Ctx) error
@@ -38,6 +39,10 @@ func (s *WebServiceImpl) SendLandingPage(c *fiber.Ctx) error {
 
 func (s *WebServiceImpl) SendLoginPage(c *fiber.Ctx) error {
 	return configs.Render(c, pages.LoginPage())
+}
+
+func (s *WebServiceImpl) SendDocsPage(c *fiber.Ctx) error {
+	return configs.Render(c, pages.DocsPage())
 }
 
 func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
