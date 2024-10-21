@@ -29,6 +29,7 @@ type EventService interface {
 type EventServiceImpl struct {
 	UtilService UtilService
 	Repo        *gen.Queries
+	SubService  SubService
 }
 
 func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
@@ -55,14 +56,24 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project not found"})
 	}
 
-	// check if the project size does not exceed 500MB
-	// if yes dont proceed further.
-	projectSize, _ := s.Repo.CountProjectSize(context.Background(), gen.CountProjectSizeParams{
-		ProjectID: projectUUID,
-		UserID:    user.ID,
-	})
-	if projectSize > 200*1000 { // 200*1000 KB = 200 MB
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project already exceed maximum size"})
+	// check current user active subscription
+	subExist, err := s.SubService.CheckUserHasActiveSub(context.Background(), user.ID.String())
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	// if no active sub is present, then that means the user is currently in free tier
+	if !subExist {
+		// check if the project size does not exceed 100MB
+		projectSize, _ := s.Repo.CountProjectSize(context.Background(), gen.CountProjectSizeParams{
+			ProjectID: projectUUID,
+			UserID:    user.ID,
+		})
+		// since user is in free tier, check if max size of the project is more than 100mb,
+		// if yes dont proceed further.
+		if projectSize > 100*1000 { // 100*1000 KB = 100 MB
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project already exceed maximum size"})
+		}
 	}
 
 	payload := gen.CreateEventParams{

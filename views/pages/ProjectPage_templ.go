@@ -55,7 +55,7 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(templ.JSONString(map[string]int{"percentage": (len(projects) * 100 / 5)}))
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(templ.JSONString(map[string]int{"percentage": (len(projects) * 100 / 3)}))
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 14, Col: 90}
 			}
@@ -92,11 +92,11 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" out of 5 projects</h5><p class=\"mb-3 text-sm font-normal text-gray-700 dark:text-gray-400\">Need more projects?  <a href=\"/pricing\" class=\"underline text-secondary\">Upgrade Plan.</a></p><!-- PROJECTS BAR --><div class=\"max-w-sm bg-gray-200 rounded-full h-2.5 dark:bg-gray-700\"><div id=\"total-project-bar\" class=\"bg-secondary h-2.5 rounded-full\" :style=\"`width: ${percentage}%`\"></div></div></div></div><!-- PROJECTS CREATE BTN --><div class=\"w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" out of 3 projects</h5><p class=\"mb-3 text-sm font-normal text-gray-700 dark:text-gray-400\">Need more projects?  <a href=\"/pricing\" class=\"underline text-secondary\">Upgrade Plan.</a></p><!-- PROJECTS BAR --><div class=\"max-w-sm bg-gray-200 rounded-full h-2.5 dark:bg-gray-700\"><div id=\"total-project-bar\" class=\"bg-secondary h-2.5 rounded-full\" :style=\"`width: ${percentage}%`\"></div></div></div></div><!-- PROJECTS CREATE BTN --><div class=\"w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if len(projects) >= 5 {
+				if len(projects) >= 3 {
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- PROJECTS CREATE BTN DISABLED --> <button type=\"button\" class=\"flex items-center justify-center text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center\" disabled><svg class=\"h-3.5 w-3.5 mr-2\" fill=\"currentColor\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path clip-rule=\"evenodd\" fill-rule=\"evenodd\" d=\"M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z\"></path></svg> Add Project</button>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
@@ -384,7 +384,7 @@ func ProjectSizeText(size int64) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("KB/<strong class=\"text-xs\">200MB</strong>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("KB/<strong class=\"text-xs\">100MB</strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -68,6 +68,9 @@ func main() {
 		UtilService: &utilService,
 		Repo:        repository,
 	}
+	subService := services.SubServiceImpl{
+		Repo: repository,
+	}
 	authService := services.AuthServiceImpl{
 		UtilService:  &utilService,
 		UserService:  &userService,
@@ -75,12 +78,14 @@ func main() {
 		StateStore:   stateStore,
 	}
 	projectService := services.ProjectServiceImpl{
-		Repo: repository,
-		DB:   db,
+		SubService: &subService,
+		Repo:       repository,
+		DB:         db,
 	}
 	eventService := services.EventServiceImpl{
 		UtilService: &utilService,
 		Repo:        repository,
+		SubService:  &subService,
 	}
 	apiService := services.APIServiceImpl{
 		ProjectService: &projectService,
