@@ -10,7 +10,7 @@ import (
 func InitWebRoute(app *fiber.App, m middlewares.Middleware, webService services.WebService) {
 	app.Get("/", webService.SendLandingPage)
 	app.Get("/login", webService.SendLoginPage)
-	app.Get("/pricing", webService.SendPricingPage)
+	app.Get("/pricing", m.UnProtectedRoute, webService.SendPricingPage)
 	app.Get("/dashboard", func(c *fiber.Ctx) error {
 		return c.Redirect("/events")
 	})

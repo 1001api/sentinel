@@ -46,7 +46,12 @@ func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {
 }
 
 func (s *WebServiceImpl) SendPricingPage(c *fiber.Ctx) error {
-	return configs.Render(c, pages.PricingPage())
+	user := c.Locals("user")
+	var payload *gen.FindUserByIDRow
+	if user != nil {
+		payload = user.(*gen.FindUserByIDRow)
+	}
+	return configs.Render(c, pages.PricingPage(payload))
 }
 
 func (s *WebServiceImpl) SendEventsPage(c *fiber.Ctx) error {

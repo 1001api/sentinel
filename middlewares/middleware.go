@@ -12,6 +12,7 @@ import (
 type Middleware interface {
 	ProtectedRoute(c *fiber.Ctx) error
 	APIProtectedRoute(c *fiber.Ctx) error
+	UnProtectedRoute(c *fiber.Ctx) error
 }
 
 type MiddlewareImpl struct {
@@ -39,6 +40,30 @@ func (m *MiddlewareImpl) ProtectedRoute(c *fiber.Ctx) error {
 
 	c.Locals("user", exist)
 
+	return c.Next()
+}
+
+func (m *MiddlewareImpl) UnProtectedRoute(c *fiber.Ctx) error {
+	sess, err := m.SessionStorage.Get(c)
+	if err != nil {
+		c.Locals("user", nil)
+		return c.Next()
+	}
+
+	userID := sess.Get("ID")
+	if userID == nil {
+		c.Locals("user", nil)
+		return c.Next()
+	}
+
+	// check if the user is exist in the database
+	exist, err := m.UserService.FindByID(userID.(string))
+	if exist == nil {
+		c.Locals("user", nil)
+		return c.Next()
+	}
+
+	c.Locals("user", exist)
 	return c.Next()
 }
 
