@@ -7,12 +7,12 @@ type CreateEventInput struct {
 	PageURL          string `json:"PageURL,omitempty" validate:"omitempty,url"`
 	ElementPath      string `json:"ElementPath,omitempty" validate:"omitempty,max=255"`
 	ElementType      string `json:"ElementType,omitempty" validate:"omitempty,max=255"`
-	IPAddr           string `json:"IPAddr,omitempty" validate:"omitempty,ip_addr"`
+	IPAddr           string `json:"-"`
 	UserAgent        string `json:"UserAgent,omitempty" validate:"omitempty,max=255"`
 	BrowserName      string `json:"BrowserName,omitempty" validate:"omitempty,max=100"`
-	Country          string `json:"Country,omitempty" validate:"omitempty,max=100"`
-	Region           string `json:"Region,omitempty" validate:"omitempty,max=100"`
-	City             string `json:"City,omitempty" validate:"omitempty,max=100"`
+	Country          string `json:"-"`
+	Region           string `json:"-"`
+	City             string `json:"-"`
 	SessionID        string `json:"SessionID,omitempty" validate:"omitempty,max=100"`
 	DeviceType       string `json:"DeviceType,omitempty" validate:"omitempty,max=100"`
 	TimeOnPage       int    `json:"TimeOnPage,omitempty"`
