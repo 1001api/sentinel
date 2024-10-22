@@ -87,6 +87,18 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		}
 	}
 
+	// Get user IP
+	userIP := c.IP()
+	userLoc := s.UtilService.LookupIP(userIP)
+
+	// bind user ip addr and loc
+	input.IPAddr = userIP
+	if userLoc != nil {
+		input.Country = userLoc.Country.Names["en"]
+		input.Region = userLoc.Continent.Names["en"]
+		input.City = userLoc.City.Names["en"]
+	}
+
 	payload := gen.CreateEventParams{
 		// i need to insert the dto payload here, but its tedious to do it manually, F
 		EventType:        input.EventType,

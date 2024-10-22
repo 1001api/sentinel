@@ -1,12 +1,14 @@
 package services
 
 import (
+	"net"
 	"net/netip"
 	"regexp"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	gonanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/oschwald/geoip2-golang"
 )
 
 func IsISO8601Date(fl validator.FieldLevel) bool {
@@ -20,10 +22,12 @@ type UtilService interface {
 	ValidateInput(payload any) string
 	ParseIP(str string) *netip.Addr
 	ParseTimestamp(str string) time.Time
+	LookupIP(ipStr string) *geoip2.City
 }
 
 type UtilServiceImpl struct {
 	Validate *validator.Validate
+	IPReader *geoip2.Reader
 }
 
 func (s *UtilServiceImpl) GenerateRandomID(length int) string {
@@ -88,4 +92,16 @@ func (s *UtilServiceImpl) ParseIP(str string) *netip.Addr {
 func (s *UtilServiceImpl) ParseTimestamp(str string) time.Time {
 	parsedTime, _ := time.Parse(time.RFC3339, str)
 	return parsedTime
+}
+
+func (s *UtilServiceImpl) LookupIP(ipStr string) *geoip2.City {
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return nil
+	}
+	record, err := s.IPReader.City(ip)
+	if err != nil {
+		return nil
+	}
+	return record
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
@@ -33,6 +34,11 @@ func main() {
 		Key: os.Getenv("COOKIE_SALT"),
 	}))
 
+	// easen up cors
+	app.Use(cors.New(cors.Config{
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	app.Static("/static", "./views/public", fiber.Static{
 		Compress:  true,
 		ByteRange: true,
@@ -42,8 +48,10 @@ func main() {
 	// initialize database connection
 	db := configs.InitDBCon()
 	redisCon := configs.InitRedis()
+	ipdbCon := configs.InitIPDBCon()
 	defer db.Close()
 	defer redisCon.Close()
+	defer ipdbCon.Close()
 
 	// init class validator
 	var validate = validator.New()
@@ -59,6 +67,7 @@ func main() {
 	// init services
 	utilService := services.UtilServiceImpl{
 		Validate: validate,
+		IPReader: ipdbCon,
 	}
 	userService := services.UserServiceImpl{
 		UtilService: &utilService,
