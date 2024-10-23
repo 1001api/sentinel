@@ -43,7 +43,7 @@ func IndexPage() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><h1 class=\"text-4xl\">Hello from Sentinel index page!</h1><p>Why not you like it <strong>Here!</strong></p></body>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><h1 class=\"text-4xl\">Welcome to Sentinel Alpha.</h1><a href=\"/events\">Go directly to events</a></body>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
