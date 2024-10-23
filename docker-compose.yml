@@ -32,6 +32,25 @@ services:
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
+
+  pgbackweb:
+    image: eduardolat/pgbackweb:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgbackweb.rule=Host(`cron.hubku.com`)"
+      - "traefik.http.routers.pgbackweb.entrypoints=websecure"
+      - "traefik.http.routers.pgbackweb.tls.certresolver=sentinelresolver"
+    volumes:
+      - ./backups:/backups 
+    environment:
+      PBW_ENCRYPTION_KEY: "PfZ7ervYM4D9ER8btT5usCUqKphVkmzNSXjawFAWgyB2JLHx"
+      PBW_POSTGRES_CONN_STRING: "postgres://postgres:h8fzpak29JBQ63wrXjyxEZuAPqvKmGbWsSLHMRD5tg47NnFY@sentinel-pgbw:5432/pgbw?sslmode=disable"
+      TZ: "Asia/Jakarta"
+    depends_on:
+      sentinel-pgbw:
+        condition: service_healthy
+
   sentinel:
     image: ghcr.io/hubkudev/sentinel:prod
     restart: unless-stopped
@@ -79,6 +98,21 @@ services:
       timeout: 5s
       retries: 5
 
+  sentinel-pgbw:
+    image: postgres:16
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_DB: pgbw
+      POSTGRES_PASSWORD: h8fzpak29JBQ63wrXjyxEZuAPqvKmGbWsSLHMRD5tg47NnFY
+    volumes:
+      - sentinel-pgbw:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   sentinel-redis:
     image: redis:7.4.1
     restart: always
@@ -92,4 +126,5 @@ services:
 
 volumes:
   sentinel-data:
+  sentinel-pgbw:
   letsencrypt:
