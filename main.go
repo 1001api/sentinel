@@ -26,7 +26,8 @@ func main() {
 	godotenv.Load()
 
 	app := fiber.New(fiber.Config{
-		Views: engine,
+		Views:       engine,
+		ProxyHeader: "X-Forwarded-For",
 	})
 
 	// Encrypt Cookie Config
