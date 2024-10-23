@@ -1,0 +1,53 @@
+services:
+  server:
+    build: ./
+    container_name: sentinel-server
+    ports: 
+      - "9898:9898"
+    environment:
+      - PORT=9898
+      - POSTGRES_HOST=sentinel-pg
+      - POSTGRES_PASSWORD=Jjmkzy27evZQPnStgbLRaTwWpH9xcXVB
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sentinel-alpha
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=sentinel-redis
+      - REDIS_PORT=6379
+      - G_CLIENT=407555103150-n89fabccd4m6d0lr9jqom33uo0iefn5v.apps.googleusercontent.com
+      - G_SECRET=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
+      - G_REDIRECT=https://sentinel.hubku.com/auth/google/callback
+      - COOKIE_SALT=kX7jxLAtynRdMVmpJHgUq94swa3urbGS
+    depends_on:
+      sentinel-pg:
+        condition: service_healthy
+      sentinel-redis:
+        condition: service_healthy
+
+  sentinel-pg:
+    image: postgres:16
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_DB: sentinel-alpha
+      POSTGRES_PASSWORD: Jjmkzy27evZQPnStgbLRaTwWpH9xcXVB
+    volumes:
+      - sentinel-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sentinel-redis:
+    image: redis:7.4.1
+    restart: always
+    environment:
+      - REDIS_PORT=6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sentinel-data:

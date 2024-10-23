@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main .
+RUN go build -ldflags '-w -s' -o main .
 
 FROM alpine:latest
 
@@ -15,5 +15,7 @@ WORKDIR /root/
 
 COPY --from=build /app/main .
 COPY --from=build /app/migrations ./migrations
+COPY --from=build /app/views ./views
+COPY --from=build /app/ipdb ./ipdb
 
 CMD ["./main"]
