@@ -1,6 +1,6 @@
 services:
   server:
-    build: ./
+    image: ghcr.io/hubkudev/sentinel:prod
     container_name: sentinel-server
     ports: 
       - "9898:9898"
