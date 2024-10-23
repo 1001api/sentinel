@@ -1,6 +1,9 @@
 services:
   watchtower:
     image: containrrr/watchtower
+    restart: unless-stopped
+    environment:
+      - WATCHTOWER_CLEANUP=true
     command:
       - "--label-enable"
       - "--interval"
@@ -8,9 +11,11 @@ services:
       - "--rolling-restart"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker/config.json:/config.json
 
   reverse-proxy:
     image: traefik:v3.1
+    restart: always
     command:
       - "--api.insecure=true"
       - "--providers.docker"
@@ -31,6 +36,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
   sentinel:
     image: ghcr.io/hubkudev/sentinel:prod
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sentinel.rule=Host(`sentinel.hubku.com`)"
