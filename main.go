@@ -27,7 +27,7 @@ func main() {
 
 	app := fiber.New(fiber.Config{
 		Views:       engine,
-		ProxyHeader: "X-Forwarded-For",
+		ProxyHeader: "CF-Connecting-IP",
 	})
 
 	// Encrypt Cookie Config
