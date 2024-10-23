@@ -7,6 +7,9 @@ on:
   push:
     branches: [ "production" ]
     
+permissions:
+  packages: write
+  
 jobs:
   build:
     runs-on: ubuntu-latest
