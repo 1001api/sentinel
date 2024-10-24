@@ -34,7 +34,12 @@ type WebServiceImpl struct {
 }
 
 func (s *WebServiceImpl) SendLandingPage(c *fiber.Ctx) error {
-	return configs.Render(c, pages.IndexPage())
+	user := c.Locals("user")
+	var payload *gen.FindUserByIDRow
+	if user != nil {
+		payload = user.(*gen.FindUserByIDRow)
+	}
+	return configs.Render(c, pages.IndexPage(payload))
 }
 
 func (s *WebServiceImpl) SendLoginPage(c *fiber.Ctx) error {

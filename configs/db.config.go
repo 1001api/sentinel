@@ -2,6 +2,7 @@ package configs
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -13,7 +14,13 @@ import (
 )
 
 func InitDBCon() *pgxpool.Pool {
-	DSN := os.Getenv("DSN")
+	dbHost := os.Getenv("POSTGRES_HOST")
+	dbPort := os.Getenv("POSTGRES_PORT")
+	dbUser := os.Getenv("POSTGRES_USER")
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+	dbName := os.Getenv("POSTGRES_DB")
+
+	DSN := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbPort, dbName)
 
 	db, err := pgxpool.New(context.Background(), DSN)
 	if err != nil {
@@ -38,10 +45,13 @@ func InitDBCon() *pgxpool.Pool {
 }
 
 func InitRedis() *redis.Storage {
-	REDIS_URL := os.Getenv("REDIS_URL")
+	dbHost := os.Getenv("REDIS_HOST")
+	dbPort := os.Getenv("REDIS_PORT")
+
+	DSN := fmt.Sprintf("redis://%s:%s", dbHost, dbPort)
 
 	store := redis.New(redis.Config{
-		URL:   REDIS_URL,
+		URL:   DSN,
 		Reset: false,
 	})
 
