@@ -186,6 +186,12 @@ func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
 		return c.SendString("Project not found")
 	}
 
+	// ensure directory exist, if exist, it will be no op
+	if err := os.MkdirAll("temp", os.ModePerm); err != nil {
+		log.Println("Error creating temp folder:", err)
+		return c.SendString("Unable to download your file, please try again later.")
+	}
+
 	filename := fmt.Sprintf("%s.csv", time.Now().Format("02/01/2006_15:04:05"))
 	tempFile, err := os.CreateTemp("temp", "temp-*.csv")
 	if err != nil {
