@@ -3,10 +3,14 @@ package services
 import (
 	"bytes"
 	"context"
+	"encoding/csv"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/pages"
 )
@@ -22,14 +26,17 @@ type APIService interface {
 	LiveEventDetail(ctx *fiber.Ctx) error
 	GetEventSummary(c *fiber.Ctx) error
 	GetEventSummaryDetail(c *fiber.Ctx) error
+	StartDownloadEvent(c *fiber.Ctx) error
+	FinishDownloadEvent(c *fiber.Ctx) error
 	JSONWeeklyEventChart(c *fiber.Ctx) error
 	JSONEventTypeChart(c *fiber.Ctx) error
 	JSONEventLabelChart(c *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
-	ProjectService ProjectService
-	EventService   EventService
+	ProjectService  ProjectService
+	EventService    EventService
+	DownloadService DownloadService
 }
 
 func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
@@ -144,6 +151,79 @@ func (s *APIServiceImpl) LastDataRetrieved(c *fiber.Ctx) error {
 	text.Render(context.Background(), &buf)
 
 	return c.SendString(buf.String())
+}
+
+func (s *APIServiceImpl) StartDownloadEvent(c *fiber.Ctx) error {
+	projectID := c.FormValue("id")
+	if projectID == "" {
+		return c.SendString("Project ID required")
+	}
+
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.SendString("Project ID required")
+	}
+
+	c.Set("HX-Redirect", fmt.Sprintf("/api/event/download/finish/%s", projectUUID.String()))
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	projectID := c.Params("id")
+	if projectID == "" {
+		return c.SendString("Project ID required")
+	}
+
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.SendString("Project ID required")
+	}
+
+	// check if project id is available within user context
+	exist, err := s.ProjectService.GetProjectByID(context.Background(), projectUUID.String(), user.ID.String())
+	if exist == nil || err != nil {
+		return c.SendString("Project not found")
+	}
+
+	filename := fmt.Sprintf("%s.csv", time.Now().Format("02/01/2006_15:04:05"))
+	tempFile, err := os.CreateTemp("temp", "temp-*.csv")
+	if err != nil {
+		log.Println("Error creating temp file:", err)
+		return c.SendString("Unable to download your file, please try again later.")
+	}
+	defer os.Remove(tempFile.Name())
+	defer tempFile.Close()
+
+	writer := csv.NewWriter(tempFile)
+	defer writer.Flush()
+
+	header, body, err := s.DownloadService.DownloadEventData(context.Background(), projectUUID, user.ID)
+	if err != nil {
+		log.Println("Error retrieving Event data:", err)
+		return c.SendString("Unable to download your file, please try again later.")
+	}
+
+	if err := writer.Write(header); err != nil {
+		log.Println("Error writing CSV header:", err)
+		return c.SendString("Unable to download your file, please try again later.")
+	}
+
+	for _, row := range body {
+		if err := writer.Write(row); err != nil {
+			log.Println("Error writing CSV row:", err)
+			return c.SendString("Unable to download your file, please try again later.")
+		}
+	}
+
+	writer.Flush()
+
+	if err := writer.Error(); err != nil {
+		log.Println("Error flushing CSV:", err)
+		return c.SendString("Unable to download your file, please try again later.")
+	}
+
+	return c.Download(tempFile.Name(), filename)
 }
 
 func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {

@@ -151,6 +151,7 @@ type Project struct {
 	UserID      uuid.UUID
 	CreatedAt   pgtype.Timestamptz
 	DeletedAt   pgtype.Timestamptz
+	Url         pgtype.Text
 }
 
 type Subscription struct {

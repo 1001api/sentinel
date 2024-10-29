@@ -60,20 +60,59 @@ func DownloadProjectPopup(i int, v *gen.FindAllProjectsRow) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><svg aria-hidden=\"true\" class=\"w-5 h-5\" fill=\"currentColor\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\"><path fill-rule=\"evenodd\" d=\"M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z\" clip-rule=\"evenodd\"></path></svg> <span class=\"sr-only\">Close modal</span></button></div><!-- Modal body --><form hx-put=\"/api/project/update\" hx-target=\"#info-wrapper\" hx-indicator=\"#loading\" hx-disabled-elt=\"button[type=&#39;submit&#39;]\"><div class=\"flex flex-col gap-4 mb-4\"><div><p class=\"block mb-2 dark:text-white\">Select download options below to download data for project: <strong>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><svg aria-hidden=\"true\" class=\"w-5 h-5\" fill=\"currentColor\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\"><path fill-rule=\"evenodd\" d=\"M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z\" clip-rule=\"evenodd\"></path></svg> <span class=\"sr-only\">Close modal</span></button></div><!-- Modal body --><form hx-post=\"/api/event/download/start\" hx-target=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name)
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#download-wrapper-%d", i))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 34, Col: 121}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 28, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</strong></p></div><div class=\"w-full mx-auto\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select Data Time</label> <select id=\"interval\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"0\">This Month</option> <option disabled value=\"1\">Last 2 Months</option> <option disabled value=\"2\">Last 6 Months</option> <option disabled value=\"3\">Last Year</option> <option disabled value=\"4\">All Time Data</option></select> <label for=\"interval\" class=\"block mt-2 text-xs text-gray-600 dark:text-white\">On the free tier, only current month data is available for download. <a href=\"/pricing\" class=\"underline text-purple-400\">Upgrade for full access.</a></label></div><div class=\"w-full mx-auto mt-4\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select File Format</label> <select id=\"interval\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"0\">CSV File</option> <option disabled value=\"1\">XLSX File</option> <option disabled value=\"2\">JSON File</option> <option disabled value=\"3\">PDF File</option> <option disabled value=\"4\">HTML File</option></select> <label for=\"interval\" class=\"block mt-2 text-xs text-gray-600 dark:text-white\">On the free tier, downloads are limited to CSV format. <a href=\"/pricing\" class=\"underline text-purple-400\">Upgrade for more options.</a></label></div></div><div id=\"info-wrapper\"></div><button type=\"submit\" class=\"mt-4 text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-2 py-2 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800\">Download Data <span id=\"loading\" class=\"loading loading-dots loading-md loading-indicator\"></span></button></form></div></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"flex flex-col gap-4 mb-4\"><div><input name=\"id\" type=\"hidden\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(v.ID.String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 32, Col: 59}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div><div><p class=\"block mb-2 dark:text-white\">Select download options below to download data for project: <strong>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 35, Col: 121}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</strong></p></div><div class=\"w-full mx-auto\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select Data Time</label> <select id=\"interval\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"0\">Last 30 Days</option> <option disabled value=\"1\">Last 2 Months</option> <option disabled value=\"2\">Last 6 Months</option> <option disabled value=\"3\">Last Year</option> <option disabled value=\"4\">All Time Data</option></select> <label for=\"interval\" class=\"block mt-2 text-xs text-gray-600 dark:text-white\">On the free tier, only last month data is available for download. <a href=\"/pricing\" class=\"underline text-purple-400\">Upgrade for full access.</a></label></div><div class=\"w-full mx-auto mt-4\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select File Format</label> <select id=\"interval\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"0\">CSV File</option> <option disabled value=\"1\">XLSX File</option> <option disabled value=\"2\">JSON File</option> <option disabled value=\"3\">PDF File</option> <option disabled value=\"4\">HTML File</option></select> <label for=\"interval\" class=\"block mt-2 text-xs text-gray-600 dark:text-white\">On the free tier, downloads are limited to CSV format. <a href=\"/pricing\" class=\"underline text-purple-400\">Upgrade for more options.</a></label></div></div><div id=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("download-wrapper-%d", i))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 64, Col: 52}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"text-red-600\"></div><button type=\"submit\" class=\"mt-4 text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-2 py-2 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800\">Download Data</button></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
