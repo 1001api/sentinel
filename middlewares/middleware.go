@@ -20,6 +20,13 @@ type MiddlewareImpl struct {
 	SessionStorage *session.Store
 }
 
+func InitMiddleware(userService services.UserService, sessionStore *session.Store) MiddlewareImpl {
+	return MiddlewareImpl{
+		UserService:    userService,
+		SessionStorage: sessionStore,
+	}
+}
+
 func (m *MiddlewareImpl) ProtectedRoute(c *fiber.Ctx) error {
 	sess, err := m.SessionStorage.Get(c)
 	if err != nil {

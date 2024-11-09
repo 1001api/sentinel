@@ -23,6 +23,18 @@ type AuthServiceImpl struct {
 	SessionStore *session.Store
 }
 
+func InitAuthService(
+	utilService UtilService,
+	userService UserService,
+	sessionStore *session.Store,
+) AuthServiceImpl {
+	return AuthServiceImpl{
+		UtilService:  utilService,
+		UserService:  userService,
+		SessionStore: sessionStore,
+	}
+}
+
 func (s *AuthServiceImpl) RegisterFirstUser(c *fiber.Ctx) error {
 	fullname := c.FormValue("fullname")
 	email := c.FormValue("email")

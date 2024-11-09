@@ -27,6 +27,16 @@ type UtilServiceImpl struct {
 	IPReader *geoip2.Reader
 }
 
+func InitUtilService(
+	validate *validator.Validate,
+	ipdbCon *geoip2.Reader,
+) UtilServiceImpl {
+	return UtilServiceImpl{
+		Validate: validate,
+		IPReader: ipdbCon,
+	}
+}
+
 func (s *UtilServiceImpl) GenerateRandomID(length int) string {
 	// generate random string id using nanoid package
 	id, _ := gonanoid.New(length)

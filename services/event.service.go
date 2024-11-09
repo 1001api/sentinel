@@ -32,6 +32,13 @@ type EventServiceImpl struct {
 	Repo        *gen.Queries
 }
 
+func InitEventService(utilService UtilService, repo *gen.Queries) EventServiceImpl {
+	return EventServiceImpl{
+		UtilService: utilService,
+		Repo:        repo,
+	}
+}
+
 func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByPublicKeyRow)
 	var input dto.CreateEventInput

@@ -22,6 +22,13 @@ type UserServiceImpl struct {
 	Repo        *gen.Queries
 }
 
+func InitUserService(utilService UtilService, repo *gen.Queries) UserServiceImpl {
+	return UserServiceImpl{
+		UtilService: utilService,
+		Repo:        repo,
+	}
+}
+
 func (s *UserServiceImpl) FindByEmail(email string) (*gen.FindUserByEmailRow, error) {
 	result, err := s.Repo.FindUserByEmail(context.Background(), email)
 	if err != nil {

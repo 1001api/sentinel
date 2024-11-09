@@ -17,6 +17,12 @@ type DownloadServiceImpl struct {
 	Repo *gen.Queries
 }
 
+func InitDownloadService(repository *gen.Queries) DownloadServiceImpl {
+	return DownloadServiceImpl{
+		Repo: repository,
+	}
+}
+
 func (s *DownloadServiceImpl) DownloadEventData(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]string, [][]string, error) {
 	header, err := s.Repo.GetEventTableHeaders(ctx)
 	if err != nil {

@@ -27,6 +27,13 @@ type ProjectServiceImpl struct {
 	DB   *pgxpool.Pool
 }
 
+func InitProjectService(repo *gen.Queries, db *pgxpool.Pool) ProjectServiceImpl {
+	return ProjectServiceImpl{
+		Repo: repo,
+		DB:   db,
+	}
+}
+
 func (s *ProjectServiceImpl) CreateProject(ctx context.Context, name string, desc string, userID string) (*gen.CreateProjectRow, error) {
 	userUUID := uuid.MustParse(userID)
 

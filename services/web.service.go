@@ -33,6 +33,18 @@ type WebServiceImpl struct {
 	EventService   EventService
 }
 
+func InitWebService(
+	userService UserService,
+	projectService ProjectService,
+	eventService EventService,
+) WebServiceImpl {
+	return WebServiceImpl{
+		UserService:    userService,
+		ProjectService: projectService,
+		EventService:   eventService,
+	}
+}
+
 func (s *WebServiceImpl) SendLandingPage(c *fiber.Ctx) error {
 	user := c.Locals("user")
 	var payload *gen.FindUserByIDRow

@@ -88,46 +88,17 @@ func main() {
 	repository := gen.New(db)
 
 	// init services
-	utilService := services.UtilServiceImpl{
-		Validate: validate,
-		IPReader: ipdbCon,
-	}
-	downloadService := services.DownloadServiceImpl{
-		Repo: repository,
-	}
-	userService := services.UserServiceImpl{
-		UtilService: &utilService,
-		Repo:        repository,
-	}
-	authService := services.AuthServiceImpl{
-		UtilService:  &utilService,
-		UserService:  &userService,
-		SessionStore: sessionStore,
-	}
-	projectService := services.ProjectServiceImpl{
-		Repo: repository,
-		DB:   db,
-	}
-	eventService := services.EventServiceImpl{
-		UtilService: &utilService,
-		Repo:        repository,
-	}
-	apiService := services.APIServiceImpl{
-		ProjectService:  &projectService,
-		EventService:    &eventService,
-		DownloadService: &downloadService,
-	}
-	webService := services.WebServiceImpl{
-		UserService:    &userService,
-		ProjectService: &projectService,
-		EventService:   &eventService,
-	}
+	utilService := services.InitUtilService(validate, ipdbCon)
+	downloadService := services.InitDownloadService(repository)
+	userService := services.InitUserService(&utilService, repository)
+	authService := services.InitAuthService(&utilService, &userService, sessionStore)
+	projectService := services.InitProjectService(repository, db)
+	eventService := services.InitEventService(&utilService, repository)
+	apiService := services.InitAPIService(&projectService, &eventService, &downloadService)
+	webService := services.InitWebService(&userService, &projectService, &eventService)
 
-	// init middlewares
-	m := middlewares.MiddlewareImpl{
-		UserService:    &userService,
-		SessionStorage: sessionStore,
-	}
+	// init middleware
+	m := middlewares.InitMiddleware(&userService, sessionStore)
 
 	// init routes
 	routes.InitAuthRoute(app, &authService)

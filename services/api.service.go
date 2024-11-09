@@ -39,6 +39,18 @@ type APIServiceImpl struct {
 	DownloadService DownloadService
 }
 
+func InitAPIService(
+	projectService ProjectService,
+	eventService EventService,
+	downloadService DownloadService,
+) APIServiceImpl {
+	return APIServiceImpl{
+		ProjectService:  projectService,
+		EventService:    eventService,
+		DownloadService: downloadService,
+	}
+}
+
 func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 	name := c.FormValue("project_name")
