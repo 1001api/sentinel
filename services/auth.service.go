@@ -20,7 +20,6 @@ type AuthService interface {
 type AuthServiceImpl struct {
 	UtilService  UtilService
 	UserService  UserService
-	StateStore   *session.Store
 	SessionStore *session.Store
 }
 

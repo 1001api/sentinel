@@ -83,7 +83,6 @@ func main() {
 
 	// init sessions
 	sessionStore := configs.InitSession(redisCon)
-	stateStore := configs.InitStateSession(redisCon)
 
 	// init repo
 	repository := gen.New(db)
@@ -104,7 +103,6 @@ func main() {
 		UtilService:  &utilService,
 		UserService:  &userService,
 		SessionStore: sessionStore,
-		StateStore:   stateStore,
 	}
 	projectService := services.ProjectServiceImpl{
 		Repo: repository,

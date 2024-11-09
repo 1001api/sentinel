@@ -10,18 +10,7 @@ import (
 func InitSession(storage *redis.Storage) *session.Store {
 	return session.New(session.Config{
 		KeyLookup:      "cookie:session_id",
-		Expiration:     24 * time.Hour * 7, // 7 days
-		CookieHTTPOnly: true,
-		CookieSecure:   true,
-		CookiePath:     "/",
-		Storage:        storage,
-	})
-}
-
-func InitStateSession(storage *redis.Storage) *session.Store {
-	return session.New(session.Config{
-		KeyLookup:      "cookie:session_state",
-		Expiration:     5 * time.Minute, // 5 minutes
+		Expiration:     24 * time.Hour, // 24 hours
 		CookieHTTPOnly: true,
 		CookieSecure:   true,
 		CookiePath:     "/",
