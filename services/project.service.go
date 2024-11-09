@@ -14,7 +14,7 @@ import (
 type ProjectService interface {
 	CreateProject(ctx context.Context, name string, desc string, userID string) (*gen.CreateProjectRow, error)
 	UpdateProject(ctx context.Context, name string, desc string, projectID string, userID string) error
-	GetProjectByID(ctx context.Context, projectID string, userID string) (*gen.FindProjectByIDRow, error)
+	GetProjectByID(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.FindProjectByIDRow, error)
 	GetAllProjects(ctx context.Context, userID string) ([]gen.FindAllProjectsRow, error)
 	GetProjectCount(ctx context.Context, userID string) (int64, error)
 	DeleteProject(ctx context.Context, userID string, projectID string) error
@@ -71,11 +71,10 @@ func (s *ProjectServiceImpl) UpdateProject(ctx context.Context, name string, des
 	})
 }
 
-func (s *ProjectServiceImpl) GetProjectByID(ctx context.Context, projectID string, userID string) (*gen.FindProjectByIDRow, error) {
-	userUUID, projectUUID := uuid.MustParse(userID), uuid.MustParse(projectID)
+func (s *ProjectServiceImpl) GetProjectByID(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.FindProjectByIDRow, error) {
 	row, err := s.Repo.FindProjectByID(ctx, gen.FindProjectByIDParams{
-		ID:     projectUUID,
-		UserID: userUUID,
+		ID:     projectID,
+		UserID: userID,
 	})
 	if err != nil {
 		return nil, err

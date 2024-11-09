@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/configs"
 	"github.com/hubkudev/sentinel/entities"
 	gen "github.com/hubkudev/sentinel/gen"
@@ -124,6 +125,11 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ProjectID is required"})
 	}
 
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
 	type result struct {
 		data interface{}
 		err  error
@@ -138,35 +144,35 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		project, err := s.ProjectService.GetProjectByID(context.Background(), projectID, user.ID.String())
+		project, err := s.ProjectService.GetProjectByID(context.Background(), projectUUID, user.ID)
 		multiChan[0] <- result{data: project, err: err}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID.String())
+		summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectUUID, user.ID)
 		multiChan[1] <- result{data: summary, err: err}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID.String())
+		weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectUUID, user.ID)
 		multiChan[2] <- result{data: weeklyEvents, err: err}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		eventTypeChart, err := s.EventService.GetEventTypeChart(context.Background(), projectID, user.ID.String())
+		eventTypeChart, err := s.EventService.GetEventTypeChart(context.Background(), projectUUID, user.ID)
 		multiChan[3] <- result{data: eventTypeChart, err: err}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		eventLabelChart, err := s.EventService.GetEventLabelChart(context.Background(), projectID, user.ID.String())
+		eventLabelChart, err := s.EventService.GetEventLabelChart(context.Background(), projectUUID, user.ID)
 		multiChan[4] <- result{data: eventLabelChart, err: err}
 	}()
 
@@ -187,7 +193,7 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 		// if contains err, return early
 		if res.err != nil {
 			log.Println(res.err)
-			return c.Status(fiber.StatusBadRequest).SendString(res.err.Error())
+			return c.SendStatus(fiber.StatusNotFound)
 		}
 
 		// map data based on the channel index

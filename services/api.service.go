@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
+	"encoding/gob"
 	"fmt"
 	"log"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/views/pages"
 )
@@ -37,17 +39,20 @@ type APIServiceImpl struct {
 	ProjectService  ProjectService
 	EventService    EventService
 	DownloadService DownloadService
+	CacheService    CacheService
 }
 
 func InitAPIService(
 	projectService ProjectService,
 	eventService EventService,
 	downloadService DownloadService,
+	cacheService CacheService,
 ) APIServiceImpl {
 	return APIServiceImpl{
 		ProjectService:  projectService,
 		EventService:    eventService,
 		DownloadService: downloadService,
+		CacheService:    cacheService,
 	}
 }
 
@@ -193,7 +198,7 @@ func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
 	}
 
 	// check if project id is available within user context
-	exist, err := s.ProjectService.GetProjectByID(context.Background(), projectUUID.String(), user.ID.String())
+	exist, err := s.ProjectService.GetProjectByID(context.Background(), projectUUID, user.ID)
 	if exist == nil || err != nil {
 		return c.SendString("Project not found")
 	}
@@ -252,8 +257,25 @@ func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
-	buf := bytes.Buffer{}
+	if len(events) > 0 {
+		log.Printf("Caching Live Events [%s]", user.ID)
 
+		// save events as a gob bytes
+		var cacheBuf bytes.Buffer
+		if err := gob.NewEncoder(&cacheBuf).Encode(events); err != nil {
+			log.Println("Error encoding events cache:", err)
+		}
+
+		// Cache events into redis for 30 minutes exp time
+		// What if the new data comes?
+		// The invalidation process happens at the CreateEvent,
+		// after successful creation of the event.
+		if err := s.CacheService.SetCache(configs.CACHE_LIVE_EVENTS(user.ID), cacheBuf.Bytes(), 30*time.Minute); err != nil {
+			log.Println("Error saving live events as a cache:", err)
+		}
+	}
+
+	buf := bytes.Buffer{}
 	eventRows := pages.EventLiveTableRow(events)
 	eventRows.Render(context.Background(), &buf)
 
@@ -267,13 +289,35 @@ func (s *APIServiceImpl) LiveEventDetail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	events, err := s.EventService.GetLiveEventDetail(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	events, err := s.EventService.GetLiveEventDetail(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
-	buf := bytes.Buffer{}
+	if len(events) > 0 {
+		log.Printf("Caching Live Event Detail [%s/%s]", user.ID, projectUUID)
 
+		// save events as a gob bytes
+		var cacheBuf bytes.Buffer
+		if err := gob.NewEncoder(&cacheBuf).Encode(events); err != nil {
+			log.Println("Error encoding live event detail cache:", err)
+		}
+
+		// Cache events into redis for 30 minutes exp time
+		// What if the new data comes?
+		// The invalidation process happens at the CreateEvent,
+		// after successful creation of the event.
+		if err := s.CacheService.SetCache(configs.CACHE_LIVE_EVENT(user.ID, projectUUID), cacheBuf.Bytes(), 30*time.Minute); err != nil {
+			log.Println("Error saving live event detail as a cache:", err)
+		}
+	}
+
+	buf := bytes.Buffer{}
 	eventRows := pages.EventDetailTableRow(events)
 	eventRows.Render(context.Background(), &buf)
 
@@ -287,13 +331,35 @@ func (s *APIServiceImpl) GetEventSummary(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	summary, err := s.EventService.GetEventSummary(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	summary, err := s.EventService.GetEventSummary(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
-	buf := bytes.Buffer{}
+	if summary != nil {
+		log.Printf("Caching Event Summary [%s/%s]", user.ID, projectUUID)
 
+		// save events as a gob bytes
+		var cacheBuf bytes.Buffer
+		if err := gob.NewEncoder(&cacheBuf).Encode(summary); err != nil {
+			log.Println("Error encoding event summary cache:", err)
+		}
+
+		// Cache events into redis for 30 minutes exp time
+		// What if the new data comes?
+		// The invalidation process happens at the CreateEvent,
+		// after successful creation of the event.
+		if err := s.CacheService.SetCache(configs.CACHE_LIVE_EVENT_SUMMARY(user.ID, projectUUID), cacheBuf.Bytes(), 30*time.Minute); err != nil {
+			log.Println("Error saving live event summary as a cache:", err)
+		}
+	}
+
+	buf := bytes.Buffer{}
 	eventRows := pages.ProjectSummaryText(summary)
 	eventRows.Render(context.Background(), &buf)
 
@@ -307,13 +373,39 @@ func (s *APIServiceImpl) GetEventSummaryDetail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
-	buf := bytes.Buffer{}
+	if summary != nil {
+		log.Printf("Caching Live Event Detail Summary [%s/%s]", user.ID, projectUUID)
 
+		// save events as a gob bytes
+		var cacheBuf bytes.Buffer
+		if err := gob.NewEncoder(&cacheBuf).Encode(summary); err != nil {
+			log.Println("Error encoding live event detail summary cache:", err)
+		}
+
+		// Cache events into redis for 30 minutes exp time
+		// What if the new data comes?
+		// The invalidation process happens at the CreateEvent,
+		// after successful creation of the event.
+		if err := s.CacheService.SetCache(
+			configs.CACHE_LIVE_EVENT_DETAIL_SUMMARY(user.ID, projectUUID),
+			cacheBuf.Bytes(),
+			30*time.Minute,
+		); err != nil {
+			log.Println("Error saving live event detail as a cache:", err)
+		}
+	}
+
+	buf := bytes.Buffer{}
 	eventRows := pages.EventDetailSummarySection(summary)
 	eventRows.Render(context.Background(), &buf)
 
@@ -327,10 +419,37 @@ func (s *APIServiceImpl) JSONWeeklyEventChart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	weeklyEvents, err := s.EventService.GetWeeklyEventsChart(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	if weeklyEvents != nil {
+		log.Printf("Caching JSON Weekly Event Chart [%s/%s]", user.ID, projectUUID)
+
+		// save events as a gob bytes
+		var cacheBuf bytes.Buffer
+		if err := gob.NewEncoder(&cacheBuf).Encode(weeklyEvents); err != nil {
+			log.Println("Error encoding JSON weekly event chart cache:", err)
+		}
+
+		// Cache events into redis for 30 minutes exp time
+		// What if the new data comes?
+		// The invalidation process happens at the CreateEvent,
+		// after successful creation of the event.
+		if err := s.CacheService.SetCache(
+			configs.CACHE_JSON_WEEKLY_EVENT_CHART(user.ID, projectUUID),
+			cacheBuf.Bytes(),
+			30*time.Minute,
+		); err != nil {
+			log.Println("Error saving JSON weekly event chart as a cache:", err)
+		}
 	}
 
 	return c.JSON(weeklyEvents)
@@ -343,10 +462,37 @@ func (s *APIServiceImpl) JSONEventTypeChart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	percentage, err := s.EventService.GetEventTypeChart(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	percentage, err := s.EventService.GetEventTypeChart(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	if len(percentage) > 0 {
+		log.Printf("Caching JSON Event Type Chart [%s/%s]", user.ID, projectUUID)
+
+		// save events as a gob bytes
+		var cacheBuf bytes.Buffer
+		if err := gob.NewEncoder(&cacheBuf).Encode(percentage); err != nil {
+			log.Println("Error encoding JSON event type chart cache:", err)
+		}
+
+		// Cache events into redis for 30 minutes exp time
+		// What if the new data comes?
+		// The invalidation process happens at the CreateEvent,
+		// after successful creation of the event.
+		if err := s.CacheService.SetCache(
+			configs.CACHE_JSON_EVENT_TYPE_CHART(user.ID, projectUUID),
+			cacheBuf.Bytes(),
+			30*time.Minute,
+		); err != nil {
+			log.Println("Error saving JSON event type chart as a cache:", err)
+		}
 	}
 
 	return c.JSON(percentage)
@@ -359,10 +505,37 @@ func (s *APIServiceImpl) JSONEventLabelChart(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	labels, err := s.EventService.GetEventLabelChart(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
+	}
+
+	labels, err := s.EventService.GetEventLabelChart(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	if len(labels) > 0 {
+		log.Printf("Caching JSON Event Label Chart [%s/%s]", user.ID, projectUUID)
+
+		// save events as a gob bytes
+		var cacheBuf bytes.Buffer
+		if err := gob.NewEncoder(&cacheBuf).Encode(labels); err != nil {
+			log.Println("Error encoding JSON event label chart cache:", err)
+		}
+
+		// Cache events into redis for 30 minutes exp time
+		// What if the new data comes?
+		// The invalidation process happens at the CreateEvent,
+		// after successful creation of the event.
+		if err := s.CacheService.SetCache(
+			configs.CACHE_JSON_EVENT_LABEL_CHART(user.ID, projectUUID),
+			cacheBuf.Bytes(),
+			30*time.Minute,
+		); err != nil {
+			log.Println("Error saving JSON event label chart as a cache:", err)
+		}
 	}
 
 	return c.JSON(labels)

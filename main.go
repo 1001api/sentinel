@@ -97,16 +97,17 @@ func main() {
 
 	// init services
 	utilService := services.InitUtilService(validate, ipdbCon)
+	cacheService := services.InitCacheService(redisCon)
 	downloadService := services.InitDownloadService(repository)
 	userService := services.InitUserService(&utilService, repository)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
 	projectService := services.InitProjectService(repository, db)
-	eventService := services.InitEventService(&utilService, repository)
-	apiService := services.InitAPIService(&projectService, &eventService, &downloadService)
+	eventService := services.InitEventService(&utilService, &cacheService, repository)
+	apiService := services.InitAPIService(&projectService, &eventService, &downloadService, &cacheService)
 	webService := services.InitWebService(&userService, &projectService, &eventService)
 
 	// init middleware
-	m := middlewares.InitMiddleware(&userService, sessionStore)
+	m := middlewares.InitMiddleware(&userService, sessionStore, &cacheService)
 
 	// init routes
 	routes.InitAuthRoute(app, &authService)
