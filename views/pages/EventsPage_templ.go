@@ -123,12 +123,18 @@ func EventsPage(props EventsPageProps) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"revealed, every 10s [document.visibilityState === &#39;visible&#39;], visibilitychange[document.visibilityState === &#39;visible&#39;] from:document\" hx-swap=\"innerHTML\"></div></a>")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"revealed, every 10s [document.visibilityState === &#39;visible&#39;], visibilitychange[document.visibilityState === &#39;visible&#39;] from:document\" hx-swap=\"innerHTML\"></div></a> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><section class=\"flex flex-col gap-4 mt-12\"><div class=\"p-4 mb-4 flex items-center overflow-hidden justify-between border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800\" role=\"alert\"><div><div class=\"flex gap-1 items-end\"><h3 class=\"text-2xl font-medium\"><span hx-get=\"/api/event/monthly/count\" hx-trigger=\"load, every 30s [document.visibilityState === &#39;visible&#39;], visibilitychange[document.visibilityState === &#39;visible&#39;] from:document\">0</span>/<span class=\"text-sm\">100.000</span></h3><p class=\"text-sm mb-[2px]\">Events this month</p></div><div class=\"mt-2 mb-4 text-sm\">You are currently on the free tier, which limits the total number of events to a maximum of 100,000 per month.</div><div class=\"flex\"><a href=\"/pricing\" class=\"text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex gap-1 items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800\"><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.5\" stroke=\"currentColor\" class=\"size-4\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59\"></path></svg> Upgrade to remove limit</a></div></div><span class=\"px-12 flex items-center scale-[11] mr-14\">🦹</span></div></section><section class=\"flex flex-col gap-4 px-4 mt-6\"><div><div class=\"flex items-center gap-1\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"size-5 animate-spin-slow\"><path d=\"M17.004 10.407c.138.435-.216.842-.672.842h-3.465a.75.75 0 0 1-.65-.375l-1.732-3c-.229-.396-.053-.907.393-1.004a5.252 5.252 0 0 1 6.126 3.537ZM8.12 8.464c.307-.338.838-.235 1.066.16l1.732 3a.75.75 0 0 1 0 .75l-1.732 3c-.229.397-.76.5-1.067.161A5.23 5.23 0 0 1 6.75 12a5.23 5.23 0 0 1 1.37-3.536ZM10.878 17.13c-.447-.098-.623-.608-.394-1.004l1.733-3.002a.75.75 0 0 1 .65-.375h3.465c.457 0 .81.407.672.842a5.252 5.252 0 0 1-6.126 3.539Z\"></path> <path fill-rule=\"evenodd\" d=\"M21 12.75a.75.75 0 1 0 0-1.5h-.783a8.22 8.22 0 0 0-.237-1.357l.734-.267a.75.75 0 1 0-.513-1.41l-.735.268a8.24 8.24 0 0 0-.689-1.192l.6-.503a.75.75 0 1 0-.964-1.149l-.6.504a8.3 8.3 0 0 0-1.054-.885l.391-.678a.75.75 0 1 0-1.299-.75l-.39.676a8.188 8.188 0 0 0-1.295-.47l.136-.77a.75.75 0 0 0-1.477-.26l-.136.77a8.36 8.36 0 0 0-1.377 0l-.136-.77a.75.75 0 1 0-1.477.26l.136.77c-.448.121-.88.28-1.294.47l-.39-.676a.75.75 0 0 0-1.3.75l.392.678a8.29 8.29 0 0 0-1.054.885l-.6-.504a.75.75 0 1 0-.965 1.149l.6.503a8.243 8.243 0 0 0-.689 1.192L3.8 8.216a.75.75 0 1 0-.513 1.41l.735.267a8.222 8.222 0 0 0-.238 1.356h-.783a.75.75 0 0 0 0 1.5h.783c.042.464.122.917.238 1.356l-.735.268a.75.75 0 0 0 .513 1.41l.735-.268c.197.417.428.816.69 1.191l-.6.504a.75.75 0 0 0 .963 1.15l.601-.505c.326.323.679.62 1.054.885l-.392.68a.75.75 0 0 0 1.3.75l.39-.679c.414.192.847.35 1.294.471l-.136.77a.75.75 0 0 0 1.477.261l.137-.772a8.332 8.332 0 0 0 1.376 0l.136.772a.75.75 0 1 0 1.477-.26l-.136-.771a8.19 8.19 0 0 0 1.294-.47l.391.677a.75.75 0 0 0 1.3-.75l-.393-.679a8.29 8.29 0 0 0 1.054-.885l.601.504a.75.75 0 0 0 .964-1.15l-.6-.503c.261-.375.492-.774.69-1.191l.735.267a.75.75 0 1 0 .512-1.41l-.734-.267c.115-.439.195-.892.237-1.356h.784Zm-2.657-3.06a6.744 6.744 0 0 0-1.19-2.053 6.784 6.784 0 0 0-1.82-1.51A6.705 6.705 0 0 0 12 5.25a6.8 6.8 0 0 0-1.225.11 6.7 6.7 0 0 0-2.15.793 6.784 6.784 0 0 0-2.952 3.489.76.76 0 0 1-.036.098A6.74 6.74 0 0 0 5.251 12a6.74 6.74 0 0 0 3.366 5.842l.009.005a6.704 6.704 0 0 0 2.18.798l.022.003a6.792 6.792 0 0 0 2.368-.004 6.704 6.704 0 0 0 2.205-.811 6.785 6.785 0 0 0 1.762-1.484l.009-.01.009-.01a6.743 6.743 0 0 0 1.18-2.066c.253-.707.39-1.469.39-2.263a6.74 6.74 0 0 0-.408-2.309Z\" clip-rule=\"evenodd\"></path></svg><h5 class=\"text-lg font-semibold\">Live Events (Last 1 hour)</h5></div><p class=\"text-sm text-gray-700\">Track real-time events as they occur across all your projects. View incoming events from the past hour, fired from different parts of your system.</p></div><div class=\"relative overflow-x-auto shadow-md sm:rounded-lg\"><table hx-get=\"/api/event/live\" hx-trigger=\"revealed, every 5s [document.visibilityState === &#39;visible&#39;], visibilitychange[document.visibilityState === &#39;visible&#39;] from:document\" hx-target=\"#live-events\" hx-swap=\"outerHTML\" class=\"w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400\"><thead class=\"text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400\"><tr><th scope=\"col\" class=\"py-3\"></th><th scope=\"col\" class=\"px-6 py-3\">Project</th><th scope=\"col\" class=\"px-6 py-3\">Event Type</th><th scope=\"col\" class=\"px-6 py-3\">Event Label</th><th scope=\"col\" class=\"px-6 py-3\">Fired From</th><th scope=\"col\" class=\"px-6 py-3\">Element Host</th><th scope=\"col\" class=\"px-6 py-3\">Time Taken</th><th scope=\"col\" class=\"px-6 py-3\">Received At</th></tr></thead>")
+				for range 5 - len(props.Projects) {
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><section class=\"flex flex-col gap-4 px-4 mt-6\"><div><div class=\"flex items-center gap-1\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"size-5 animate-spin-slow\"><path d=\"M17.004 10.407c.138.435-.216.842-.672.842h-3.465a.75.75 0 0 1-.65-.375l-1.732-3c-.229-.396-.053-.907.393-1.004a5.252 5.252 0 0 1 6.126 3.537ZM8.12 8.464c.307-.338.838-.235 1.066.16l1.732 3a.75.75 0 0 1 0 .75l-1.732 3c-.229.397-.76.5-1.067.161A5.23 5.23 0 0 1 6.75 12a5.23 5.23 0 0 1 1.37-3.536ZM10.878 17.13c-.447-.098-.623-.608-.394-1.004l1.733-3.002a.75.75 0 0 1 .65-.375h3.465c.457 0 .81.407.672.842a5.252 5.252 0 0 1-6.126 3.539Z\"></path> <path fill-rule=\"evenodd\" d=\"M21 12.75a.75.75 0 1 0 0-1.5h-.783a8.22 8.22 0 0 0-.237-1.357l.734-.267a.75.75 0 1 0-.513-1.41l-.735.268a8.24 8.24 0 0 0-.689-1.192l.6-.503a.75.75 0 1 0-.964-1.149l-.6.504a8.3 8.3 0 0 0-1.054-.885l.391-.678a.75.75 0 1 0-1.299-.75l-.39.676a8.188 8.188 0 0 0-1.295-.47l.136-.77a.75.75 0 0 0-1.477-.26l-.136.77a8.36 8.36 0 0 0-1.377 0l-.136-.77a.75.75 0 1 0-1.477.26l.136.77c-.448.121-.88.28-1.294.47l-.39-.676a.75.75 0 0 0-1.3.75l.392.678a8.29 8.29 0 0 0-1.054.885l-.6-.504a.75.75 0 1 0-.965 1.149l.6.503a8.243 8.243 0 0 0-.689 1.192L3.8 8.216a.75.75 0 1 0-.513 1.41l.735.267a8.222 8.222 0 0 0-.238 1.356h-.783a.75.75 0 0 0 0 1.5h.783c.042.464.122.917.238 1.356l-.735.268a.75.75 0 0 0 .513 1.41l.735-.268c.197.417.428.816.69 1.191l-.6.504a.75.75 0 0 0 .963 1.15l.601-.505c.326.323.679.62 1.054.885l-.392.68a.75.75 0 0 0 1.3.75l.39-.679c.414.192.847.35 1.294.471l-.136.77a.75.75 0 0 0 1.477.261l.137-.772a8.332 8.332 0 0 0 1.376 0l.136.772a.75.75 0 1 0 1.477-.26l-.136-.771a8.19 8.19 0 0 0 1.294-.47l.391.677a.75.75 0 0 0 1.3-.75l-.393-.679a8.29 8.29 0 0 0 1.054-.885l.601.504a.75.75 0 0 0 .964-1.15l-.6-.503c.261-.375.492-.774.69-1.191l.735.267a.75.75 0 1 0 .512-1.41l-.734-.267c.115-.439.195-.892.237-1.356h.784Zm-2.657-3.06a6.744 6.744 0 0 0-1.19-2.053 6.784 6.784 0 0 0-1.82-1.51A6.705 6.705 0 0 0 12 5.25a6.8 6.8 0 0 0-1.225.11 6.7 6.7 0 0 0-2.15.793 6.784 6.784 0 0 0-2.952 3.489.76.76 0 0 1-.036.098A6.74 6.74 0 0 0 5.251 12a6.74 6.74 0 0 0 3.366 5.842l.009.005a6.704 6.704 0 0 0 2.18.798l.022.003a6.792 6.792 0 0 0 2.368-.004 6.704 6.704 0 0 0 2.205-.811 6.785 6.785 0 0 0 1.762-1.484l.009-.01.009-.01a6.743 6.743 0 0 0 1.18-2.066c.253-.707.39-1.469.39-2.263a6.74 6.74 0 0 0-.408-2.309Z\" clip-rule=\"evenodd\"></path></svg><h5 class=\"text-lg font-semibold\">Live Events (Last 1 hour)</h5></div><p class=\"text-sm text-gray-700\">Track real-time events as they occur across all your projects. View incoming events from the past hour, fired from different parts of your system.</p></div><div class=\"relative overflow-x-auto shadow-md sm:rounded-lg\"><table hx-get=\"/api/event/live\" hx-trigger=\"revealed, every 5s [document.visibilityState === &#39;visible&#39;], visibilitychange[document.visibilityState === &#39;visible&#39;] from:document\" hx-target=\"#live-events\" hx-swap=\"outerHTML\" class=\"w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400\"><thead class=\"text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400\"><tr><th scope=\"col\" class=\"py-3\"></th><th scope=\"col\" class=\"px-6 py-3\">Project</th><th scope=\"col\" class=\"px-6 py-3\">Event Type</th><th scope=\"col\" class=\"px-6 py-3\">Event Label</th><th scope=\"col\" class=\"px-6 py-3\">Fired From</th><th scope=\"col\" class=\"px-6 py-3\">Element Host</th><th scope=\"col\" class=\"px-6 py-3\">Time Taken</th><th scope=\"col\" class=\"px-6 py-3\">Received At</th></tr></thead>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -226,7 +232,7 @@ func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 139, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 116, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -239,7 +245,7 @@ func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(v.EventType)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 142, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 119, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -252,7 +258,7 @@ func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(v.EventLabel.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 145, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 122, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -274,7 +280,7 @@ func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(v.PageUrl.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 149, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 126, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -287,7 +293,7 @@ func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(v.ElementPath.String)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 153, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 130, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -300,7 +306,7 @@ func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ms", v.ReceivedAt.UnixMilli()-v.FiredAt.UnixMilli()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 157, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 134, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -313,7 +319,7 @@ func EventLiveTableRow(events []gen.GetLiveEventsRow) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(v.ReceivedAt.Format("02/01/2006 15:04:05"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 162, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 139, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -360,7 +366,7 @@ func ProjectSummaryText(sum *gen.GetEventSummaryRow) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sum.TotalEvents))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 176, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 153, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -373,7 +379,7 @@ func ProjectSummaryText(sum *gen.GetEventSummaryRow) templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sum.TotalUniqueUsers))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 183, Col: 85}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 160, Col: 85}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -386,7 +392,7 @@ func ProjectSummaryText(sum *gen.GetEventSummaryRow) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", sum.TotalCountryVisited))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 191, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 168, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -404,7 +410,7 @@ func ProjectSummaryText(sum *gen.GetEventSummaryRow) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s", sum.MostVisitedUrl.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 200, Col: 116}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 177, Col: 116}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -432,7 +438,7 @@ func ProjectSummaryText(sum *gen.GetEventSummaryRow) templ.Component {
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s", sum.MostCountryVisited.String))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 215, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventsPage.templ`, Line: 192, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
