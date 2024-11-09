@@ -129,7 +129,7 @@ func EventsPage(props EventsPageProps) templ.Component {
 					}
 				}
 				for range 5 - len(props.Projects) {
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-48 md:h-72\"></div>")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 min-h-48 h-max md:min-h-72\"></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
