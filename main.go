@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
@@ -38,9 +39,16 @@ func main() {
 		Key: os.Getenv("COOKIE_SALT"),
 	}))
 
-	// easen up cors
+	// CORS Policy
 	app.Use(cors.New(cors.Config{
 		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
+	// Logging
+	// comment this code to disable log every endpoint hit.
+	// See more: https://docs.gofiber.io/api/middleware/logger
+	app.Use(logger.New(logger.Config{
+		Format: "${yellow} [${time}] ${status} - ${method} ${path} ${latency}\n",
 	}))
 
 	app.Static("/static", "./views/public", fiber.Static{
