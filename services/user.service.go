@@ -4,17 +4,17 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/hubkudev/sentinel/dto"
 	gen "github.com/hubkudev/sentinel/gen"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type UserService interface {
 	FindByEmail(email string) (*gen.FindUserByEmailRow, error)
+	FindByEmailWithHash(email string) (*gen.FindUserByEmailWithHashRow, error)
 	FindByID(userID string) (*gen.FindUserByIDRow, error)
 	FindByPublicKey(userID string) (*gen.FindUserByPublicKeyRow, error)
+	CheckAdminExist() (bool, error)
 	GetPublicKey(userID string) (string, error)
-	CreateUser(payload *dto.GooglePayload) (*gen.CreateUserRow, error)
+	CreateUser(payload *gen.CreateUserParams) (*gen.CreateUserRow, error)
 }
 
 type UserServiceImpl struct {
@@ -24,6 +24,14 @@ type UserServiceImpl struct {
 
 func (s *UserServiceImpl) FindByEmail(email string) (*gen.FindUserByEmailRow, error) {
 	result, err := s.Repo.FindUserByEmail(context.Background(), email)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (s *UserServiceImpl) FindByEmailWithHash(email string) (*gen.FindUserByEmailWithHashRow, error) {
+	result, err := s.Repo.FindUserByEmailWithHash(context.Background(), email)
 	if err != nil {
 		return nil, err
 	}
@@ -57,24 +65,16 @@ func (s *UserServiceImpl) GetPublicKey(userID string) (string, error) {
 	return result, nil
 }
 
-func (s *UserServiceImpl) CreateUser(payload *dto.GooglePayload) (*gen.CreateUserRow, error) {
+func (s *UserServiceImpl) CheckAdminExist() (bool, error) {
+	return s.Repo.CheckAdminExist(context.Background())
+}
+
+func (s *UserServiceImpl) CreateUser(payload *gen.CreateUserParams) (*gen.CreateUserRow, error) {
 	// generate random 48 long for public key
 	key := s.UtilService.GenerateRandomID(48)
+	payload.PublicKey = key
 
-	input := gen.CreateUserParams{
-		Fullname: payload.GivenName,
-		Email:    payload.Email,
-		OauthID: pgtype.Text{
-			String: payload.SUB,
-		},
-		OauthProvider: "google",
-		ProfileUrl: pgtype.Text{
-			String: payload.Picture,
-		},
-		PublicKey: key,
-	}
-
-	result, err := s.Repo.CreateUser(context.Background(), input)
+	result, err := s.Repo.CreateUser(context.Background(), *payload)
 	if err != nil {
 		return nil, err
 	}

@@ -79,6 +79,7 @@ func main() {
 	// init class validator
 	var validate = validator.New()
 	_ = validate.RegisterValidation("timestamp", services.IsISO8601Date)
+	_ = validate.RegisterValidation("password", services.IsStrongPassword)
 
 	// init sessions
 	sessionStore := configs.InitSession(redisCon)
@@ -99,9 +100,6 @@ func main() {
 		UtilService: &utilService,
 		Repo:        repository,
 	}
-	subService := services.SubServiceImpl{
-		Repo: repository,
-	}
 	authService := services.AuthServiceImpl{
 		UtilService:  &utilService,
 		UserService:  &userService,
@@ -109,14 +107,12 @@ func main() {
 		StateStore:   stateStore,
 	}
 	projectService := services.ProjectServiceImpl{
-		SubService: &subService,
-		Repo:       repository,
-		DB:         db,
+		Repo: repository,
+		DB:   db,
 	}
 	eventService := services.EventServiceImpl{
 		UtilService: &utilService,
 		Repo:        repository,
-		SubService:  &subService,
 	}
 	apiService := services.APIServiceImpl{
 		ProjectService:  &projectService,

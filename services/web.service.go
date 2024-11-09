@@ -16,6 +16,7 @@ import (
 type WebService interface {
 	SendLandingPage(ctx *fiber.Ctx) error
 	SendLoginPage(ctx *fiber.Ctx) error
+	SendCreateFirstTimeUserPage(ctx *fiber.Ctx) error
 	SendDashboardPage(ctx *fiber.Ctx) error
 	SendPricingPage(ctx *fiber.Ctx) error
 	SendEventsPage(ctx *fiber.Ctx) error
@@ -42,7 +43,32 @@ func (s *WebServiceImpl) SendLandingPage(c *fiber.Ctx) error {
 }
 
 func (s *WebServiceImpl) SendLoginPage(c *fiber.Ctx) error {
+	adminExist, err := s.UserService.CheckAdminExist()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// if admin does not exist, redirect to first time page;
+	if !adminExist {
+		return c.Redirect("/first-time")
+	}
+
 	return configs.Render(c, pages.LoginPage())
+}
+
+func (s *WebServiceImpl) SendCreateFirstTimeUserPage(c *fiber.Ctx) error {
+	adminExist, err := s.UserService.CheckAdminExist()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	// if admin exist, redirect to login page;
+	// prevent from creating a new user from this page.
+	if adminExist {
+		return c.Redirect("/login")
+	}
+
+	return configs.Render(c, pages.CreateUserFirstTimePage())
 }
 
 func (s *WebServiceImpl) SendDashboardPage(c *fiber.Ctx) error {

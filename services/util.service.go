@@ -9,17 +9,14 @@ import (
 	"github.com/go-playground/validator/v10"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/oschwald/geoip2-golang"
+	"golang.org/x/crypto/bcrypt"
 )
-
-func IsISO8601Date(fl validator.FieldLevel) bool {
-	ISO8601DateRegexString := "^(?:[1-9]\\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?(?:Z|[+-][01]\\d:[0-5]\\d)$"
-	ISO8601DateRegex := regexp.MustCompile(ISO8601DateRegexString)
-	return ISO8601DateRegex.MatchString(fl.Field().String())
-}
 
 type UtilService interface {
 	GenerateRandomID(length int) string
 	ValidateInput(payload any) string
+	GenerateHash(password string) string
+	CompareHash(password string, hash string) bool
 	ParseIP(str string) *netip.Addr
 	ParseTimestamp(str string) time.Time
 	LookupIP(ipStr string) *geoip2.City
@@ -55,6 +52,11 @@ func (s *UtilServiceImpl) ValidateInput(payload any) string {
 				break
 			}
 
+			if err.Tag() == "max" {
+				errMessage = err.Field() + " field is too long"
+				break
+			}
+
 			if err.Tag() == "timestamp" {
 				errMessage = err.Field() + " field is invalid, please use ISO8601 date format"
 				break
@@ -70,12 +72,43 @@ func (s *UtilServiceImpl) ValidateInput(payload any) string {
 				break
 			}
 
+			if err.Tag() == "eqfield" && err.Field() == "ConfirmPassword" {
+				errMessage = "Password & confirm password do not match"
+				break
+			}
+
+			if err.Tag() == "min" && err.Field() == "Password" {
+				errMessage = "Minimum length of a password is 8 characters"
+				break
+			}
+
+			if err.Tag() == "password" {
+				errMessage = "Password is too weak; include at least 1 uppercase letter, 1 symbol, and 1 number."
+				break
+			}
+
 			// raw error which is not covered above
 			errMessage = "Error on field " + err.StructField()
 		}
 	}
 
 	return errMessage
+}
+
+func (s *UtilServiceImpl) GenerateHash(password string) string {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return ""
+	}
+	return string(hashed)
+}
+
+func (s *UtilServiceImpl) CompareHash(password string, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func (s *UtilServiceImpl) ParseIP(str string) *netip.Addr {
@@ -104,4 +137,24 @@ func (s *UtilServiceImpl) LookupIP(ipStr string) *geoip2.City {
 		return nil
 	}
 	return record
+}
+
+func IsISO8601Date(fl validator.FieldLevel) bool {
+	ISO8601DateRegexString := "^(?:[1-9]\\d{3}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1\\d|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[1-9]\\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29)T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?(?:Z|[+-][01]\\d:[0-5]\\d)$"
+	ISO8601DateRegex := regexp.MustCompile(ISO8601DateRegexString)
+	return ISO8601DateRegex.MatchString(fl.Field().String())
+}
+
+func IsStrongPassword(fl validator.FieldLevel) bool {
+	password := fl.Field().String()
+
+	if len(password) < 8 || len(password) > 255 {
+		return false
+	}
+
+	hasNumber := regexp.MustCompile(`[0-9]`).MatchString
+	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString
+	hasSpecial := regexp.MustCompile(`[!@#~$%^&*()+|_]{1}`).MatchString
+
+	return hasNumber(password) && hasUpper(password) && hasSpecial(password)
 }

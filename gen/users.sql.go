@@ -12,6 +12,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const checkAdminExist = `-- name: CheckAdminExist :one
+SELECT EXISTS(SELECT 1 FROM users WHERE root_user = true)
+`
+
+func (q *Queries) CheckAdminExist(ctx context.Context) (bool, error) {
+	row := q.db.QueryRow(ctx, checkAdminExist)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const checkUserIDExist = `-- name: CheckUserIDExist :one
 SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)
 `
@@ -25,17 +36,17 @@ func (q *Queries) CheckUserIDExist(ctx context.Context, id uuid.UUID) (bool, err
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users(
-    fullname, email, oauth_provider, oauth_id, profile_url, public_key
+    fullname, email, password_hashed, profile_url, root_user, public_key
 ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, fullname, email, profile_url
 `
 
 type CreateUserParams struct {
-	Fullname      string
-	Email         string
-	OauthProvider string
-	OauthID       pgtype.Text
-	ProfileUrl    pgtype.Text
-	PublicKey     string
+	Fullname       string
+	Email          string
+	PasswordHashed string
+	ProfileUrl     pgtype.Text
+	RootUser       bool
+	PublicKey      string
 }
 
 type CreateUserRow struct {
@@ -49,9 +60,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 	row := q.db.QueryRow(ctx, createUser,
 		arg.Fullname,
 		arg.Email,
-		arg.OauthProvider,
-		arg.OauthID,
+		arg.PasswordHashed,
 		arg.ProfileUrl,
+		arg.RootUser,
 		arg.PublicKey,
 	)
 	var i CreateUserRow
@@ -84,6 +95,23 @@ func (q *Queries) FindUserByEmail(ctx context.Context, email string) (FindUserBy
 		&i.Email,
 		&i.ProfileUrl,
 	)
+	return i, err
+}
+
+const findUserByEmailWithHash = `-- name: FindUserByEmailWithHash :one
+SELECT id, email, password_hashed FROM users WHERE email = $1
+`
+
+type FindUserByEmailWithHashRow struct {
+	ID             uuid.UUID
+	Email          string
+	PasswordHashed string
+}
+
+func (q *Queries) FindUserByEmailWithHash(ctx context.Context, email string) (FindUserByEmailWithHashRow, error) {
+	row := q.db.QueryRow(ctx, findUserByEmailWithHash, email)
+	var i FindUserByEmailWithHashRow
+	err := row.Scan(&i.ID, &i.Email, &i.PasswordHashed)
 	return i, err
 }
 

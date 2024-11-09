@@ -8,7 +8,7 @@ import (
 func InitAuthRoute(app *fiber.App, authService services.AuthService) {
 	auth := app.Group("auth")
 
-	auth.Get("/google", authService.GoogleLogin)
-	auth.Get("/google/callback", authService.GoogleCallback)
+	auth.Post("/register-first-time", authService.RegisterFirstUser)
+	auth.Post("/login", authService.Login)
 	auth.Get("/logout", authService.Logout)
 }

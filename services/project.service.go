@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"log"
 	"time"
 
@@ -24,34 +23,12 @@ type ProjectService interface {
 }
 
 type ProjectServiceImpl struct {
-	SubService SubService
-	Repo       *gen.Queries
-	DB         *pgxpool.Pool
+	Repo *gen.Queries
+	DB   *pgxpool.Pool
 }
 
 func (s *ProjectServiceImpl) CreateProject(ctx context.Context, name string, desc string, userID string) (*gen.CreateProjectRow, error) {
 	userUUID := uuid.MustParse(userID)
-
-	// check how many projects already this user has
-	count, err := s.Repo.CountProject(ctx, userUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	// check current user active subscription
-	subExist, err := s.SubService.CheckUserHasActiveSub(context.Background(), userID)
-	if err != nil {
-		return nil, errors.New(err.Error()) // reject with error
-	}
-
-	// if no active sub is present, then that means the user is currently in free tier
-	if !subExist {
-		// if project is more or equal to 3
-		// reject creation.
-		if count >= 3 {
-			return nil, errors.New("Total project already at max") // reject with error
-		}
-	}
 
 	input := gen.CreateProjectParams{
 		Name: name,

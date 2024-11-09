@@ -5,8 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
 
     fullname VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    oauth_provider VARCHAR(50) NOT NULL,
-    oauth_id VARCHAR(255),
+    password_hashed VARCHAR(255) NOT NULL,
+    root_user BOOLEAN NOT NULL DEFAULT false,
+
     profile_url VARCHAR(255),
     public_key VARCHAR(255) NOT NULL,
 

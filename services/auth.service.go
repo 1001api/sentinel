@@ -1,23 +1,19 @@
 package services
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/hubkudev/sentinel/configs"
 	"github.com/hubkudev/sentinel/dto"
+	"github.com/hubkudev/sentinel/gen"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type AuthService interface {
-	GoogleLogin(ctx *fiber.Ctx) error
-	GoogleCallback(ctx *fiber.Ctx) error
-	ConvertToken(accessToken string) (*dto.GooglePayload, error)
+	RegisterFirstUser(ctx *fiber.Ctx) error
+	Login(ctx *fiber.Ctx) error
 	Logout(ctx *fiber.Ctx) error
 }
 
@@ -28,76 +24,61 @@ type AuthServiceImpl struct {
 	SessionStore *session.Store
 }
 
-func (s *AuthServiceImpl) GoogleLogin(c *fiber.Ctx) error {
-	// create google config first
-	conf := configs.GoogleConfig()
+func (s *AuthServiceImpl) RegisterFirstUser(c *fiber.Ctx) error {
+	fullname := c.FormValue("fullname")
+	email := c.FormValue("email")
+	password := c.FormValue("password")
+	confirmPassword := c.FormValue("confirm_password")
 
-	// generate random 32-long for state identification
-	generated := s.UtilService.GenerateRandomID(32)
+	payload := dto.CreateUserInput{
+		Fullname:        fullname,
+		Email:           email,
+		Password:        password,
+		ConfirmPassword: confirmPassword,
+	}
 
-	sess, _ := s.StateStore.Get(c)
-	sess.Set("session_state", generated)
-	sess.Save()
+	if err := s.UtilService.ValidateInput(&payload); err != "" {
+		return c.SendString(err)
+	}
 
-	// create url for auth process.
-	// we can pass state as someway to identify
-	// and validate the login process.
-	URL := conf.AuthCodeURL(generated)
+	adminExist, err := s.UserService.CheckAdminExist()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
 
-	// redirect to the google authentication URL
-	return c.Redirect(URL)
+	// if admin exist?
+	// prevent from creating a new user from this endpoint.
+	if adminExist {
+		return c.SendString("New user registration is disabled. Contact your admin.")
+	}
 
-}
-
-func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
-	// get session store for current context
-	// NOTE: stateSess must be first, then sess, the second, I am not sure why is that,
-	// there must be something wrong here.
-	stateSess, stateErr := s.StateStore.Get(c)
 	sess, sessErr := s.SessionStore.Get(c)
-	if sessErr != nil || stateErr != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	// state from the session storage
-	savedState := stateSess.Get("session_state")
-
-	conf := configs.GoogleConfig()
-
-	// get state from the callback
-	state := c.Query("state")
-	code := c.Query("code")
-
-	// compare the state that is coming from the callback
-	// with the one that is stored inside the session storage.
-	if state != savedState {
-		// Handle the invalid state error
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid state")
-	}
-
-	// exchange code that retrieved from google via
-	// URL query parameter into token, this token
-	// can be used later to query information of current user
-	// from respective provider.
-	token, err := conf.Exchange(c.Context(), code)
-	if err != nil {
-		log.Printf("Unable to exchange token: %v", err)
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-
-	profile, err := s.ConvertToken(token.AccessToken)
-	if err != nil {
-		log.Printf("Unable to convert token: %v", err)
+	if sessErr != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	// find current user by provided email,
-	// if the user found in the database, then we can just logged in,
-	// if not, then register that user.
-	isExist, err := s.UserService.FindByEmail(profile.Email)
+	// if the user not found in the database, then register that user.
+	isExist, err := s.UserService.FindByEmail(email)
 	if isExist == nil || err != nil {
+		// hash password
+		hashed := s.UtilService.GenerateHash(password)
+		if hashed == "" {
+			log.Printf("Failed to hash password: %v", err)
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to register user")
+		}
+
 		// register user and save their data into database
-		result, err := s.UserService.CreateUser(profile)
+		result, err := s.UserService.CreateUser(&gen.CreateUserParams{
+			Fullname:       fullname,
+			Email:          email,
+			PasswordHashed: hashed,
+			ProfileUrl: pgtype.Text{
+				String: fmt.Sprintf("https://ui-avatars.com/api/?name=%s&background=random", fullname),
+				Valid:  true,
+			},
+			RootUser: true,
+		})
 		if err != nil {
 			log.Printf("Failed to register user: %v", err)
 			return c.Status(fiber.StatusInternalServerError).SendString("Failed to register user")
@@ -114,52 +95,46 @@ func (s *AuthServiceImpl) GoogleCallback(c *fiber.Ctx) error {
 		}
 
 		// return immediately
-		return c.Status(fiber.StatusOK).Redirect("/misc/auth-redirect")
+		c.Set("HX-Redirect", "/events")
+		return c.SendStatus(fiber.StatusOK)
 	}
 
-	// Store the existed user's id in the session
-	sess.Set("ID", isExist.ID.String())
-
-	if err := sess.Save(); err != nil {
-		log.Printf("Failed to save user session: %v", err)
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save user session")
-	}
-
-	return c.Status(fiber.StatusOK).Redirect("/misc/auth-redirect")
+	return c.SendString("User with the same email already exist")
 }
 
-func (s *AuthServiceImpl) ConvertToken(accessToken string) (*dto.GooglePayload, error) {
-	resp, httpErr := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v3/userinfo?access_token=%s", accessToken))
-	if httpErr != nil {
-		return nil, httpErr
-	}
-	defer resp.Body.Close()
+func (s *AuthServiceImpl) Login(c *fiber.Ctx) error {
+	email := c.FormValue("email")
+	password := c.FormValue("password")
 
-	respBody, bodyErr := io.ReadAll(resp.Body)
-	if bodyErr != nil {
-		return nil, bodyErr
+	sess, sessErr := s.SessionStore.Get(c)
+	if sessErr != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	// Unmarshal raw response body to a map
-	var body map[string]interface{}
-	if err := json.Unmarshal(respBody, &body); err != nil {
-		return nil, err
+	isExist, err := s.UserService.FindByEmailWithHash(email)
+	if isExist != nil && err == nil {
+		// compare hashed password
+		validHashed := s.UtilService.CompareHash(password, isExist.PasswordHashed)
+		if !validHashed {
+			return c.SendString("Wrong email or password")
+		}
+
+		// Store the user's id in the session
+		sess.Set("ID", isExist.ID.String())
+
+		// Save into memory session and.
+		// saving also set a session cookie containing session_id
+		if err := sess.Save(); err != nil {
+			log.Printf("Failed to save user session: %v", err)
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to save user session")
+		}
+
+		// return immediately
+		c.Set("HX-Redirect", "/events")
+		return c.SendStatus(fiber.StatusOK)
 	}
 
-	// if json body containing error,
-	// then the token is indeed invalid. return invalid token err
-	if body["error"] != nil {
-		return nil, errors.New("Invalid token")
-	}
-
-	// Bind JSON into struct
-	var data dto.GooglePayload
-	err := json.Unmarshal(respBody, &data)
-	if err != nil {
-		return nil, err
-	}
-
-	return &data, nil
+	return c.SendString("Wrong email or password")
 }
 
 func (s *AuthServiceImpl) Logout(c *fiber.Ctx) error {

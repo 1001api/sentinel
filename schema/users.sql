@@ -1,5 +1,11 @@
+-- name: CheckAdminExist :one
+SELECT EXISTS(SELECT 1 FROM users WHERE root_user = true);
+
 -- name: FindUserByEmail :one
 SELECT id, fullname, email, profile_url FROM users WHERE email = $1;
+
+-- name: FindUserByEmailWithHash :one
+SELECT id, email, password_hashed FROM users WHERE email = $1;
 
 -- name: FindUserByID :one
 SELECT id, fullname, email, profile_url FROM users WHERE id = $1;
@@ -15,5 +21,5 @@ SELECT EXISTS(SELECT 1 FROM users WHERE id = $1);
 
 -- name: CreateUser :one
 INSERT INTO users(
-    fullname, email, oauth_provider, oauth_id, profile_url, public_key
+    fullname, email, password_hashed, profile_url, root_user, public_key
 ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, fullname, email, profile_url;
