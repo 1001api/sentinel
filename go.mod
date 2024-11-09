@@ -15,6 +15,7 @@ require (
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/mergestat/timediff v0.0.3
 	github.com/oschwald/geoip2-golang v1.11.0
+	golang.org/x/crypto v0.27.0
 	golang.org/x/oauth2 v0.23.0
 )
 
@@ -48,7 +49,6 @@ require (
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
