@@ -10,9 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/configs"
-	"github.com/hubkudev/sentinel/dto"
-	"github.com/hubkudev/sentinel/entities"
 	"github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/dto"
+	"github.com/hubkudev/sentinel/internal/entities"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 

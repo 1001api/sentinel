@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/hubkudev/sentinel/middlewares"
-	"github.com/hubkudev/sentinel/services"
+	"github.com/hubkudev/sentinel/internal/middlewares"
+	"github.com/hubkudev/sentinel/internal/services"
 )
 
 func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.APIService, eventService services.EventService) {

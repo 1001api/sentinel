@@ -33,7 +33,7 @@ func InitDBCon() *pgxpool.Pool {
 	}
 
 	// run migrations
-	m, err := migrate.New("file://migrations/", DSN)
+	m, err := migrate.New("file://internal/migrations/", DSN)
 	if err != nil {
 		log.Fatalf("Error running database migrations: %f", err)
 	}

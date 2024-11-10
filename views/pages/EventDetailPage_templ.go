@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/hubkudev/sentinel/entities"
 	gen "github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/entities"
 	"github.com/hubkudev/sentinel/views/components"
 	"time"
 )

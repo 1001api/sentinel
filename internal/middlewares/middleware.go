@@ -10,10 +10,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/configs"
-	"github.com/hubkudev/sentinel/dto"
-	"github.com/hubkudev/sentinel/entities"
 	"github.com/hubkudev/sentinel/gen"
-	"github.com/hubkudev/sentinel/services"
+	"github.com/hubkudev/sentinel/internal/dto"
+	"github.com/hubkudev/sentinel/internal/entities"
+	"github.com/hubkudev/sentinel/internal/services"
 	"github.com/hubkudev/sentinel/views/pages"
 )
 

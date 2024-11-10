@@ -6,8 +6,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/hubkudev/sentinel/dto"
 	"github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/dto"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
