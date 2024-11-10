@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/repositories"
 )
 
 type DownloadService interface {
@@ -14,10 +15,10 @@ type DownloadService interface {
 }
 
 type DownloadServiceImpl struct {
-	Repo *gen.Queries
+	Repo repositories.DownloadRepo
 }
 
-func InitDownloadService(repository *gen.Queries) DownloadServiceImpl {
+func InitDownloadService(repository repositories.DownloadRepo) DownloadServiceImpl {
 	return DownloadServiceImpl{
 		Repo: repository,
 	}
@@ -30,10 +31,12 @@ func (s *DownloadServiceImpl) DownloadEventData(ctx context.Context, projectID u
 		return nil, nil, err
 	}
 
-	body, err := s.Repo.DownloadLastMonthData(ctx, gen.DownloadLastMonthDataParams{
+	input := gen.DownloadLastMonthDataParams{
 		UserID:    userID,
 		ProjectID: projectID,
-	})
+	}
+
+	body, err := s.Repo.DownloadLastMonthData(ctx, &input)
 	if err != nil {
 		log.Println(err)
 		return nil, nil, err

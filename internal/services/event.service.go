@@ -13,12 +13,13 @@ import (
 	"github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/internal/dto"
 	"github.com/hubkudev/sentinel/internal/entities"
+	"github.com/hubkudev/sentinel/internal/repositories"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type EventService interface {
 	CreateEvent(c *fiber.Ctx) error
-	GetLiveEvents(ctx context.Context, userID string) ([]gen.GetLiveEventsRow, error)
+	GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error)
 	GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetLiveEventsDetailRow, error)
 	GetEventSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.GetEventSummaryRow, error)
 	GetEventDetailSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventDetail, error)
@@ -31,18 +32,18 @@ type EventService interface {
 type EventServiceImpl struct {
 	UtilService  UtilService
 	CacheService CacheService
-	Repo         *gen.Queries
+	Repo         repositories.EventRepo
 }
 
 func InitEventService(
 	utilService UtilService,
 	cacheService CacheService,
-	repo *gen.Queries,
+	repo repositories.EventRepo,
 ) EventServiceImpl {
 	return EventServiceImpl{
 		UtilService:  utilService,
-		Repo:         repo,
 		CacheService: cacheService,
+		Repo:         repo,
 	}
 }
 
@@ -62,7 +63,7 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 	// check if the project id exist within user.
 	// if not dont proceed further.
 	projectUUID := uuid.MustParse(input.ProjectID)
-	exist, _ := s.Repo.CheckProjectWithinUserID(context.Background(), gen.CheckProjectWithinUserIDParams{
+	exist, _ := s.Repo.CheckProjectWithinUserID(context.Background(), &gen.CheckProjectWithinUserIDParams{
 		ID:     projectUUID,
 		UserID: user.ID,
 	})
@@ -105,7 +106,7 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		ProjectID:        uuid.MustParse(input.ProjectID),
 	}
 
-	if err := s.Repo.CreateEvent(context.Background(), payload); err != nil {
+	if err := s.Repo.CreateEvent(context.Background(), &payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -127,20 +128,19 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func (s *EventServiceImpl) GetLiveEvents(ctx context.Context, userID string) ([]gen.GetLiveEventsRow, error) {
-	userUUID := uuid.MustParse(userID)
-	return s.Repo.GetLiveEvents(ctx, userUUID)
+func (s *EventServiceImpl) GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error) {
+	return s.Repo.GetLiveEvents(ctx, userID)
 }
 
 func (s *EventServiceImpl) GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetLiveEventsDetailRow, error) {
-	return s.Repo.GetLiveEventsDetail(ctx, gen.GetLiveEventsDetailParams{
+	return s.Repo.GetLiveEventDetail(ctx, &gen.GetLiveEventsDetailParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})
 }
 
 func (s *EventServiceImpl) GetEventSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.GetEventSummaryRow, error) {
-	row, err := s.Repo.GetEventSummary(ctx, gen.GetEventSummaryParams{
+	row, err := s.Repo.GetEventSummary(ctx, &gen.GetEventSummaryParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})
@@ -155,7 +155,7 @@ func (s *EventServiceImpl) GetEventDetailSummary(ctx context.Context, projectID 
 	var summary entities.EventDetail
 
 	// event summary total numbering
-	tldr, err := s.Repo.GetTotalEventSummary(ctx, gen.GetTotalEventSummaryParams{
+	tldr, err := s.Repo.GetTotalEventSummary(ctx, &gen.GetTotalEventSummaryParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})
@@ -170,7 +170,7 @@ func (s *EventServiceImpl) GetEventDetailSummary(ctx context.Context, projectID 
 	summary.TotalPageURL = int(tldr.TotalPageUrl)
 
 	// event summary detail
-	sum, err := s.Repo.GetEventDetailSummary(ctx, gen.GetEventDetailSummaryParams{
+	sum, err := s.Repo.GetEventDetailSummary(ctx, &gen.GetEventDetailSummaryParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})
@@ -221,7 +221,7 @@ func (s *EventServiceImpl) GetEventDetailSummary(ctx context.Context, projectID 
 }
 
 func (s *EventServiceImpl) GetWeeklyEventsChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventSummaryChart, error) {
-	events, err := s.Repo.GetWeeklyEvents(ctx, gen.GetWeeklyEventsParams{
+	events, err := s.Repo.GetWeeklyEvents(ctx, &gen.GetWeeklyEventsParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})
@@ -229,7 +229,7 @@ func (s *EventServiceImpl) GetWeeklyEventsChart(ctx context.Context, projectID u
 		return nil, err
 	}
 
-	totalWeekly, err := s.Repo.GetWeeklyEventsTotal(ctx, gen.GetWeeklyEventsTotalParams{
+	totalWeekly, err := s.Repo.GetWeeklyEventsTotal(ctx, &gen.GetWeeklyEventsTotalParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})
@@ -246,14 +246,14 @@ func (s *EventServiceImpl) GetWeeklyEventsChart(ctx context.Context, projectID u
 }
 
 func (s *EventServiceImpl) GetEventTypeChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetPercentageEventsTypeRow, error) {
-	return s.Repo.GetPercentageEventsType(ctx, gen.GetPercentageEventsTypeParams{
+	return s.Repo.GetPercentageEventsType(ctx, &gen.GetPercentageEventsTypeParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})
 }
 
 func (s *EventServiceImpl) GetEventLabelChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetPercentageEventsLabelRow, error) {
-	return s.Repo.GetPercentageEventsLabel(ctx, gen.GetPercentageEventsLabelParams{
+	return s.Repo.GetPercentageEventsLabel(ctx, &gen.GetPercentageEventsLabelParams{
 		ProjectID: projectID,
 		UserID:    userID,
 	})

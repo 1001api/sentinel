@@ -96,15 +96,18 @@ func main() {
 	// init repo
 	repository := gen.New(db)
 	projectRepo := repositories.InitProjectRepo(repository, db)
+	userRepo := repositories.InitUserRepo(repository)
+	downloadRepo := repositories.InitDownloadRepo(repository)
+	eventRepo := repositories.InitEventRepo(repository)
 
 	// init services
 	utilService := services.InitUtilService(validate, ipdbCon)
 	cacheService := services.InitCacheService(redisCon)
-	downloadService := services.InitDownloadService(repository)
-	userService := services.InitUserService(&utilService, repository)
+	downloadService := services.InitDownloadService(&downloadRepo)
+	userService := services.InitUserService(&utilService, &userRepo)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
 	projectService := services.InitProjectService(&projectRepo)
-	eventService := services.InitEventService(&utilService, &cacheService, repository)
+	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo)
 	apiService := services.InitAPIService(&projectService, &eventService, &downloadService, &cacheService)
 	webService := services.InitWebService(&userService, &projectService, &eventService)
 

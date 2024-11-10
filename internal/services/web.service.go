@@ -101,7 +101,7 @@ func (s *WebServiceImpl) SendPricingPage(c *fiber.Ctx) error {
 func (s *WebServiceImpl) SendEventsPage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 
-	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID.String())
+	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -229,7 +229,7 @@ func (s *WebServiceImpl) SendProjectsPage(c *fiber.Ctx) error {
 func (s *WebServiceImpl) SendAPIKeysPage(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 
-	publicKey, err := s.UserService.GetPublicKey(user.ID.String())
+	publicKey, err := s.UserService.GetPublicKey(user.ID)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}

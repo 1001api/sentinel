@@ -55,13 +55,18 @@ func (m *MiddlewareImpl) ProtectedRoute(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
 	}
 
-	userID := sess.Get("ID")
-	if userID == nil {
+	userID, ok := sess.Get("ID").(string)
+	if !ok || userID == "" {
+		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
+	}
+
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
 		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
 	}
 
 	// check if the user is exist in the database
-	exist, err := m.UserService.FindByID(userID.(string))
+	exist, err := m.UserService.FindByID(userUUID)
 	if exist == nil {
 		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
 	}
@@ -78,14 +83,19 @@ func (m *MiddlewareImpl) UnProtectedRoute(c *fiber.Ctx) error {
 		return c.Next()
 	}
 
-	userID := sess.Get("ID")
-	if userID == nil {
+	userID, ok := sess.Get("ID").(string)
+	if !ok || userID == "" {
 		c.Locals("user", nil)
 		return c.Next()
 	}
 
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
+	}
+
 	// check if the user is exist in the database
-	exist, err := m.UserService.FindByID(userID.(string))
+	exist, err := m.UserService.FindByID(userUUID)
 	if exist == nil {
 		c.Locals("user", nil)
 		return c.Next()

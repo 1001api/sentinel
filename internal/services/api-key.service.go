@@ -6,27 +6,26 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/repositories"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type APIKeyService interface {
-	CreateAPIKey(name string, userID string) (*gen.CreateAPIKeyRow, error)
-	GetAllKeys(userID string) ([]gen.FindAllAPIKeysRow, error)
-	DeleteKey(userID string, keyID int) error
+	CreateAPIKey(name string, userID uuid.UUID) (*gen.CreateAPIKeyRow, error)
+	GetAllKeys(userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error)
+	DeleteKey(userID uuid.UUID, keyID int) error
 }
 
 type APIKeyServiceImpl struct {
 	UtilService UtilService
-	Repo        *gen.Queries
+	Repo        repositories.APIKeyRepoImpl
 }
 
-func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID string) (*gen.CreateAPIKeyRow, error) {
-	userUUID := uuid.MustParse(userID)
-
+func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID uuid.UUID) (*gen.CreateAPIKeyRow, error) {
 	input := gen.CreateAPIKeyParams{
 		Name:   name,
 		Token:  s.UtilService.GenerateRandomID(64),
-		UserID: userUUID,
+		UserID: userID,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  time.Now(),
 			Valid: true,
@@ -37,7 +36,7 @@ func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID string) (*gen.Creat
 		},
 	}
 
-	key, err := s.Repo.CreateAPIKey(context.Background(), input)
+	key, err := s.Repo.CreateAPIKey(context.Background(), &input)
 	if err != nil {
 		return nil, err
 	}
@@ -45,19 +44,17 @@ func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID string) (*gen.Creat
 	return &key, nil
 }
 
-func (s *APIKeyServiceImpl) GetAllKeys(userID string) ([]gen.FindAllAPIKeysRow, error) {
-	userUUID := uuid.MustParse(userID)
-	key, err := s.Repo.FindAllAPIKeys(context.Background(), userUUID)
+func (s *APIKeyServiceImpl) GetAllKeys(userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error) {
+	key, err := s.Repo.GetAllPrivateKeys(context.Background(), userID)
 	if err != nil {
 		return nil, err
 	}
 	return key, nil
 }
 
-func (s *APIKeyServiceImpl) DeleteKey(userID string, keyID int) error {
-	userUUID := uuid.MustParse(userID)
-	err := s.Repo.DeleteAPIKey(context.Background(), gen.DeleteAPIKeyParams{
-		UserID: userUUID,
+func (s *APIKeyServiceImpl) DeleteKey(userID uuid.UUID, keyID int) error {
+	err := s.Repo.DeletePrivateKey(context.Background(), &gen.DeleteAPIKeyParams{
+		UserID: userID,
 		ID:     int32(keyID),
 	})
 	if err != nil {

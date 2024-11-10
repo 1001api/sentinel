@@ -272,7 +272,7 @@ func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
 func (s *APIServiceImpl) LiveEvents(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 
-	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID.String())
+	events, err := s.EventService.GetLiveEvents(context.Background(), user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
