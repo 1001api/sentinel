@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/hubkudev/sentinel/services"
+	"github.com/hubkudev/sentinel/internal/services"
 )
 
 func InitAuthRoute(app *fiber.App, authService services.AuthService) {

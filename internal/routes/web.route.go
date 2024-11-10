@@ -3,8 +3,8 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
-	"github.com/hubkudev/sentinel/middlewares"
-	"github.com/hubkudev/sentinel/services"
+	"github.com/hubkudev/sentinel/internal/middlewares"
+	"github.com/hubkudev/sentinel/internal/services"
 )
 
 func InitWebRoute(app *fiber.App, m middlewares.Middleware, webService services.WebService) {

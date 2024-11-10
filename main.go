@@ -16,9 +16,9 @@ import (
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
-	"github.com/hubkudev/sentinel/middlewares"
-	"github.com/hubkudev/sentinel/routes"
-	"github.com/hubkudev/sentinel/services"
+	"github.com/hubkudev/sentinel/internal/middlewares"
+	"github.com/hubkudev/sentinel/internal/routes"
+	"github.com/hubkudev/sentinel/internal/services"
 	"github.com/joho/godotenv"
 )
 

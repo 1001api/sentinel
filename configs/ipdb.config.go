@@ -7,7 +7,7 @@ import (
 )
 
 func InitIPDBCon() *geoip2.Reader {
-	ipdb, err := geoip2.Open("ipdb/GeoLite2-City.mmdb")
+	ipdb, err := geoip2.Open("internal/ipdb/GeoLite2-City.mmdb")
 	if err != nil {
 		log.Fatal("Error opening ipdb", err.Error())
 	}

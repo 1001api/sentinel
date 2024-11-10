@@ -8,8 +8,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/configs"
-	"github.com/hubkudev/sentinel/entities"
 	gen "github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/entities"
 	"github.com/hubkudev/sentinel/views/pages"
 	"github.com/hubkudev/sentinel/views/pages/misc"
 )
