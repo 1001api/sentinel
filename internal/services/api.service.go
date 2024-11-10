@@ -73,7 +73,7 @@ func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 		return c.SendString("Maximum description length is 200 characters")
 	}
 
-	_, err := s.ProjectService.CreateProject(context.Background(), name, desc, user.ID.String())
+	_, err := s.ProjectService.CreateProject(context.Background(), name, desc, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -104,7 +104,12 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	if err := s.ProjectService.UpdateProject(context.Background(), name, desc, projectID, user.ID.String()); err != nil {
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.SendString("Project ID required")
+	}
+
+	if err := s.ProjectService.UpdateProject(context.Background(), name, desc, projectUUID, user.ID); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
@@ -120,7 +125,12 @@ func (s *APIServiceImpl) DeleteProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	if err := s.ProjectService.DeleteProject(context.Background(), user.ID.String(), projectID); err != nil {
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.SendString("Project ID required")
+	}
+
+	if err := s.ProjectService.DeleteProject(context.Background(), user.ID, projectUUID); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 
@@ -136,7 +146,12 @@ func (s *APIServiceImpl) CountProjectSize(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	sizeInKB, err := s.ProjectService.CountProjectSize(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.SendString("Project ID required")
+	}
+
+	sizeInKB, err := s.ProjectService.CountProjectSize(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -157,7 +172,12 @@ func (s *APIServiceImpl) LastDataRetrieved(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	lastTime, err := s.ProjectService.LastProjectDataReceived(context.Background(), projectID, user.ID.String())
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.SendString("Project ID required")
+	}
+
+	lastTime, err := s.ProjectService.LastProjectDataReceived(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString("N/A")
 	}

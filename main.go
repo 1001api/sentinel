@@ -17,6 +17,7 @@ import (
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
 	"github.com/hubkudev/sentinel/internal/middlewares"
+	"github.com/hubkudev/sentinel/internal/repositories"
 	"github.com/hubkudev/sentinel/internal/routes"
 	"github.com/hubkudev/sentinel/internal/services"
 	"github.com/joho/godotenv"
@@ -94,6 +95,7 @@ func main() {
 
 	// init repo
 	repository := gen.New(db)
+	projectRepo := repositories.InitProjectRepo(repository, db)
 
 	// init services
 	utilService := services.InitUtilService(validate, ipdbCon)
@@ -101,7 +103,7 @@ func main() {
 	downloadService := services.InitDownloadService(repository)
 	userService := services.InitUserService(&utilService, repository)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
-	projectService := services.InitProjectService(repository, db)
+	projectService := services.InitProjectService(&projectRepo)
 	eventService := services.InitEventService(&utilService, &cacheService, repository)
 	apiService := services.InitAPIService(&projectService, &eventService, &downloadService, &cacheService)
 	webService := services.InitWebService(&userService, &projectService, &eventService)
