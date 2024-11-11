@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/hubkudev/sentinel/internal/repositories"
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/oschwald/geoip2-golang"
 	"golang.org/x/crypto/bcrypt"
@@ -24,16 +25,16 @@ type UtilService interface {
 
 type UtilServiceImpl struct {
 	Validate *validator.Validate
-	IPReader *geoip2.Reader
+	IPRepo   repositories.IPDBRepo
 }
 
 func InitUtilService(
 	validate *validator.Validate,
-	ipdbCon *geoip2.Reader,
+	ipRepo repositories.IPDBRepo,
 ) UtilServiceImpl {
 	return UtilServiceImpl{
 		Validate: validate,
-		IPReader: ipdbCon,
+		IPRepo:   ipRepo,
 	}
 }
 
@@ -142,7 +143,7 @@ func (s *UtilServiceImpl) LookupIP(ipStr string) *geoip2.City {
 	if ip == nil {
 		return nil
 	}
-	record, err := s.IPReader.City(ip)
+	record, err := s.IPRepo.GetIP(ip)
 	if err != nil {
 		return nil
 	}
