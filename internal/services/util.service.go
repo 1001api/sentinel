@@ -68,6 +68,11 @@ func (s *UtilServiceImpl) ValidateInput(payload any) string {
 				break
 			}
 
+			if err.Tag() == "email" {
+				errMessage = err.Field() + " field is invalid"
+				break
+			}
+
 			if err.Tag() == "timestamp" {
 				errMessage = err.Field() + " field is invalid, please use ISO8601 date format"
 				break
@@ -95,6 +100,11 @@ func (s *UtilServiceImpl) ValidateInput(payload any) string {
 
 			if err.Tag() == "password" {
 				errMessage = "Password is too weak; include at least 1 uppercase letter, 1 symbol, and 1 number."
+				break
+			}
+
+			if err.Tag() == "min" {
+				errMessage = err.Field() + " field is too short. Make it at least 3 characters."
 				break
 			}
 
