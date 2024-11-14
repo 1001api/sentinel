@@ -52,23 +52,23 @@ func (m *MiddlewareImpl) ProtectedRoute(c *fiber.Ctx) error {
 	sess, err := m.SessionStorage.Get(c)
 	if err != nil {
 		log.Println(err)
-		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
+		return redirectTo(c, "/login")
 	}
 
 	userID, ok := sess.Get("ID").(string)
 	if !ok || userID == "" {
-		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
+		return redirectTo(c, "/login")
 	}
 
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
+		return redirectTo(c, "/login")
 	}
 
 	// check if the user is exist in the database
 	exist, err := m.UserService.FindByID(userUUID)
 	if exist == nil {
-		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
+		return redirectTo(c, "/login")
 	}
 
 	c.Locals("user", exist)
@@ -91,7 +91,7 @@ func (m *MiddlewareImpl) UnProtectedRoute(c *fiber.Ctx) error {
 
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		return c.Status(fiber.StatusTemporaryRedirect).Redirect("/login")
+		return redirectTo(c, "/login")
 	}
 
 	// check if the user is exist in the database
@@ -381,4 +381,20 @@ func (m *MiddlewareImpl) JSONEventLabelCache(c *fiber.Ctx) error {
 	}
 
 	return c.Next()
+}
+
+func redirectTo(c *fiber.Ctx, path string) error {
+	htmx := c.Get("HX-Request")
+
+	log.Println(htmx)
+
+	// if request is not coming from HTMX, redirect normally
+	if htmx == "" && htmx != "true" {
+		log.Println("not htmx stuff")
+		return c.Status(fiber.StatusTemporaryRedirect).Redirect(path)
+	}
+
+	// if request is coming from htmx, redirect using htmx way
+	c.Set("HX-Redirect", path)
+	return c.SendStatus(fiber.StatusOK)
 }
