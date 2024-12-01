@@ -80,5 +80,6 @@ module.exports = {
     require('flowbite/plugin')({
       charts: true,
     }),
+    require('@tailwindcss/line-clamp'),
   ],
 }
