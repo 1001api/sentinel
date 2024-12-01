@@ -43,9 +43,6 @@ templ DownloadProjectPopup(i int, v *gen.FindAllProjectsRow) {
 								<option disabled value="3">Last Year</option>
 								<option disabled value="4">All Time Data</option>
 							</select>
-							<label for="interval" class="block mt-2 text-xs text-gray-600 dark:text-white">
-								On the free tier, only last month data is available for download. <a href="/pricing" class="underline text-purple-400">Upgrade for full access.</a>
-							</label>
 						</div>
 						<div class="w-full mx-auto mt-4">
 							<label for="interval" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select File Format</label>
@@ -56,9 +53,6 @@ templ DownloadProjectPopup(i int, v *gen.FindAllProjectsRow) {
 								<option disabled value="3">PDF File</option>
 								<option disabled value="4">HTML File</option>
 							</select>
-							<label for="interval" class="block mt-2 text-xs text-gray-600 dark:text-white">
-								On the free tier, downloads are limited to CSV format. <a href="/pricing" class="underline text-purple-400">Upgrade for more options.</a>
-							</label>
 						</div>
 					</div>
 					<div id={ fmt.Sprintf("download-wrapper-%d", i) } class="text-red-600"></div>
