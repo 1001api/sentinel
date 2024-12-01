@@ -66,20 +66,20 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto max-w-screen-xl px-4 lg:px-12\"><div class=\"px-4 mt-12\"><h1 class=\"font-bold text-lg\">Projects</h1><p class=\"text-sm text-gray-700\">Manage your project and include the project ID when sending data to ensure it's correctly associated with the specific project.</p></div><div class=\"mt-6 bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden\"><!-- PROJECTS COUNT --><div class=\"flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4\"><div class=\"w-full md:w-1/2 px-6\"><h5 class=\"mb-1 tracking-tight text-muted-foreground dark:text-white\">You've created ")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mx-auto max-w-screen-xl px-4 lg:px-12\"><div class=\"px-4 mt-12\"><h1 class=\"font-bold text-lg\">Projects</h1><p class=\"text-sm text-gray-700\">Manage your project and include the project ID when sending data to ensure it's correctly associated with the specific project.</p></div><div class=\"mt-6 bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden\"><!-- PROJECTS COUNT --><div class=\"flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4\"><div class=\"w-full md:w-1/2 px-6\"><h5 class=\"mb-1 tracking-tight text-muted-foreground dark:text-white\">You've created <span data-testid=\"project-count-text\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(projects)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 25, Col: 127}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 26, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" projects</h5></div><!-- PROJECTS CREATE BTN --><div class=\"w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0\"><!-- PROJECTS CREATE BTN ENABLED --><button type=\"button\" id=\"create-project-btn\" data-modal-target=\"create-project-modal\" data-modal-toggle=\"create-project-modal\" class=\"flex items-center justify-center text-white bg-primary-600 hover:bg-secondary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800\"><svg class=\"h-3.5 w-3.5 mr-2\" fill=\"currentColor\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path clip-rule=\"evenodd\" fill-rule=\"evenodd\" d=\"M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z\"></path></svg> Add Project</button></div></div><div class=\"overflow-x-auto\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> projects</h5></div><!-- PROJECTS CREATE BTN --><div class=\"w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0\"><!-- PROJECTS CREATE BTN ENABLED --><button type=\"button\" id=\"create-project-btn\" data-modal-target=\"create-project-modal\" data-modal-toggle=\"create-project-modal\" class=\"flex items-center justify-center text-white bg-primary-600 hover:bg-secondary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800\"><svg class=\"h-3.5 w-3.5 mr-2\" fill=\"currentColor\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><path clip-rule=\"evenodd\" fill-rule=\"evenodd\" d=\"M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z\"></path></svg> Add Project</button></div></div><div class=\"overflow-x-auto\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -89,14 +89,14 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						return templ_7745c5c3_Err
 					}
 					for i, v := range projects {
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"border-b dark:border-gray-700\"><td class=\"px-4 py-3 flex items-center\" x-data=\"{\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tcopied: false,\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tcopy() {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tnavigator.clipboard.writeText($refs.projectId.value).then(() =&gt; {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tthis.copied = true                    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t}).catch((err) =&gt; {                        \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tthis.copied = false                    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t}) }}\"><p class=\"truncate text-ellipsis max-w-[100px]\">")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"border-b dark:border-gray-700\"><td class=\"px-4 py-3 flex items-center\" x-data=\"{\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tcopied: false,\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tcopy() {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tnavigator.clipboard.writeText($refs.projectId.value).then(() =&gt; {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tthis.copied = true                    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t}).catch((err) =&gt; {                        \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tthis.copied = false                    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t}) }}\"><p data-testid=\"project-id\" class=\"truncate text-ellipsis max-w-[100px]\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(v.ID.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 71, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 73, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -109,20 +109,20 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(v.ID.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 74, Col: 74}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 76, Col: 74}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"w-full\" disabled> <button class=\"rounded-full mx-1 w-fit text-neutral-600/75 hover:bg-neutral-950/10 hover:text-neutral-600 focus:outline-none focus-visible:text-neutral-600 focus-visible:outline focus-visible:outline-offset-0 focus-visible:outline-black active:bg-neutral-950/5 active:-outline-offset-2 dark:text-neutral-300/75 dark:hover:bg-white/10 dark:hover:text-neutral-300 dark:focus-visible:text-neutral-300 dark:focus-visible:outline-white dark:active:bg-white/5\" title=\"Copy\" aria-label=\"Copy\" x-on:click=\"copy()\" x-on:click.away=\"copied = false\"><span class=\"sr-only\" x-text=\"copied ? &#39;copied&#39; : &#39;copy the response to clipboard&#39;\"></span> <svg x-show=\"!copied\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"size-4\"><path fill-rule=\"evenodd\" d=\"M10.5 3A1.501 1.501 0 0 0 9 4.5h6A1.5 1.5 0 0 0 13.5 3h-3Zm-2.693.178A3 3 0 0 1 10.5 1.5h3a3 3 0 0 1 2.694 1.678c.497.042.992.092 1.486.15 1.497.173 2.57 1.46 2.57 2.929V19.5a3 3 0 0 1-3 3H6.75a3 3 0 0 1-3-3V6.257c0-1.47 1.073-2.756 2.57-2.93.493-.057.989-.107 1.487-.15Z\" clip-rule=\"evenodd\"></path></svg> <svg x-show=\"copied\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\" fill=\"currentColor\" class=\"size-4 fill-green-500\"><path fill-rule=\"evenodd\" d=\"M11.986 3H12a2 2 0 0 1 2 2v6a2 2 0 0 1-1.5 1.937V7A2.5 2.5 0 0 0 10 4.5H4.063A2 2 0 0 1 6 3h.014A2.25 2.25 0 0 1 8.25 1h1.5a2.25 2.25 0 0 1 2.236 2ZM10.5 4v-.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75V4h3Z\" clip-rule=\"evenodd\"></path> <path fill-rule=\"evenodd\" d=\"M2 7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7Zm6.585 1.08a.75.75 0 0 1 .336 1.005l-1.75 3.5a.75.75 0 0 1-1.16.234l-1.75-1.5a.75.75 0 0 1 .977-1.139l1.02.875 1.321-2.64a.75.75 0 0 1 1.006-.336Z\" clip-rule=\"evenodd\"></path></svg></button></div></td><th scope=\"row\" class=\"px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white\">")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"w-full\" disabled> <button data-testid=\"copy-project-id\" class=\"rounded-full mx-1 w-fit text-neutral-600/75 hover:bg-neutral-950/10 hover:text-neutral-600 focus:outline-none focus-visible:text-neutral-600 focus-visible:outline focus-visible:outline-offset-0 focus-visible:outline-black active:bg-neutral-950/5 active:-outline-offset-2 dark:text-neutral-300/75 dark:hover:bg-white/10 dark:hover:text-neutral-300 dark:focus-visible:text-neutral-300 dark:focus-visible:outline-white dark:active:bg-white/5\" title=\"Copy\" aria-label=\"Copy\" x-on:click=\"copy()\" x-on:click.away=\"copied = false\"><span class=\"sr-only\" x-text=\"copied ? &#39;copied&#39; : &#39;copy the response to clipboard&#39;\"></span> <svg x-show=\"!copied\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"size-4\"><path fill-rule=\"evenodd\" d=\"M10.5 3A1.501 1.501 0 0 0 9 4.5h6A1.5 1.5 0 0 0 13.5 3h-3Zm-2.693.178A3 3 0 0 1 10.5 1.5h3a3 3 0 0 1 2.694 1.678c.497.042.992.092 1.486.15 1.497.173 2.57 1.46 2.57 2.929V19.5a3 3 0 0 1-3 3H6.75a3 3 0 0 1-3-3V6.257c0-1.47 1.073-2.756 2.57-2.93.493-.057.989-.107 1.487-.15Z\" clip-rule=\"evenodd\"></path></svg> <svg x-show=\"copied\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\" fill=\"currentColor\" class=\"size-4 fill-green-500\"><path fill-rule=\"evenodd\" d=\"M11.986 3H12a2 2 0 0 1 2 2v6a2 2 0 0 1-1.5 1.937V7A2.5 2.5 0 0 0 10 4.5H4.063A2 2 0 0 1 6 3h.014A2.25 2.25 0 0 1 8.25 1h1.5a2.25 2.25 0 0 1 2.236 2ZM10.5 4v-.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75V4h3Z\" clip-rule=\"evenodd\"></path> <path fill-rule=\"evenodd\" d=\"M2 7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7Zm6.585 1.08a.75.75 0 0 1 .336 1.005l-1.75 3.5a.75.75 0 0 1-1.16.234l-1.75-1.5a.75.75 0 0 1 .977-1.139l1.02.875 1.321-2.64a.75.75 0 0 1 1.006-.336Z\" clip-rule=\"evenodd\"></path></svg></button></div></td><th scope=\"row\" class=\"px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 87, Col: 114}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 89, Col: 114}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(v.Description.String)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 88, Col: 56}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 90, Col: 56}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -148,7 +148,7 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("api/project/last-data-retrieved/%s", v.ID.String()))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 90, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 92, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -161,7 +161,7 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("api/project/size/%s", v.ID.String()))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 95, Col: 71}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 97, Col: 71}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -174,33 +174,33 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(v.CreatedAt.Time.Format("02 Jan 2006"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 100, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 102, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-4 py-3 flex items-center justify-end\"><!-- DROPDOWN TOGGLE --><button data-dropdown-toggle=\"")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-4 py-3 flex items-center justify-end\"><!-- DROPDOWN TOGGLE --><button data-testid=\"project-dropdown-toggle\" data-dropdown-toggle=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("dropdown-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 104, Col: 93}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 106, Col: 131}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"inline-flex items-center text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 dark:hover-bg-gray-800 text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100\" type=\"button\"><svg class=\"w-5 h-5\" aria-hidden=\"true\" fill=\"currentColor\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z\"></path></svg></button><div id=\"")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"inline-flex items-center text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 dark:hover-bg-gray-800 text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100\" type=\"button\"><svg class=\"w-5 h-5\" aria-hidden=\"true\" fill=\"currentColor\" viewbox=\"0 0 20 20\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z\"></path></svg></button><div data-testid=\"project-dropdown\" id=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("dropdown-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 109, Col: 72}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 111, Col: 103}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -213,20 +213,20 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("dropdown-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 110, Col: 106}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 112, Col: 106}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><li><!-- EDIT MODAL TOGGLE --><button type=\"button\" data-modal-target=\"")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><li><!-- EDIT MODAL TOGGLE --><button data-testid=\"project-edit-toggle\" type=\"button\" data-modal-target=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("edit-modal-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 113, Col: 109}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 115, Col: 143}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -239,20 +239,20 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("edit-modal-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 113, Col: 183}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 115, Col: 217}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"flex w-full items-center py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-gray-700 dark:text-gray-200\"><svg class=\"w-4 h-4 mr-2\" xmlns=\"http://www.w3.org/2000/svg\" viewbox=\"0 0 20 20\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z\"></path> <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z\"></path></svg> Edit</button></li><li><!-- DOWNLOAD MODAL TOGGLE --><button type=\"button\" data-modal-target=\"")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"flex w-full items-center py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-gray-700 dark:text-gray-200\"><svg class=\"w-4 h-4 mr-2\" xmlns=\"http://www.w3.org/2000/svg\" viewbox=\"0 0 20 20\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z\"></path> <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z\"></path></svg> Edit</button></li><li><!-- DOWNLOAD MODAL TOGGLE --><button data-testid=\"project-download-toggle\" type=\"button\" data-modal-target=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("download-modal-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 123, Col: 113}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 125, Col: 151}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -265,20 +265,20 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("download-modal-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 123, Col: 191}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 125, Col: 229}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"flex w-full items-center py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-gray-700 dark:text-gray-200\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"size-4 me-2\"><path fill-rule=\"evenodd\" d=\"M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z\" clip-rule=\"evenodd\"></path></svg> Download Data</button></li><li><!-- DELETE MODAL TOGGLE --><button type=\"button\" data-modal-target=\"")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"flex w-full items-center py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-gray-700 dark:text-gray-200\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"size-4 me-2\"><path fill-rule=\"evenodd\" d=\"M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z\" clip-rule=\"evenodd\"></path></svg> Download Data</button></li><li><!-- DELETE MODAL TOGGLE --><button data-testid=\"project-delete-toggle\" type=\"button\" data-modal-target=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("delete-modal-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 132, Col: 111}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 134, Col: 147}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -291,7 +291,7 @@ func ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow) 
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("delete-modal-%d", i)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 132, Col: 187}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 134, Col: 223}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -384,7 +384,7 @@ func ProjectSizeText(size int64) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", size))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 168, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 170, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -426,7 +426,7 @@ func ProjectLastDataText(lastTime *time.Time) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(timediff.TimeDiff(*lastTime))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 174, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/ProjectPage.templ`, Line: 176, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
