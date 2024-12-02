@@ -77,3 +77,8 @@ type EventDetail struct {
 	MostFiredEventType  []EventTextTotal
 	MostFiredEventLabel []EventTextTotal
 }
+
+const (
+	EventsByLastN    string = "last_100"
+	EventsByLastHour string = "last_hour"
+)

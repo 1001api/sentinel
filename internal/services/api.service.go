@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/entities"
 	"github.com/hubkudev/sentinel/views/pages"
 )
 
@@ -314,7 +315,16 @@ func (s *APIServiceImpl) LiveEventDetail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	events, err := s.EventService.GetLiveEventDetail(context.Background(), projectUUID, user.ID)
+	var events []gen.GetLiveEventsDetailRow
+	strategy := c.Query("strategy", entities.EventsByLastHour)
+
+	switch strategy {
+	case entities.EventsByLastHour:
+		events, err = s.EventService.GetLiveEventDetail(context.Background(), projectUUID, user.ID, entities.EventsByLastHour, 100)
+	case entities.EventsByLastN:
+		events, err = s.EventService.GetLiveEventDetail(context.Background(), projectUUID, user.ID, entities.EventsByLastN, 100)
+	}
+
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -332,7 +342,7 @@ func (s *APIServiceImpl) LiveEventDetail(c *fiber.Ctx) error {
 		// What if the new data comes?
 		// The invalidation process happens at the CreateEvent,
 		// after successful creation of the event.
-		if err := s.CacheService.SetCache(configs.CACHE_LIVE_EVENT(user.ID, projectUUID), cacheBuf.Bytes(), 30*time.Minute); err != nil {
+		if err := s.CacheService.SetCache(configs.CACHE_LIVE_EVENT(user.ID, projectUUID, strategy), cacheBuf.Bytes(), 30*time.Minute); err != nil {
 			log.Println("Error saving live event detail as a cache:", err)
 		}
 	}

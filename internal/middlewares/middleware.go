@@ -177,7 +177,9 @@ func (m *MiddlewareImpl) LiveEventCache(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	cached, err := m.CacheService.GetCache(configs.CACHE_LIVE_EVENT(user.ID, projectUUID))
+	strategy := c.Query("strategy", "last_hour")
+
+	cached, err := m.CacheService.GetCache(configs.CACHE_LIVE_EVENT(user.ID, projectUUID, strategy))
 	if err != nil {
 		log.Println("error getting cached live event:", err)
 	}

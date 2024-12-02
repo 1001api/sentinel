@@ -327,3 +327,39 @@ function updateBarChart(chart) {
         }
     });
 }
+
+function handleLiveEventSelector() {
+    const liveEventTable = document.getElementById("events-live-table");
+    const liveEventSelector = document.getElementById("events-live-selector");
+
+    // check if there is saved already, then use that config
+    const savedValue = localStorage.getItem("events-live-selector");
+    if (savedValue) {
+        update(savedValue);
+        liveEventSelector?.value = savedValue;
+    };
+
+    liveEventSelector?.addEventListener("change", (e: Event) => {
+        const value = e.target?.value;
+        if (!value) return;
+        update(value);
+
+        // update the localstorage value to a new one
+        localStorage.setItem("events-live-selector", value);
+    });
+
+    function update(value) {
+        switch (value) {
+            case "last_hour":
+                liveEventTable?.setAttribute("hx-get", `/api/event/live/${id}?strategy=last_hour`);
+                break;
+            case "last_100":
+                liveEventTable?.setAttribute("hx-get", `/api/event/live/${id}?strategy=last_100`);
+                break;
+            default:
+                break;
+        }
+        htmx.process(liveEventTable);
+    }
+};
+handleLiveEventSelector();

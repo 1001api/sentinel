@@ -10,8 +10,8 @@ func CACHE_LIVE_EVENTS(id uuid.UUID) string {
 	return fmt.Sprintf("cache:live-events/%s", id)
 }
 
-func CACHE_LIVE_EVENT(id uuid.UUID, projectID uuid.UUID) string {
-	return fmt.Sprintf("cache:live-event/%s/%s", id, projectID)
+func CACHE_LIVE_EVENT(id uuid.UUID, projectID uuid.UUID, strategy string) string {
+	return fmt.Sprintf("cache:live-event/%s/%s?strategy=%s", id, projectID, strategy)
 }
 
 func CACHE_LIVE_EVENT_SUMMARY(userID uuid.UUID, projectID uuid.UUID) string {

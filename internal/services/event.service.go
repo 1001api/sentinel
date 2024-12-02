@@ -20,7 +20,7 @@ import (
 type EventService interface {
 	CreateEvent(c *fiber.Ctx) error
 	GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error)
-	GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetLiveEventsDetailRow, error)
+	GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID, strategy string, limit int32) ([]gen.GetLiveEventsDetailRow, error)
 	GetEventSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.GetEventSummaryRow, error)
 	GetEventDetailSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventDetail, error)
 	GetWeeklyEventsChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventSummaryChart, error)
@@ -115,7 +115,8 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		if err := s.CacheService.InvalidateCaches([]string{
 			configs.CACHE_LIVE_EVENTS(user.ID),
 			configs.CACHE_LIVE_EVENT_SUMMARY(user.ID, projectUUID),
-			configs.CACHE_LIVE_EVENT(user.ID, projectUUID),
+			configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastN),
+			configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastHour),
 			configs.CACHE_LIVE_EVENT_DETAIL_SUMMARY(user.ID, projectUUID),
 			configs.CACHE_JSON_WEEKLY_EVENT_CHART(user.ID, projectUUID),
 			configs.CACHE_JSON_EVENT_TYPE_CHART(user.ID, projectUUID),
@@ -132,10 +133,12 @@ func (s *EventServiceImpl) GetLiveEvents(ctx context.Context, userID uuid.UUID) 
 	return s.Repo.GetLiveEvents(ctx, userID)
 }
 
-func (s *EventServiceImpl) GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetLiveEventsDetailRow, error) {
+func (s *EventServiceImpl) GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID, isNFetch string, limit int32) ([]gen.GetLiveEventsDetailRow, error) {
 	return s.Repo.GetLiveEventDetail(ctx, &gen.GetLiveEventsDetailParams{
-		ProjectID: projectID,
-		UserID:    userID,
+		ProjectID:  projectID,
+		UserID:     userID,
+		Bylasthour: isNFetch == entities.EventsByLastHour,
+		LimitCount: limit,
 	})
 }
 

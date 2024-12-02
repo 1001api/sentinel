@@ -76,9 +76,11 @@ SELECT
     fired_at,
     received_at
 FROM events
-WHERE user_id = $2 AND project_id = $1 AND received_at >= NOW() - INTERVAL '1 hour'
+WHERE
+    user_id = $2 AND project_id = $1 
+    AND (@byLastHour::bool IS NOT TRUE OR received_at >= NOW() - INTERVAL '1 minute')
 ORDER BY received_at DESC
-LIMIT 50;
+LIMIT COALESCE(@limit_count::integer, 100);
 
 -- name: GetEventSummary :one
 SELECT 

@@ -378,14 +378,18 @@ SELECT
     fired_at,
     received_at
 FROM events
-WHERE user_id = $2 AND project_id = $1 AND received_at >= NOW() - INTERVAL '1 hour'
+WHERE
+    user_id = $2 AND project_id = $1 
+    AND ($3::bool IS NOT TRUE OR received_at >= NOW() - INTERVAL '1 minute')
 ORDER BY received_at DESC
-LIMIT 50
+LIMIT COALESCE($4::integer, 100)
 `
 
 type GetLiveEventsDetailParams struct {
-	ProjectID uuid.UUID
-	UserID    uuid.UUID
+	ProjectID  uuid.UUID
+	UserID     uuid.UUID
+	Bylasthour bool
+	LimitCount int32
 }
 
 type GetLiveEventsDetailRow struct {
@@ -408,7 +412,12 @@ type GetLiveEventsDetailRow struct {
 }
 
 func (q *Queries) GetLiveEventsDetail(ctx context.Context, arg GetLiveEventsDetailParams) ([]GetLiveEventsDetailRow, error) {
-	rows, err := q.db.Query(ctx, getLiveEventsDetail, arg.ProjectID, arg.UserID)
+	rows, err := q.db.Query(ctx, getLiveEventsDetail,
+		arg.ProjectID,
+		arg.UserID,
+		arg.Bylasthour,
+		arg.LimitCount,
+	)
 	if err != nil {
 		return nil, err
 	}
