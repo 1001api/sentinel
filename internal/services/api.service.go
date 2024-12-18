@@ -3,7 +3,6 @@ package services
 import (
 	"bytes"
 	"context"
-	"encoding/csv"
 	"encoding/gob"
 	"fmt"
 	"log"
@@ -192,6 +191,8 @@ func (s *APIServiceImpl) LastDataRetrieved(c *fiber.Ctx) error {
 }
 
 func (s *APIServiceImpl) StartDownloadEvent(c *fiber.Ctx) error {
+	downloadFormat := c.FormValue("format", "csv")
+	downloadInterval := c.FormValue("interval", "csv")
 	projectID := c.FormValue("id")
 	if projectID == "" {
 		return c.SendString("Project ID required")
@@ -202,7 +203,10 @@ func (s *APIServiceImpl) StartDownloadEvent(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	c.Set("HX-Redirect", fmt.Sprintf("/api/event/download/finish/%s", projectUUID.String()))
+	c.Set(
+		"HX-Redirect",
+		fmt.Sprintf("/api/event/download/finish/%s?format=%s&interval=%s", projectUUID.String(), downloadFormat, downloadInterval),
+	)
 	return c.SendStatus(fiber.StatusOK)
 }
 
@@ -211,6 +215,36 @@ func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
 	projectID := c.Params("id")
 	if projectID == "" {
 		return c.SendString("Project ID required")
+	}
+
+	formats := map[string]bool{
+		"csv":  true,
+		"xlsx": true,
+		"json": true,
+		"pdf":  true,
+		"html": true,
+	}
+
+	intervals := map[string]int{
+		"last_7_days":   7,
+		"last_30_days":  30,
+		"last_60_days":  60,
+		"last_180_days": 180,
+		"last_year":     360,
+		"all_time":      -1,
+	}
+
+	downloadFormat := c.Query("format", "csv")
+	downloadInterval := c.Query("interval", "last_7_days")
+
+	enabled, ok := formats[downloadFormat]
+	if !enabled || !ok {
+		return c.SendString("Download format is not available")
+	}
+
+	intervalInt, ok := intervals[downloadInterval]
+	if !ok {
+		return c.SendString("Download interval is not available")
 	}
 
 	projectUUID, err := uuid.Parse(projectID)
@@ -230,8 +264,8 @@ func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
 		return c.SendString("Unable to download your file, please try again later.")
 	}
 
-	filename := fmt.Sprintf("%s.csv", time.Now().Format("02/01/2006_15:04:05"))
-	tempFile, err := os.CreateTemp("temp", "temp-*.csv")
+	filename := fmt.Sprintf("%s_%s.%s", time.Now().Format("02/01/2006_15:04:05"), downloadInterval, downloadFormat)
+	tempFile, err := os.CreateTemp("temp", fmt.Sprintf("temp-*.%s", downloadFormat))
 	if err != nil {
 		log.Println("Error creating temp file:", err)
 		return c.SendString("Unable to download your file, please try again later.")
@@ -239,31 +273,33 @@ func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
 	defer os.Remove(tempFile.Name())
 	defer tempFile.Close()
 
-	writer := csv.NewWriter(tempFile)
-	defer writer.Flush()
-
-	header, body, err := s.DownloadService.DownloadEventData(context.Background(), projectUUID, user.ID)
+	header, body, err := s.DownloadService.DownloadEventData(context.Background(), projectUUID, user.ID, int32(intervalInt))
 	if err != nil {
-		log.Println("Error retrieving Event data:", err)
-		return c.SendString("Unable to download your file, please try again later.")
+		return err
 	}
 
-	if err := writer.Write(header); err != nil {
-		log.Println("Error writing CSV header:", err)
-		return c.SendString("Unable to download your file, please try again later.")
+	var writeErr error
+
+	switch downloadFormat {
+	case "csv":
+		// write CSV
+		writeErr = s.DownloadService.WriteCSV(tempFile, header, body)
+	case "xlsx":
+		// write XLSX
+		writeErr = s.DownloadService.WriteXLSX(tempFile, header, body)
+	case "json":
+		// write JSON
+		writeErr = s.DownloadService.WriteJSON(tempFile, header, body)
+	case "html":
+		// write HTML
+		writeErr = s.DownloadService.WriteHTML(tempFile, header, body)
+	case "pdf":
+		// write PDF
+		writeErr = s.DownloadService.WritePDF(tempFile, header, body)
 	}
 
-	for _, row := range body {
-		if err := writer.Write(row); err != nil {
-			log.Println("Error writing CSV row:", err)
-			return c.SendString("Unable to download your file, please try again later.")
-		}
-	}
-
-	writer.Flush()
-
-	if err := writer.Error(); err != nil {
-		log.Println("Error flushing CSV:", err)
+	if writeErr != nil {
+		log.Println(err)
 		return c.SendString("Unable to download your file, please try again later.")
 	}
 

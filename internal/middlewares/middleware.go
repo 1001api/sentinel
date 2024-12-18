@@ -388,11 +388,8 @@ func (m *MiddlewareImpl) JSONEventLabelCache(c *fiber.Ctx) error {
 func redirectTo(c *fiber.Ctx, path string) error {
 	htmx := c.Get("HX-Request")
 
-	log.Println(htmx)
-
 	// if request is not coming from HTMX, redirect normally
 	if htmx == "" && htmx != "true" {
-		log.Println("not htmx stuff")
 		return c.Status(fiber.StatusTemporaryRedirect).Redirect(path)
 	}
 

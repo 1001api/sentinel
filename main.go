@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
@@ -66,24 +63,27 @@ func main() {
 	defer redisCon.Close()
 	defer ipdbCon.Close()
 
-	app.Use("api/event/download", limiter.New(limiter.Config{
-		Next: func(c *fiber.Ctx) bool {
-			path := c.OriginalURL()
-			return !strings.Contains(path, "/api/event/download")
-		},
-		Max:        4,
-		Expiration: 30 * time.Second,
-		LimitReached: func(c *fiber.Ctx) error {
-			return c.Status(fiber.StatusOK).SendString(`
-				<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
-					Too many request, please wait for 30 seconds
-				</div>
-			`)
-		},
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return c.Get("CF-Connecting-IP")
-		},
-	}))
+	// Request limiter for download routes.
+	// It limits the request to only 4 downloads per 30sec.
+	//
+	// app.Use("api/event/download", limiter.New(limiter.Config{
+	// 	Next: func(c *fiber.Ctx) bool {
+	// 		path := c.OriginalURL()
+	// 		return !strings.Contains(path, "/api/event/download")
+	// 	},
+	// 	Max:        4,
+	// 	Expiration: 30 * time.Second,
+	// 	LimitReached: func(c *fiber.Ctx) error {
+	// 		return c.Status(fiber.StatusOK).SendString(`
+	// 			<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
+	// 				Too many request, please wait for 30 seconds
+	// 			</div>
+	// 		`)
+	// 	},
+	// 	KeyGenerator: func(c *fiber.Ctx) string {
+	// 		return c.Get("CF-Connecting-IP")
+	// 	},
+	// }))
 
 	// init class validator
 	var validate = validator.New()
@@ -104,7 +104,7 @@ func main() {
 	// init services
 	utilService := services.InitUtilService(validate, &ipRepo)
 	cacheService := services.InitCacheService(redisCon)
-	downloadService := services.InitDownloadService(&downloadRepo)
+	downloadService := services.InitDownloadService(&utilService, &downloadRepo)
 	userService := services.InitUserService(&utilService, &userRepo)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
 	projectService := services.InitProjectService(&projectRepo)

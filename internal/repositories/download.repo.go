@@ -8,7 +8,7 @@ import (
 
 type DownloadRepo interface {
 	GetEventTableHeaders(ctx context.Context) ([]string, error)
-	DownloadLastMonthData(ctx context.Context, input *gen.DownloadLastMonthDataParams) ([]gen.Event, error)
+	DownloadIntervalData(ctx context.Context, input *gen.DownloadIntervalEventDataParams) ([]gen.Event, error)
 }
 
 type DownloadRepoImpl struct {
@@ -25,6 +25,6 @@ func (r *DownloadRepoImpl) GetEventTableHeaders(ctx context.Context) ([]string, 
 	return r.Repo.GetEventTableHeaders(ctx)
 }
 
-func (r *DownloadRepoImpl) DownloadLastMonthData(ctx context.Context, input *gen.DownloadLastMonthDataParams) ([]gen.Event, error) {
-	return r.Repo.DownloadLastMonthData(ctx, *input)
+func (r *DownloadRepoImpl) DownloadIntervalData(ctx context.Context, input *gen.DownloadIntervalEventDataParams) ([]gen.Event, error) {
+	return r.Repo.DownloadIntervalEventData(ctx, *input)
 }

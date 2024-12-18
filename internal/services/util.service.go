@@ -21,6 +21,7 @@ type UtilService interface {
 	ParseIP(str string) *netip.Addr
 	ParseTimestamp(str string) time.Time
 	LookupIP(ipStr string) *geoip2.City
+	LookupAlphabetFromIdx(index int) string
 }
 
 type UtilServiceImpl struct {
@@ -158,6 +159,17 @@ func (s *UtilServiceImpl) LookupIP(ipStr string) *geoip2.City {
 		return nil
 	}
 	return record
+}
+
+func (s *UtilServiceImpl) LookupAlphabetFromIdx(index int) string {
+	result := ""
+
+	for index >= 0 {
+		result = string(rune('A' + (index % 26)))
+		index = index/26 - 1
+	}
+
+	return result
 }
 
 func IsISO8601Date(fl validator.FieldLevel) bool {
