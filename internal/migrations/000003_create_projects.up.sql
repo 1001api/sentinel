@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS projects (
 
     name VARCHAR(100) NOT NULL DEFAULT 'default',
     description VARCHAR(255),
+    url VARCHAR(255),
     user_id UUID NOT NULL,
     
     created_at TIMESTAMPTZ DEFAULT NOW(),

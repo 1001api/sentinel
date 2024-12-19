@@ -11,8 +11,8 @@ import (
 )
 
 type ProjectService interface {
-	CreateProject(ctx context.Context, name string, desc string, userID uuid.UUID) (*gen.CreateProjectRow, error)
-	UpdateProject(ctx context.Context, name string, desc string, projectID uuid.UUID, userID uuid.UUID) error
+	CreateProject(ctx context.Context, name string, desc string, url string, userID uuid.UUID) (*gen.CreateProjectRow, error)
+	UpdateProject(ctx context.Context, name string, desc string, url string, projectID uuid.UUID, userID uuid.UUID) error
 	GetProjectByID(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.FindProjectByIDRow, error)
 	GetAllProjects(ctx context.Context, userID uuid.UUID) ([]gen.FindAllProjectsRow, error)
 	GetProjectCount(ctx context.Context, userID uuid.UUID) (int64, error)
@@ -31,12 +31,16 @@ func InitProjectService(repo repositories.ProjectRepo) ProjectServiceImpl {
 	}
 }
 
-func (s *ProjectServiceImpl) CreateProject(ctx context.Context, name string, desc string, userID uuid.UUID) (*gen.CreateProjectRow, error) {
+func (s *ProjectServiceImpl) CreateProject(ctx context.Context, name string, desc string, url string, userID uuid.UUID) (*gen.CreateProjectRow, error) {
 	input := gen.CreateProjectParams{
 		Name: name,
 		Description: pgtype.Text{
 			String: desc,
 			Valid:  desc != "",
+		},
+		Url: pgtype.Text{
+			String: url,
+			Valid:  url != "",
 		},
 		UserID: userID,
 		CreatedAt: pgtype.Timestamptz{
@@ -53,12 +57,16 @@ func (s *ProjectServiceImpl) CreateProject(ctx context.Context, name string, des
 	return &key, nil
 }
 
-func (s *ProjectServiceImpl) UpdateProject(ctx context.Context, name string, desc string, projectID uuid.UUID, userID uuid.UUID) error {
+func (s *ProjectServiceImpl) UpdateProject(ctx context.Context, name string, desc string, url string, projectID uuid.UUID, userID uuid.UUID) error {
 	input := gen.UpdateProjectParams{
 		Name: name,
 		Description: pgtype.Text{
 			String: desc,
 			Valid:  desc != "",
+		},
+		Url: pgtype.Text{
+			String: url,
+			Valid:  url != "",
 		},
 		ID:     projectID,
 		UserID: userID,

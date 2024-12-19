@@ -48,6 +48,7 @@ type Project struct {
 	ID          uuid.UUID
 	Name        string
 	Description pgtype.Text
+	Url         pgtype.Text
 	UserID      uuid.UUID
 	CreatedAt   pgtype.Timestamptz
 	DeletedAt   pgtype.Timestamptz

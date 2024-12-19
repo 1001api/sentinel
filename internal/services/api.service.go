@@ -60,6 +60,7 @@ func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 	name := c.FormValue("project_name")
 	desc := c.FormValue("project_desc")
+	url := c.FormValue("project_url")
 
 	if name == "" {
 		return c.SendString("Project name is required")
@@ -73,7 +74,11 @@ func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 		return c.SendString("Maximum description length is 200 characters")
 	}
 
-	_, err := s.ProjectService.CreateProject(context.Background(), name, desc, user.ID)
+	if len(url) > 255 {
+		return c.SendString("Maximum length of url is 255 characters")
+	}
+
+	_, err := s.ProjectService.CreateProject(context.Background(), name, desc, url, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -86,6 +91,7 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 	user := c.Locals("user").(*gen.FindUserByIDRow)
 	name := c.FormValue("project_name")
 	desc := c.FormValue("project_desc")
+	url := c.FormValue("project_url")
 	projectID := c.FormValue("project_id")
 
 	if name == "" {
@@ -100,6 +106,10 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 		return c.SendString("Maximum description length is 200 characters")
 	}
 
+	if len(url) > 255 {
+		return c.SendString("Maximum length of url is 255 characters")
+	}
+
 	if projectID == "" {
 		return c.SendString("Project ID required")
 	}
@@ -109,7 +119,7 @@ func (s *APIServiceImpl) UpdateProject(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	if err := s.ProjectService.UpdateProject(context.Background(), name, desc, projectUUID, user.ID); err != nil {
+	if err := s.ProjectService.UpdateProject(context.Background(), name, desc, url, projectUUID, user.ID); err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
 

@@ -44,12 +44,13 @@ templ EventsPage(props EventsPageProps) {
 						<a href={ templ.SafeURL(fmt.Sprintf("/events/%s", v.ID)) } class="block max-w-sm pt-6 pb-4 px-4 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
 							<h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{ v.Name }</h5>
 							<p class="font-normal text-sm text-gray-700 dark:text-gray-400">{ v.Description.String }</p>
+							<p class="text-xs mt-1 text-gray-700 dark:text-gray-400">{ v.Url.String }</p>
 							<div hx-get={ fmt.Sprintf("/api/event/summary/%s", v.ID) } hx-trigger="revealed, every 10s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-swap="innerHTML"></div>
 						</a>
 					}
 					for range 5 - len(props.Projects) {
 						<div
-							class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 min-h-48 h-max md:min-h-72"
+							class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 min-h-48 h-full md:min-h-72"
 						></div>
 					}
 				</div>

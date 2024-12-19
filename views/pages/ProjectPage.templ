@@ -46,6 +46,7 @@ templ ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow)
 											<th scope="col" class="px-4 py-4">ID</th>
 											<th scope="col" class="px-4 py-4">Project Name</th>
 											<th scope="col" class="px-4 py-3">Description</th>
+											<th scope="col" class="px-4 py-3">URL</th>
 											<th scope="col" class="px-4 py-3">Last Data Retrieved</th>
 											<th scope="col" class="px-4 py-3">Total Collected Data</th>
 											<th scope="col" class="px-4 py-3">Created At</th>
@@ -87,7 +88,25 @@ templ ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow)
 													</div>
 												</td>
 												<th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{ v.Name }</th>
-												<td class="px-4 py-3">{ v.Description.String }</td>
+												<td class="px-4 py-3">
+													if v.Description.Valid {
+														<p>{ v.Description.String }</p>
+													} else {
+														<p>-</p>
+													}
+												</td>
+												<td class="px-4 py-3">
+													if v.Url.Valid {
+														<a
+															href={ templ.SafeURL(v.Url.String) }
+															target="_blank"
+															rel="noopener noreferrer"
+															class="underline"
+														>{ v.Url.String }</a>
+													} else {
+														<p>-</p>
+													}
+												</td>
 												<td
 													hx-get={ fmt.Sprintf("api/project/last-data-retrieved/%s", v.ID.String()) }
 													class="px-4 py-3"

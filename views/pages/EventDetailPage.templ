@@ -60,6 +60,16 @@ templ EventDetailPage(props EventDetailPageProps) {
 						</ol>
 					</nav>
 				</div>
+				<div class="px-2 md:px-4 mb-10">
+					<h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">{ props.Project.Name }</h5>
+					<p class="font-normal text-sm text-gray-700 dark:text-gray-400">{ props.Project.Description.String }</p>
+					<a
+						href={ templ.SafeURL(props.Project.Url.String) }
+						class="underline text-xs mt-1 text-gray-700 dark:text-gray-400"
+						target="_blank"
+						rel="noopener noreferrer"
+					>{ props.Project.Url.String }</a>
+				</div>
 				<!-- SUMMARY -->
 				<div hx-get={ fmt.Sprintf("/api/event/summary/detail/%s", props.Project.ID) } hx-trigger="revealed, every 10s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-swap="innerHTML">
 					@EventDetailSummarySection(props.Summary)
