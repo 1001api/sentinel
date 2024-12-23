@@ -7,30 +7,30 @@ import (
 	"github.com/hubkudev/sentinel/gen"
 )
 
-type APIKeyRepo interface {
+type KeyRepo interface {
 	CreateAPIKey(ctx context.Context, input *gen.CreateAPIKeyParams) (gen.CreateAPIKeyRow, error)
 	GetAllPrivateKeys(ctx context.Context, userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error)
 	DeletePrivateKey(ctx context.Context, input *gen.DeleteAPIKeyParams) error
 }
 
-type APIKeyRepoImpl struct {
+type KeyRepoImpl struct {
 	Repo *gen.Queries
 }
 
-func InitAPIKeyRepo(repo *gen.Queries) APIKeyRepoImpl {
-	return APIKeyRepoImpl{
+func InitKeyRepo(repo *gen.Queries) KeyRepoImpl {
+	return KeyRepoImpl{
 		Repo: repo,
 	}
 }
 
-func (r *APIKeyRepoImpl) CreateAPIKey(ctx context.Context, input *gen.CreateAPIKeyParams) (gen.CreateAPIKeyRow, error) {
+func (r *KeyRepoImpl) CreateAPIKey(ctx context.Context, input *gen.CreateAPIKeyParams) (gen.CreateAPIKeyRow, error) {
 	return r.Repo.CreateAPIKey(ctx, *input)
 }
 
-func (r *APIKeyRepoImpl) GetAllPrivateKeys(ctx context.Context, userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error) {
+func (r *KeyRepoImpl) GetAllPrivateKeys(ctx context.Context, userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error) {
 	return r.Repo.FindAllAPIKeys(ctx, userID)
 }
 
-func (r *APIKeyRepoImpl) DeletePrivateKey(ctx context.Context, input *gen.DeleteAPIKeyParams) error {
+func (r *KeyRepoImpl) DeletePrivateKey(ctx context.Context, input *gen.DeleteAPIKeyParams) error {
 	return r.Repo.DeleteAPIKey(ctx, *input)
 }

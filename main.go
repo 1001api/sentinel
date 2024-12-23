@@ -99,6 +99,7 @@ func main() {
 	projectRepo := repositories.InitProjectRepo(repository, db)
 	userRepo := repositories.InitUserRepo(repository)
 	downloadRepo := repositories.InitDownloadRepo(repository)
+	keyRepo := repositories.InitKeyRepo(repository)
 	ipRepo := repositories.InitIPDBRepo(ipdbCon)
 
 	// init services
@@ -109,8 +110,15 @@ func main() {
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
 	projectService := services.InitProjectService(&projectRepo)
 	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo)
-	apiService := services.InitAPIService(&projectService, &eventService, &downloadService, &cacheService)
-	webService := services.InitWebService(&userService, &projectService, &eventService)
+	keyService := services.InitKeyService(&utilService, &keyRepo)
+	apiService := services.InitAPIService(
+		&projectService,
+		&eventService,
+		&downloadService,
+		&cacheService,
+		&keyService,
+	)
+	webService := services.InitWebService(&userService, &projectService, &eventService, &keyService)
 
 	// init middleware
 	m := middlewares.InitMiddleware(&userService, sessionStore, &cacheService)

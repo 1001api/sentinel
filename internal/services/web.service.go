@@ -32,17 +32,20 @@ type WebServiceImpl struct {
 	UserService    UserService
 	ProjectService ProjectService
 	EventService   EventService
+	KeyService     KeyService
 }
 
 func InitWebService(
 	userService UserService,
 	projectService ProjectService,
 	eventService EventService,
+	keyService KeyService,
 ) WebServiceImpl {
 	return WebServiceImpl{
 		UserService:    userService,
 		ProjectService: projectService,
 		EventService:   eventService,
+		KeyService:     keyService,
 	}
 }
 
@@ -234,7 +237,12 @@ func (s *WebServiceImpl) SendAPIKeysPage(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	return configs.Render(c, pages.APIKeysPage(user, publicKey))
+	privateKeys, err := s.KeyService.GetAllKeys(context.Background(), user.ID)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return configs.Render(c, pages.APIKeysPage(user, publicKey, privateKeys))
 }
 
 func (s *WebServiceImpl) SendTOSPage(c *fiber.Ctx) error {

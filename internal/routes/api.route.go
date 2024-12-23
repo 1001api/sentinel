@@ -30,6 +30,10 @@ func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.
 	json.Get("/event-type/chart/:id", m.ProtectedRoute, m.JSONEventTypeCache, apiService.JSONEventTypeChart)
 	json.Get("/event-label/chart/:id", m.ProtectedRoute, m.JSONEventLabelCache, apiService.JSONEventLabelChart)
 
+	key := api.Group("key")
+	key.Post("/create", m.ProtectedRoute, apiService.CreateAPIKey)
+	key.Delete("/delete", m.ProtectedRoute, apiService.DeleteAPIKey)
+
 	v1 := api.Group("v1")
 	v1.Post("/event", m.APIProtectedRoute, eventService.CreateEvent)
 }

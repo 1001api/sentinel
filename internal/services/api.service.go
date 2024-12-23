@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,6 +34,8 @@ type APIService interface {
 	JSONWeeklyEventChart(c *fiber.Ctx) error
 	JSONEventTypeChart(c *fiber.Ctx) error
 	JSONEventLabelChart(c *fiber.Ctx) error
+	CreateAPIKey(ctx *fiber.Ctx) error
+	DeleteAPIKey(ctx *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
@@ -40,6 +43,7 @@ type APIServiceImpl struct {
 	EventService    EventService
 	DownloadService DownloadService
 	CacheService    CacheService
+	KeyService      KeyService
 }
 
 func InitAPIService(
@@ -47,12 +51,14 @@ func InitAPIService(
 	eventService EventService,
 	downloadService DownloadService,
 	cacheService CacheService,
+	keyService KeyService,
 ) APIServiceImpl {
 	return APIServiceImpl{
 		ProjectService:  projectService,
 		EventService:    eventService,
 		DownloadService: downloadService,
 		CacheService:    cacheService,
+		KeyService:      keyService,
 	}
 }
 
@@ -626,4 +632,67 @@ func (s *APIServiceImpl) CountMonthlyEvents(c *fiber.Ctx) error {
 	}
 
 	return c.SendString(fmt.Sprintf("%d", monthlyEvents))
+}
+
+func (s *APIServiceImpl) CreateAPIKey(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	name := c.FormValue("key_name")
+
+	if name == "" {
+		return c.SendString("Key name is required")
+	}
+
+	if len(name) > 64 {
+		return c.SendString("Maximum name length is 64 characters")
+	}
+
+	_, err := s.KeyService.CreateAPIKey(context.Background(), name, user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	c.Set("HX-Refresh", "true")
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *APIServiceImpl) UpdateAPIKey(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	name := c.FormValue("key_name")
+
+	if name == "" {
+		return c.SendString("Key name is required")
+	}
+
+	if len(name) > 64 {
+		return c.SendString("Maximum name length is 64 characters")
+	}
+
+	_, err := s.KeyService.CreateAPIKey(context.Background(), name, user.ID)
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	c.Set("HX-Refresh", "true")
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *APIServiceImpl) DeleteAPIKey(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	key := c.FormValue("key_id")
+
+	if key == "" {
+		return c.SendString("Key id is required")
+	}
+
+	keyID, err := strconv.Atoi(key)
+	if err != nil {
+		return c.SendString("Key id is required")
+	}
+
+	if err := s.KeyService.DeleteKey(context.Background(), user.ID, keyID); err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	c.Set("HX-Refresh", "true")
+	return c.SendStatus(fiber.StatusOK)
 }

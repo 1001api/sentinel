@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,33 +11,43 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type APIKeyService interface {
-	CreateAPIKey(name string, userID uuid.UUID) (*gen.CreateAPIKeyRow, error)
-	GetAllKeys(userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error)
-	DeleteKey(userID uuid.UUID, keyID int) error
+type KeyService interface {
+	CreateAPIKey(ctx context.Context, name string, userID uuid.UUID) (*gen.CreateAPIKeyRow, error)
+	GetAllKeys(ctx context.Context, userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error)
+	DeleteKey(ctx context.Context, userID uuid.UUID, keyID int) error
 }
 
-type APIKeyServiceImpl struct {
+type KeyServiceImpl struct {
 	UtilService UtilService
-	Repo        repositories.APIKeyRepoImpl
+	Repo        repositories.KeyRepo
 }
 
-func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID uuid.UUID) (*gen.CreateAPIKeyRow, error) {
+func InitKeyService(
+	utilService UtilService,
+	repo repositories.KeyRepo,
+) KeyServiceImpl {
+	return KeyServiceImpl{
+		UtilService: utilService,
+		Repo:        repo,
+	}
+}
+
+func (s *KeyServiceImpl) CreateAPIKey(ctx context.Context, name string, userID uuid.UUID) (*gen.CreateAPIKeyRow, error) {
 	input := gen.CreateAPIKeyParams{
 		Name:   name,
-		Token:  s.UtilService.GenerateRandomID(64),
+		Token:  fmt.Sprintf("snt_%s", s.UtilService.GenerateRandomID(48)),
 		UserID: userID,
 		CreatedAt: pgtype.Timestamptz{
 			Time:  time.Now(),
 			Valid: true,
 		},
 		ExpiredAt: pgtype.Timestamptz{
-			Time:  time.Now().AddDate(0, 3, 0), // 3 months from now
+			Time:  time.Now().AddDate(0, 6, 0), // 6 months from now
 			Valid: true,
 		},
 	}
 
-	key, err := s.Repo.CreateAPIKey(context.Background(), &input)
+	key, err := s.Repo.CreateAPIKey(ctx, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -44,16 +55,16 @@ func (s *APIKeyServiceImpl) CreateAPIKey(name string, userID uuid.UUID) (*gen.Cr
 	return &key, nil
 }
 
-func (s *APIKeyServiceImpl) GetAllKeys(userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error) {
-	key, err := s.Repo.GetAllPrivateKeys(context.Background(), userID)
+func (s *KeyServiceImpl) GetAllKeys(ctx context.Context, userID uuid.UUID) ([]gen.FindAllAPIKeysRow, error) {
+	key, err := s.Repo.GetAllPrivateKeys(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 	return key, nil
 }
 
-func (s *APIKeyServiceImpl) DeleteKey(userID uuid.UUID, keyID int) error {
-	err := s.Repo.DeletePrivateKey(context.Background(), &gen.DeleteAPIKeyParams{
+func (s *KeyServiceImpl) DeleteKey(ctx context.Context, userID uuid.UUID, keyID int) error {
+	err := s.Repo.DeletePrivateKey(ctx, &gen.DeleteAPIKeyParams{
 		UserID: userID,
 		ID:     int32(keyID),
 	})
