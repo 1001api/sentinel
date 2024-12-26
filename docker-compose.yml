@@ -70,9 +70,6 @@ services:
       - POSTGRES_PORT=5432
       - REDIS_HOST=sentinel-redis
       - REDIS_PORT=6379
-      - G_CLIENT=407555103150-n89fabccd4m6d0lr9jqom33uo0iefn5v.apps.googleusercontent.com
-      - G_SECRET=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
-      - G_REDIRECT=https://sentinel.hubku.com/auth/google/callback
       - COOKIE_SALT=kX7jxLAtynRdMVmpJHgUq94swa3urbGS
     deploy:
       mode: replicated

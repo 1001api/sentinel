@@ -61,14 +61,15 @@ func (q *Queries) CountProjectSize(ctx context.Context, arg CountProjectSizePara
 
 const createProject = `-- name: CreateProject :one
 INSERT INTO 
-    projects(name, description, user_id, created_at)
-    VALUES ($1, $2, $3, $4)
+    projects(name, description, url, user_id, created_at)
+    VALUES ($1, $2, $3, $4, $5)
 RETURNING name, description, created_at
 `
 
 type CreateProjectParams struct {
 	Name        string
 	Description pgtype.Text
+	Url         pgtype.Text
 	UserID      uuid.UUID
 	CreatedAt   pgtype.Timestamptz
 }
@@ -83,6 +84,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (C
 	row := q.db.QueryRow(ctx, createProject,
 		arg.Name,
 		arg.Description,
+		arg.Url,
 		arg.UserID,
 		arg.CreatedAt,
 	)
@@ -106,13 +108,14 @@ func (q *Queries) DeleteProject(ctx context.Context, arg DeleteProjectParams) er
 }
 
 const findAllProjects = `-- name: FindAllProjects :many
-SELECT id, name, description, created_at FROM projects WHERE user_id = $1 AND deleted_at IS NULL
+SELECT id, name, description, url, created_at FROM projects WHERE user_id = $1 AND deleted_at IS NULL
 `
 
 type FindAllProjectsRow struct {
 	ID          uuid.UUID
 	Name        string
 	Description pgtype.Text
+	Url         pgtype.Text
 	CreatedAt   pgtype.Timestamptz
 }
 
@@ -129,6 +132,7 @@ func (q *Queries) FindAllProjects(ctx context.Context, userID uuid.UUID) ([]Find
 			&i.ID,
 			&i.Name,
 			&i.Description,
+			&i.Url,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -142,7 +146,7 @@ func (q *Queries) FindAllProjects(ctx context.Context, userID uuid.UUID) ([]Find
 }
 
 const findProjectByID = `-- name: FindProjectByID :one
-SELECT id, name, description, created_at FROM projects WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
+SELECT id, name, description, url, created_at FROM projects WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
 `
 
 type FindProjectByIDParams struct {
@@ -154,6 +158,7 @@ type FindProjectByIDRow struct {
 	ID          uuid.UUID
 	Name        string
 	Description pgtype.Text
+	Url         pgtype.Text
 	CreatedAt   pgtype.Timestamptz
 }
 
@@ -164,6 +169,7 @@ func (q *Queries) FindProjectByID(ctx context.Context, arg FindProjectByIDParams
 		&i.ID,
 		&i.Name,
 		&i.Description,
+		&i.Url,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -188,12 +194,13 @@ func (q *Queries) LastProjectDataReceived(ctx context.Context, arg LastProjectDa
 }
 
 const updateProject = `-- name: UpdateProject :exec
-UPDATE projects SET name = $1, description = $2 WHERE id = $3 AND user_id = $4 AND deleted_at IS NULL
+UPDATE projects SET name = $1, description = $2, url = $3 WHERE id = $4 AND user_id = $5 AND deleted_at IS NULL
 `
 
 type UpdateProjectParams struct {
 	Name        string
 	Description pgtype.Text
+	Url         pgtype.Text
 	ID          uuid.UUID
 	UserID      uuid.UUID
 }
@@ -202,6 +209,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) er
 	_, err := q.db.Exec(ctx, updateProject,
 		arg.Name,
 		arg.Description,
+		arg.Url,
 		arg.ID,
 		arg.UserID,
 	)

@@ -5,101 +5,12 @@
 package gen
 
 import (
-	"database/sql/driver"
-	"fmt"
 	"net/netip"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
-
-type BillingInterval string
-
-const (
-	BillingIntervalMonthly  BillingInterval = "monthly"
-	BillingIntervalAnnually BillingInterval = "annually"
-)
-
-func (e *BillingInterval) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = BillingInterval(s)
-	case string:
-		*e = BillingInterval(s)
-	default:
-		return fmt.Errorf("unsupported scan type for BillingInterval: %T", src)
-	}
-	return nil
-}
-
-type NullBillingInterval struct {
-	BillingInterval BillingInterval
-	Valid           bool // Valid is true if BillingInterval is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullBillingInterval) Scan(value interface{}) error {
-	if value == nil {
-		ns.BillingInterval, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.BillingInterval.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullBillingInterval) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.BillingInterval), nil
-}
-
-type BillingStatus string
-
-const (
-	BillingStatusSuccess   BillingStatus = "success"
-	BillingStatusPending   BillingStatus = "pending"
-	BillingStatusCancelled BillingStatus = "cancelled"
-	BillingStatusFailed    BillingStatus = "failed"
-	BillingStatusOther     BillingStatus = "other"
-)
-
-func (e *BillingStatus) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = BillingStatus(s)
-	case string:
-		*e = BillingStatus(s)
-	default:
-		return fmt.Errorf("unsupported scan type for BillingStatus: %T", src)
-	}
-	return nil
-}
-
-type NullBillingStatus struct {
-	BillingStatus BillingStatus
-	Valid         bool // Valid is true if BillingStatus is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullBillingStatus) Scan(value interface{}) error {
-	if value == nil {
-		ns.BillingStatus, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.BillingStatus.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullBillingStatus) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.BillingStatus), nil
-}
 
 type ApiKey struct {
 	ID        int32
@@ -133,52 +44,25 @@ type Event struct {
 	ProjectID        uuid.UUID
 }
 
-type Plan struct {
-	ID          int32
-	Name        string
-	Description pgtype.Text
-	Price       pgtype.Numeric
-	Features    string
-	Active      pgtype.Bool
-	CreatedAt   pgtype.Timestamptz
-	ExpiredAt   pgtype.Timestamptz
-}
-
 type Project struct {
 	ID          uuid.UUID
 	Name        string
 	Description pgtype.Text
+	Url         pgtype.Text
 	UserID      uuid.UUID
 	CreatedAt   pgtype.Timestamptz
 	DeletedAt   pgtype.Timestamptz
-	Url         pgtype.Text
-}
-
-type Subscription struct {
-	ID              int32
-	StartedAt       time.Time
-	NextBillingDate time.Time
-	Interval        BillingInterval
-	Currency        string
-	PaymentID       string
-	PaymentGateway  string
-	PaymentStatus   BillingStatus
-	CreatedAt       pgtype.Timestamptz
-	UpdatedAt       pgtype.Timestamptz
-	CancelledAt     pgtype.Timestamptz
-	PlanID          int32
-	UserID          uuid.UUID
 }
 
 type User struct {
-	ID            uuid.UUID
-	Fullname      string
-	Email         string
-	OauthProvider string
-	OauthID       pgtype.Text
-	ProfileUrl    pgtype.Text
-	PublicKey     string
-	CreatedAt     pgtype.Timestamptz
-	UpdatedAt     pgtype.Timestamptz
-	DeletedAt     pgtype.Timestamptz
+	ID             uuid.UUID
+	Fullname       string
+	Email          string
+	PasswordHashed string
+	RootUser       bool
+	ProfileUrl     pgtype.Text
+	PublicKey      string
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+	DeletedAt      pgtype.Timestamptz
 }

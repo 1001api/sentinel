@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
-	"github.com/hubkudev/sentinel/middlewares"
-	"github.com/hubkudev/sentinel/routes"
-	"github.com/hubkudev/sentinel/services"
+	"github.com/hubkudev/sentinel/internal/middlewares"
+	"github.com/hubkudev/sentinel/internal/repositories"
+	"github.com/hubkudev/sentinel/internal/routes"
+	"github.com/hubkudev/sentinel/internal/services"
 	"github.com/joho/godotenv"
 )
 
@@ -38,9 +37,16 @@ func main() {
 		Key: os.Getenv("COOKIE_SALT"),
 	}))
 
-	// easen up cors
+	// CORS Policy
 	app.Use(cors.New(cors.Config{
 		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
+	// Logging
+	// comment this code to disable log every endpoint hit.
+	// See more: https://docs.gofiber.io/api/middleware/logger
+	app.Use(logger.New(logger.Config{
+		Format: "${yellow} [${time}] ${status} - ${method} ${path} ${latency}\n",
 	}))
 
 	app.Static("/static", "./views/public", fiber.Static{
@@ -57,83 +63,65 @@ func main() {
 	defer redisCon.Close()
 	defer ipdbCon.Close()
 
-	app.Use("api/event/download", limiter.New(limiter.Config{
-		Next: func(c *fiber.Ctx) bool {
-			path := c.OriginalURL()
-			return !strings.Contains(path, "/api/event/download")
-		},
-		Max:        4,
-		Expiration: 30 * time.Second,
-		LimitReached: func(c *fiber.Ctx) error {
-			return c.Status(fiber.StatusOK).SendString(`
-				<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
-					Too many request, please wait for 30 seconds
-				</div>
-			`)
-		},
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return c.Get("CF-Connecting-IP")
-		},
-	}))
+	// Request limiter for download routes.
+	// It limits the request to only 4 downloads per 30sec.
+	//
+	// app.Use("api/event/download", limiter.New(limiter.Config{
+	// 	Next: func(c *fiber.Ctx) bool {
+	// 		path := c.OriginalURL()
+	// 		return !strings.Contains(path, "/api/event/download")
+	// 	},
+	// 	Max:        4,
+	// 	Expiration: 30 * time.Second,
+	// 	LimitReached: func(c *fiber.Ctx) error {
+	// 		return c.Status(fiber.StatusOK).SendString(`
+	// 			<div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
+	// 				Too many request, please wait for 30 seconds
+	// 			</div>
+	// 		`)
+	// 	},
+	// 	KeyGenerator: func(c *fiber.Ctx) string {
+	// 		return c.Get("CF-Connecting-IP")
+	// 	},
+	// }))
 
 	// init class validator
 	var validate = validator.New()
 	_ = validate.RegisterValidation("timestamp", services.IsISO8601Date)
+	_ = validate.RegisterValidation("password", services.IsStrongPassword)
 
 	// init sessions
 	sessionStore := configs.InitSession(redisCon)
-	stateStore := configs.InitStateSession(redisCon)
 
 	// init repo
 	repository := gen.New(db)
+	eventRepo := repositories.InitEventRepo(repository)
+	projectRepo := repositories.InitProjectRepo(repository, db)
+	userRepo := repositories.InitUserRepo(repository)
+	downloadRepo := repositories.InitDownloadRepo(repository)
+	keyRepo := repositories.InitKeyRepo(repository)
+	ipRepo := repositories.InitIPDBRepo(ipdbCon)
 
 	// init services
-	utilService := services.UtilServiceImpl{
-		Validate: validate,
-		IPReader: ipdbCon,
-	}
-	downloadService := services.DownloadServiceImpl{
-		Repo: repository,
-	}
-	userService := services.UserServiceImpl{
-		UtilService: &utilService,
-		Repo:        repository,
-	}
-	subService := services.SubServiceImpl{
-		Repo: repository,
-	}
-	authService := services.AuthServiceImpl{
-		UtilService:  &utilService,
-		UserService:  &userService,
-		SessionStore: sessionStore,
-		StateStore:   stateStore,
-	}
-	projectService := services.ProjectServiceImpl{
-		SubService: &subService,
-		Repo:       repository,
-		DB:         db,
-	}
-	eventService := services.EventServiceImpl{
-		UtilService: &utilService,
-		Repo:        repository,
-		SubService:  &subService,
-	}
-	apiService := services.APIServiceImpl{
-		ProjectService:  &projectService,
-		EventService:    &eventService,
-		DownloadService: &downloadService,
-	}
-	webService := services.WebServiceImpl{
-		UserService:    &userService,
-		ProjectService: &projectService,
-		EventService:   &eventService,
-	}
+	utilService := services.InitUtilService(validate, &ipRepo)
+	cacheService := services.InitCacheService(redisCon)
+	downloadService := services.InitDownloadService(&utilService, &downloadRepo)
+	userService := services.InitUserService(&utilService, &userRepo)
+	authService := services.InitAuthService(&utilService, &userService, sessionStore)
+	projectService := services.InitProjectService(&projectRepo)
+	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo)
+	keyService := services.InitKeyService(&utilService, &keyRepo)
+	apiService := services.InitAPIService(
+		&projectService,
+		&eventService,
+		&downloadService,
+		&cacheService,
+		&keyService,
+	)
+	webService := services.InitWebService(&userService, &projectService, &eventService, &keyService)
 
-	// init middlewares
-	m := middlewares.MiddlewareImpl{
-		UserService:    &userService,
-		SessionStorage: sessionStore,
-	}
+	// init middleware
+	m := middlewares.InitMiddleware(&userService, sessionStore, &cacheService)
 
 	// init routes
 	routes.InitAuthRoute(app, &authService)
