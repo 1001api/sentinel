@@ -16,6 +16,11 @@ SELECT public_key FROM users WHERE id = $1;
 -- name: FindUserByPublicKey :one
 SELECT id, fullname, email, profile_url FROM users WHERE public_key = $1;
 
+-- name: FindUserByPrivateKey :one
+SELECT u.id, u.fullname, u.email, u.profile_url FROM users AS u
+JOIN api_keys AS k ON u.id = k.user_id
+WHERE k.token = $1;
+
 -- name: CheckUserIDExist :one
 SELECT EXISTS(SELECT 1 FROM users WHERE id = $1);
 

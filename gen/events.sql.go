@@ -302,6 +302,111 @@ func (q *Queries) GetEventSummary(ctx context.Context, arg GetEventSummaryParams
 	return i, err
 }
 
+const getEvents = `-- name: GetEvents :many
+SELECT
+    p.name AS project_name,
+    e.event_type,
+    e.event_label,
+    e.page_url,
+    e.element_path,
+    e.element_type,
+    e.ip_addr,
+    e.user_agent,
+    e.browser_name,
+    e.country,
+    e.region,
+    e.city,
+    e.session_id,
+    e.device_type,
+    e.time_on_page,
+    e.screen_resolution,
+    e.fired_at,
+    e.received_at,
+    e.project_id
+FROM events AS e
+JOIN projects AS p ON e.project_id = p.id
+WHERE e.user_id = $1
+AND ($2::int = -1 OR received_at >= NOW() - INTERVAL '1 day' * $2::int)
+AND ($3::uuid = '00000000-0000-0000-0000-000000000000' OR e.project_id = $3) 
+ORDER BY e.received_at DESC
+LIMIT COALESCE($4::integer, 100)
+`
+
+type GetEventsParams struct {
+	UserID     uuid.UUID
+	Interval   int32
+	ProjectID  uuid.UUID
+	LimitCount int32
+}
+
+type GetEventsRow struct {
+	ProjectName      string
+	EventType        string
+	EventLabel       pgtype.Text
+	PageUrl          pgtype.Text
+	ElementPath      pgtype.Text
+	ElementType      pgtype.Text
+	IpAddr           *netip.Addr
+	UserAgent        pgtype.Text
+	BrowserName      pgtype.Text
+	Country          pgtype.Text
+	Region           pgtype.Text
+	City             pgtype.Text
+	SessionID        pgtype.Text
+	DeviceType       pgtype.Text
+	TimeOnPage       pgtype.Int4
+	ScreenResolution pgtype.Text
+	FiredAt          time.Time
+	ReceivedAt       time.Time
+	ProjectID        uuid.UUID
+}
+
+// check if project id is provided and is not default empty UUID
+func (q *Queries) GetEvents(ctx context.Context, arg GetEventsParams) ([]GetEventsRow, error) {
+	rows, err := q.db.Query(ctx, getEvents,
+		arg.UserID,
+		arg.Interval,
+		arg.ProjectID,
+		arg.LimitCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEventsRow
+	for rows.Next() {
+		var i GetEventsRow
+		if err := rows.Scan(
+			&i.ProjectName,
+			&i.EventType,
+			&i.EventLabel,
+			&i.PageUrl,
+			&i.ElementPath,
+			&i.ElementType,
+			&i.IpAddr,
+			&i.UserAgent,
+			&i.BrowserName,
+			&i.Country,
+			&i.Region,
+			&i.City,
+			&i.SessionID,
+			&i.DeviceType,
+			&i.TimeOnPage,
+			&i.ScreenResolution,
+			&i.FiredAt,
+			&i.ReceivedAt,
+			&i.ProjectID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLiveEvents = `-- name: GetLiveEvents :many
 SELECT
     p.name,

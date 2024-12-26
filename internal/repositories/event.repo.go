@@ -11,6 +11,7 @@ type EventRepo interface {
 	CheckProjectWithinUserID(ctx context.Context, input *gen.CheckProjectWithinUserIDParams) (bool, error)
 	CreateEvent(ctx context.Context, input *gen.CreateEventParams) error
 	GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error)
+	GetEvents(ctx context.Context, input *gen.GetEventsParams) ([]gen.GetEventsRow, error)
 	GetLiveEventDetail(ctx context.Context, input *gen.GetLiveEventsDetailParams) ([]gen.GetLiveEventsDetailRow, error)
 	GetEventSummary(ctx context.Context, input *gen.GetEventSummaryParams) (gen.GetEventSummaryRow, error)
 	GetTotalEventSummary(ctx context.Context, input *gen.GetTotalEventSummaryParams) (gen.GetTotalEventSummaryRow, error)
@@ -42,6 +43,10 @@ func (r *EventRepoImpl) CreateEvent(ctx context.Context, input *gen.CreateEventP
 
 func (r *EventRepoImpl) GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error) {
 	return r.Repo.GetLiveEvents(ctx, userID)
+}
+
+func (r *EventRepoImpl) GetEvents(ctx context.Context, input *gen.GetEventsParams) ([]gen.GetEventsRow, error) {
+	return r.Repo.GetEvents(ctx, *input)
 }
 
 func (r *EventRepoImpl) GetLiveEventDetail(ctx context.Context, input *gen.GetLiveEventsDetailParams) ([]gen.GetLiveEventsDetailRow, error) {

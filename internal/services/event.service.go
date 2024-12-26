@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/configs"
 	"github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/constants"
 	"github.com/hubkudev/sentinel/internal/dto"
 	"github.com/hubkudev/sentinel/internal/entities"
 	"github.com/hubkudev/sentinel/internal/repositories"
@@ -19,6 +20,7 @@ import (
 
 type EventService interface {
 	CreateEvent(c *fiber.Ctx) error
+	GetEvents(c *fiber.Ctx) error
 	GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error)
 	GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID, strategy string, limit int32) ([]gen.GetLiveEventsDetailRow, error)
 	GetEventSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.GetEventSummaryRow, error)
@@ -127,6 +129,46 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 	}()
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *EventServiceImpl) GetEvents(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByPrivateKeyRow)
+
+	limitQuery := c.Query("limit", "100")
+	limit, err := strconv.Atoi(limitQuery)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid limit"})
+	}
+
+	intervalQuery := c.Query("interval", "all_time")
+	interval, ok := constants.Intervals[intervalQuery]
+	if !ok {
+		return c.SendString("invalid interval")
+	}
+
+	projectID := c.Query("project_id")
+	var projectUUID uuid.UUID
+	if projectID != "" {
+		projectUUID, err = uuid.Parse(projectID)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid project id"})
+		}
+	}
+
+	events, err := s.Repo.GetEvents(context.Background(), &gen.GetEventsParams{
+		UserID:     user.ID,
+		LimitCount: int32(limit),
+		Interval:   int32(interval),
+		ProjectID:  projectUUID,
+	})
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{
+		"total": len(events),
+		"data":  events,
+	})
 }
 
 func (s *EventServiceImpl) GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error) {

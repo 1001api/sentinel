@@ -19,7 +19,8 @@ import (
 
 type Middleware interface {
 	ProtectedRoute(c *fiber.Ctx) error
-	APIProtectedRoute(c *fiber.Ctx) error
+	APIPublicRoute(c *fiber.Ctx) error
+	APIPrivateRoute(c *fiber.Ctx) error
 	UnProtectedRoute(c *fiber.Ctx) error
 	LiveEventsCache(c *fiber.Ctx) error
 	LiveEventCache(c *fiber.Ctx) error
@@ -105,17 +106,18 @@ func (m *MiddlewareImpl) UnProtectedRoute(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func (m *MiddlewareImpl) APIProtectedRoute(c *fiber.Ctx) error {
+func (m *MiddlewareImpl) APIPublicRoute(c *fiber.Ctx) error {
 	var key dto.KeyPayload
 
 	if err := c.BodyParser(&key); err != nil {
-		// send raw error (unprocessable entity)
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"error": "PublicKey field is required",
+		})
 	}
 
 	if key.PublicKey == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
-			"error": "valid PublicKey is required",
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"error": "PublicKey field is required",
 		})
 	}
 
@@ -123,7 +125,35 @@ func (m *MiddlewareImpl) APIProtectedRoute(c *fiber.Ctx) error {
 	exist, err := m.UserService.FindByPublicKey(key.PublicKey)
 	if exist == nil || err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
-			"error": "valid PublicKey is required",
+			"error": "invalid public key",
+		})
+	}
+
+	c.Locals("user", exist)
+
+	return c.Next()
+}
+
+func (m *MiddlewareImpl) APIPrivateRoute(c *fiber.Ctx) error {
+	var key dto.PrivateKeyPayload
+
+	if err := c.BodyParser(&key); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"error": "PrivateKey field is required",
+		})
+	}
+
+	if key.PrivateKey == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"error": "PrivateKey field is required",
+		})
+	}
+
+	// check if the key is valid in the database
+	exist, err := m.UserService.FindByPrivateKey(key.PrivateKey)
+	if exist == nil || err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
+			"error": "invalid private key",
 		})
 	}
 

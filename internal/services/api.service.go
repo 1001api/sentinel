@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/constants"
 	"github.com/hubkudev/sentinel/internal/entities"
 	"github.com/hubkudev/sentinel/views/pages"
 )
@@ -233,32 +234,15 @@ func (s *APIServiceImpl) FinishDownloadEvent(c *fiber.Ctx) error {
 		return c.SendString("Project ID required")
 	}
 
-	formats := map[string]bool{
-		"csv":  true,
-		"xlsx": true,
-		"json": true,
-		"pdf":  true,
-		"html": true,
-	}
-
-	intervals := map[string]int{
-		"last_7_days":   7,
-		"last_30_days":  30,
-		"last_60_days":  60,
-		"last_180_days": 180,
-		"last_year":     360,
-		"all_time":      -1,
-	}
-
 	downloadFormat := c.Query("format", "csv")
 	downloadInterval := c.Query("interval", "last_7_days")
 
-	enabled, ok := formats[downloadFormat]
+	enabled, ok := constants.DownloadFormats[downloadFormat]
 	if !enabled || !ok {
 		return c.SendString("Download format is not available")
 	}
 
-	intervalInt, ok := intervals[downloadInterval]
+	intervalInt, ok := constants.Intervals[downloadInterval]
 	if !ok {
 		return c.SendString("Download interval is not available")
 	}

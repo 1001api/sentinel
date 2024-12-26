@@ -138,6 +138,31 @@ func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (FindUserByIDR
 	return i, err
 }
 
+const findUserByPrivateKey = `-- name: FindUserByPrivateKey :one
+SELECT u.id, u.fullname, u.email, u.profile_url FROM users AS u
+JOIN api_keys AS k ON u.id = k.user_id
+WHERE k.token = $1
+`
+
+type FindUserByPrivateKeyRow struct {
+	ID         uuid.UUID
+	Fullname   string
+	Email      string
+	ProfileUrl pgtype.Text
+}
+
+func (q *Queries) FindUserByPrivateKey(ctx context.Context, token string) (FindUserByPrivateKeyRow, error) {
+	row := q.db.QueryRow(ctx, findUserByPrivateKey, token)
+	var i FindUserByPrivateKeyRow
+	err := row.Scan(
+		&i.ID,
+		&i.Fullname,
+		&i.Email,
+		&i.ProfileUrl,
+	)
+	return i, err
+}
+
 const findUserByPublicKey = `-- name: FindUserByPublicKey :one
 SELECT id, fullname, email, profile_url FROM users WHERE public_key = $1
 `

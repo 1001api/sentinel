@@ -13,6 +13,7 @@ type UserService interface {
 	FindByEmailWithHash(email string) (*gen.FindUserByEmailWithHashRow, error)
 	FindByID(userID uuid.UUID) (*gen.FindUserByIDRow, error)
 	FindByPublicKey(key string) (*gen.FindUserByPublicKeyRow, error)
+	FindByPrivateKey(key string) (*gen.FindUserByPrivateKeyRow, error)
 	CheckAdminExist() (bool, error)
 	GetPublicKey(userID uuid.UUID) (string, error)
 	CreateUser(payload *gen.CreateUserParams) (*gen.CreateUserRow, error)
@@ -56,6 +57,14 @@ func (s *UserServiceImpl) FindByID(userID uuid.UUID) (*gen.FindUserByIDRow, erro
 
 func (s *UserServiceImpl) FindByPublicKey(key string) (*gen.FindUserByPublicKeyRow, error) {
 	result, err := s.Repo.FindUserByPublicKey(context.Background(), key)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (s *UserServiceImpl) FindByPrivateKey(key string) (*gen.FindUserByPrivateKeyRow, error) {
+	result, err := s.Repo.FindUserByPrivateKey(context.Background(), key)
 	if err != nil {
 		return nil, err
 	}

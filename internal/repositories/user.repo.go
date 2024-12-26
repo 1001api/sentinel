@@ -12,6 +12,7 @@ type UserRepo interface {
 	FindUserByID(ctx context.Context, id uuid.UUID) (gen.FindUserByIDRow, error)
 	FindUserByEmailWithHash(ctx context.Context, email string) (gen.FindUserByEmailWithHashRow, error)
 	FindUserByPublicKey(ctx context.Context, key string) (gen.FindUserByPublicKeyRow, error)
+	FindUserByPrivateKey(ctx context.Context, key string) (gen.FindUserByPrivateKeyRow, error)
 	FindUserPublicKey(ctx context.Context, id uuid.UUID) (string, error)
 	CheckAdminExist(ctx context.Context) (bool, error)
 	CreateUser(ctx context.Context, input *gen.CreateUserParams) (gen.CreateUserRow, error)
@@ -41,6 +42,10 @@ func (r *UserRepoImpl) FindUserByEmailWithHash(ctx context.Context, email string
 
 func (r *UserRepoImpl) FindUserByPublicKey(ctx context.Context, key string) (gen.FindUserByPublicKeyRow, error) {
 	return r.Repo.FindUserByPublicKey(ctx, key)
+}
+
+func (r *UserRepoImpl) FindUserByPrivateKey(ctx context.Context, key string) (gen.FindUserByPrivateKeyRow, error) {
+	return r.Repo.FindUserByPrivateKey(ctx, key)
 }
 
 func (r *UserRepoImpl) FindUserPublicKey(ctx context.Context, id uuid.UUID) (string, error) {

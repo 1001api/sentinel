@@ -34,6 +34,9 @@ func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.
 	key.Post("/create", m.ProtectedRoute, apiService.CreateAPIKey)
 	key.Delete("/delete", m.ProtectedRoute, apiService.DeleteAPIKey)
 
+	// HERE ONWARDS ARE PUBLIC APIs RETURNED AS JSON.
+	// PUBLIC MEANS THEY ARE NOT CONSUMED INTERNALLY BY THE APP.
 	v1 := api.Group("v1")
-	v1.Post("/event", m.APIProtectedRoute, eventService.CreateEvent)
+	v1.Get("/events", m.APIPrivateRoute, eventService.GetEvents)
+	v1.Post("/event", m.APIPublicRoute, eventService.CreateEvent)
 }

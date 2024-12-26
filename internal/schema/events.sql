@@ -57,6 +57,36 @@ WHERE e.user_id = $1 AND e.received_at >= NOW() - INTERVAL '1 hour'
 ORDER BY e.received_at DESC
 LIMIT 100;
 
+-- name: GetEvents :many
+SELECT
+    p.name AS project_name,
+    e.event_type,
+    e.event_label,
+    e.page_url,
+    e.element_path,
+    e.element_type,
+    e.ip_addr,
+    e.user_agent,
+    e.browser_name,
+    e.country,
+    e.region,
+    e.city,
+    e.session_id,
+    e.device_type,
+    e.time_on_page,
+    e.screen_resolution,
+    e.fired_at,
+    e.received_at,
+    e.project_id
+FROM events AS e
+JOIN projects AS p ON e.project_id = p.id
+WHERE e.user_id = $1
+AND (@interval::int = -1 OR received_at >= NOW() - INTERVAL '1 day' * @interval::int)
+-- check if project id is provided and is not default empty UUID 
+AND (@project_id::uuid = '00000000-0000-0000-0000-000000000000' OR e.project_id = @project_id) 
+ORDER BY e.received_at DESC
+LIMIT COALESCE(@limit_count::integer, 100);
+
 -- name: GetLiveEventsDetail :many
 SELECT 
     event_type,
