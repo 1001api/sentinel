@@ -50,24 +50,12 @@
 }
 
 .loading-indicator{
-  opacity:0;
-  transition: opacity 500ms ease-in;
+  display:none;
+  transition: all 500ms ease-in;
 }
 .htmx-request .loading-indicator{
-  opacity:1;
+  display:flex;
 }
 .htmx-request.loading-indicator{
-  opacity:1;
+  display:flex;
 }
-
-.loading-indicator-none{
-  display: none;
-  transition: opacity 500ms ease-in;
-}
-.htmx-request .loading-indicator-none{
-  display: flex;
-}
-.htmx-request.loading-indicator-none{
-  display: flex;
-}
-
