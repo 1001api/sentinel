@@ -11,19 +11,20 @@ import (
 	"github.com/google/uuid"
 )
 
-const downloadLastMonthData = `-- name: DownloadLastMonthData :many
+const downloadIntervalEventData = `-- name: DownloadIntervalEventData :many
 SELECT id, event_type, event_label, page_url, element_path, element_type, ip_addr, user_agent, browser_name, country, region, city, session_id, device_type, time_on_page, screen_resolution, fired_at, received_at, user_id, project_id FROM events 
 WHERE user_id = $1 AND project_id = $2
-AND received_at > date_trunc('month', NOW())
+AND ($3::int = -1 OR received_at >= NOW() - INTERVAL '1 day' * $3::int)
 `
 
-type DownloadLastMonthDataParams struct {
+type DownloadIntervalEventDataParams struct {
 	UserID    uuid.UUID
 	ProjectID uuid.UUID
+	Interval  int32
 }
 
-func (q *Queries) DownloadLastMonthData(ctx context.Context, arg DownloadLastMonthDataParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, downloadLastMonthData, arg.UserID, arg.ProjectID)
+func (q *Queries) DownloadIntervalEventData(ctx context.Context, arg DownloadIntervalEventDataParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, downloadIntervalEventData, arg.UserID, arg.ProjectID, arg.Interval)
 	if err != nil {
 		return nil, err
 	}

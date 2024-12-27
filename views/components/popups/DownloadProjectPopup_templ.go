@@ -34,27 +34,27 @@ func DownloadProjectPopup(i int, v *gen.FindAllProjectsRow) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div data-testid=\"project-download-popup\" id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("download-modal-%d", i)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 9, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 9, Col: 103}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" tabindex=\"-1\" aria-hidden=\"true\" class=\"hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full\"><div class=\"relative p-4 w-full max-w-2xl max-h-full\"><!-- Backdrop --><div class=\"fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm\"></div><!-- Modal content --><div class=\"relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5\"><!-- Modal header --><div class=\"flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600\"><h3 class=\"text-lg font-semibold text-gray-900 dark:text-white\">Download Project Data</h3><button type=\"button\" class=\"text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white\" data-modal-toggle=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" tabindex=\"-1\" aria-hidden=\"true\" class=\"hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full\"><div class=\"relative p-4 w-full max-w-2xl max-h-full\"><!-- Backdrop --><div class=\"fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm\"></div><!-- Modal content --><div class=\"relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5\"><!-- Modal header --><div class=\"flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600\"><h3 class=\"text-lg font-semibold text-gray-900 dark:text-white\">Download Project Data</h3><button data-testid=\"project-download-popup-close\" type=\"button\" class=\"text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white\" data-modal-toggle=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("download-modal-%d", i)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 18, Col: 280}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 18, Col: 323}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -99,14 +99,14 @@ func DownloadProjectPopup(i int, v *gen.FindAllProjectsRow) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</strong></p></div><div class=\"w-full mx-auto\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select Data Time</label> <select id=\"interval\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"0\">Last 30 Days</option> <option disabled value=\"1\">Last 2 Months</option> <option disabled value=\"2\">Last 6 Months</option> <option disabled value=\"3\">Last Year</option> <option disabled value=\"4\">All Time Data</option></select> <label for=\"interval\" class=\"block mt-2 text-xs text-gray-600 dark:text-white\">On the free tier, only last month data is available for download. <a href=\"/pricing\" class=\"underline text-purple-400\">Upgrade for full access.</a></label></div><div class=\"w-full mx-auto mt-4\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select File Format</label> <select id=\"interval\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"0\">CSV File</option> <option disabled value=\"1\">XLSX File</option> <option disabled value=\"2\">JSON File</option> <option disabled value=\"3\">PDF File</option> <option disabled value=\"4\">HTML File</option></select> <label for=\"interval\" class=\"block mt-2 text-xs text-gray-600 dark:text-white\">On the free tier, downloads are limited to CSV format. <a href=\"/pricing\" class=\"underline text-purple-400\">Upgrade for more options.</a></label></div></div><div id=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</strong></p></div><div class=\"w-full mx-auto\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select Data Time</label> <select id=\"interval\" name=\"interval\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"last_7_days\">Last 7 Days</option> <option value=\"last_30_days\">Last 30 Days</option> <option value=\"last_60_days\">Last 2 Months</option> <option value=\"last_180_days\">Last 6 Months</option> <option value=\"last_year\">Last Year</option> <option value=\"all_time\">All Time Data</option></select></div><div class=\"w-full mx-auto mt-4\"><label for=\"interval\" class=\"block mb-2 text-sm font-medium text-gray-900 dark:text-white\">Select File Format</label> <select id=\"interval\" name=\"format\" class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\"><option selected value=\"csv\">CSV File</option> <option value=\"xlsx\">XLSX File</option> <option value=\"json\">JSON File</option> <option value=\"pdf\">PDF File</option> <option value=\"html\">HTML File</option></select></div></div><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("download-wrapper-%d", i))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 64, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DownloadProjectPopup.templ`, Line: 59, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {

@@ -34,14 +34,14 @@ func DeleteProjectPopup(i int, v *gen.FindAllProjectsRow) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div data-testid=\"project-delete-popup\" id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("delete-modal-%d", i)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DeleteProjectPopup.templ`, Line: 9, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DeleteProjectPopup.templ`, Line: 9, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -54,20 +54,20 @@ func DeleteProjectPopup(i int, v *gen.FindAllProjectsRow) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(templ.JSONString(map[string]string{"name": v.Name, "validation": ""}))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DeleteProjectPopup.templ`, Line: 9, Col: 336}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DeleteProjectPopup.templ`, Line: 9, Col: 371}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"relative p-4 w-full max-w-lg max-h-full\"><!-- Backdrop --><div class=\"fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm\"></div><!-- Modal content --><div class=\"relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5\"><button type=\"button\" class=\"text-gray-400 absolute top-2.5 right-2.5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white\" data-modal-toggle=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"relative p-4 w-full max-w-lg max-h-full\"><!-- Backdrop --><div class=\"fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm\"></div><!-- Modal content --><div class=\"relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5\"><button data-testid=\"project-delete-popup-close\" type=\"button\" class=\"text-gray-400 absolute top-2.5 right-2.5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white\" data-modal-toggle=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(templ.EscapeString(fmt.Sprintf("delete-modal-%d", i)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DeleteProjectPopup.templ`, Line: 15, Col: 304}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/components/popups/DeleteProjectPopup.templ`, Line: 15, Col: 345}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

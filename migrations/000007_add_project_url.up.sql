@@ -1,1 +1,0 @@
-ALTER TABLE projects ADD url VARCHAR(255);

@@ -48,3 +48,26 @@
     --ring: 20.5 90.2% 48.2%;
   }
 }
+
+.loading-indicator{
+  opacity:0;
+  transition: opacity 500ms ease-in;
+}
+.htmx-request .loading-indicator{
+  opacity:1;
+}
+.htmx-request.loading-indicator{
+  opacity:1;
+}
+
+.loading-indicator-none{
+  display: none;
+  transition: opacity 500ms ease-in;
+}
+.htmx-request .loading-indicator-none{
+  display: flex;
+}
+.htmx-request.loading-indicator-none{
+  display: flex;
+}
+

@@ -14,8 +14,8 @@ FROM alpine:latest
 WORKDIR /root/
 
 COPY --from=build /app/main .
-COPY --from=build /app/migrations ./migrations
+COPY --from=build /app/migrations ./internal/migrations
 COPY --from=build /app/views ./views
-COPY --from=build /app/ipdb ./ipdb
+COPY --from=build /app/ipdb ./internal/ipdb
 
 CMD ["./main"]
