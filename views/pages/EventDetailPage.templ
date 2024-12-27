@@ -71,7 +71,7 @@ templ EventDetailPage(props EventDetailPageProps) {
 					>{ props.Project.Url.String }</a>
 				</div>
 				<!-- SUMMARY -->
-				<div hx-get={ fmt.Sprintf("/api/event/summary/detail/%s", props.Project.ID) } hx-trigger="revealed, every 10s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-swap="innerHTML">
+				<div hx-get={ fmt.Sprintf("/api/event/summary/detail/%s", props.Project.ID) } hx-trigger="revealed, every 60s [document.visibilityState === 'visible'], visibilitychange[document.visibilityState === 'visible'] from:document" hx-swap="innerHTML">
 					@EventDetailSummarySection(props.Summary)
 				</div>
 				<!-- CHARTS -->
@@ -399,15 +399,15 @@ templ EventDetailSummarySection(summary *entities.EventDetail) {
 			</div>
 			<ol class="max-w-md space-y-1 text-sm mt-2 text-gray-900 list-decimal list-inside dark:text-white">
 				for _, v := range summary.LastVisitedUsers {
-					<li class="flex gap-1 items-center justify-between line-clamp-1">
+					<li class="flex gap-1 items-center justify-between">
 						<p
 							title={ v.IP.String() }
-							class="mb-2 tracking-tight text-gray-800 dark:text-white"
+							class="mb-2 tracking-tight text-gray-800 dark:text-white line-clamp-1"
 						>
 							{ v.IP.String() }
 						</p>
 						<p class="mb-2 text-xs tracking-tight text-gray-400 dark:text-white">
-							{ v.Timestamp.Format("02/01/2006 15:04:05") }
+							{ v.Timestamp.Format("02/01/2006 15:04") }
 						</p>
 					</li>
 				}
