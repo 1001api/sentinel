@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
@@ -87,19 +85,6 @@ func main() {
 	// 	},
 	// }))
 
-	// ---- DEMO ONLY -----
-	app.Use(limiter.New(limiter.Config{
-		Max:        100,
-		Expiration: 30 * time.Second,
-		LimitReached: func(c *fiber.Ctx) error {
-			return c.Status(fiber.StatusTooManyRequests).SendString("DEMO NOTICE: Max requests reached within 30s. Please wait for a while.")
-		},
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return c.Get("CF-Connecting-IP")
-		},
-	}))
-	// ---- DEMO ONLY -----
-
 	// init class validator
 	var validate = validator.New()
 	_ = validate.RegisterValidation("timestamp", services.IsISO8601Date)
@@ -124,7 +109,7 @@ func main() {
 	userService := services.InitUserService(&utilService, &userRepo)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
 	projectService := services.InitProjectService(&projectRepo)
-	eventService := services.InitEventService(&utilService, &cacheService, &projectService, &eventRepo)
+	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo)
 	keyService := services.InitKeyService(&utilService, &keyRepo)
 	apiService := services.InitAPIService(
 		&projectService,
