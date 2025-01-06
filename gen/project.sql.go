@@ -13,6 +13,28 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const checkProjectAggrEligibility = `-- name: CheckProjectAggrEligibility :one
+WITH latest_aggr AS (
+    SELECT COALESCE(MAX(aggregated_at), '1970-01-01'::timestamp) AS last_aggregated
+    FROM project_aggregations AS pa
+    WHERE pa.project_id = $1
+),
+latest_events AS (
+    SELECT COUNT(1) AS event_count
+    FROM events AS e
+    WHERE e.received_at > (SELECT la.last_aggregated FROM latest_aggr AS la)
+    AND e.project_id = $1
+)
+SELECT event_count FROM latest_events
+`
+
+func (q *Queries) CheckProjectAggrEligibility(ctx context.Context, projectID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, checkProjectAggrEligibility, projectID)
+	var event_count int64
+	err := row.Scan(&event_count)
+	return event_count, err
+}
+
 const checkProjectWithinUserID = `-- name: CheckProjectWithinUserID :one
 SELECT EXISTS(SELECT 1 FROM projects WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL)
 `
@@ -93,6 +115,76 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (C
 	return i, err
 }
 
+const createProjectAggr = `-- name: CreateProjectAggr :exec
+INSERT INTO project_aggregations (
+    project_id, 
+    user_id, 
+    total_events, 
+    total_event_types, 
+    total_unique_users, 
+    total_locations, 
+    total_unique_page_urls, 
+    most_visited_urls, 
+    most_visited_countries, 
+    most_visited_cities, 
+    most_visited_regions, 
+    most_firing_elements, 
+    last_visited_users, 
+    most_used_browsers, 
+    most_fired_event_types, 
+    most_fired_event_labels,
+    aggregated_at,
+    aggregated_at_str
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+)
+`
+
+type CreateProjectAggrParams struct {
+	ProjectID            uuid.UUID
+	UserID               uuid.UUID
+	TotalEvents          int32
+	TotalEventTypes      int32
+	TotalUniqueUsers     int32
+	TotalLocations       int32
+	TotalUniquePageUrls  int32
+	MostVisitedUrls      []byte
+	MostVisitedCountries []byte
+	MostVisitedCities    []byte
+	MostVisitedRegions   []byte
+	MostFiringElements   []byte
+	LastVisitedUsers     []byte
+	MostUsedBrowsers     []byte
+	MostFiredEventTypes  []byte
+	MostFiredEventLabels []byte
+	AggregatedAt         time.Time
+	AggregatedAtStr      string
+}
+
+func (q *Queries) CreateProjectAggr(ctx context.Context, arg CreateProjectAggrParams) error {
+	_, err := q.db.Exec(ctx, createProjectAggr,
+		arg.ProjectID,
+		arg.UserID,
+		arg.TotalEvents,
+		arg.TotalEventTypes,
+		arg.TotalUniqueUsers,
+		arg.TotalLocations,
+		arg.TotalUniquePageUrls,
+		arg.MostVisitedUrls,
+		arg.MostVisitedCountries,
+		arg.MostVisitedCities,
+		arg.MostVisitedRegions,
+		arg.MostFiringElements,
+		arg.LastVisitedUsers,
+		arg.MostUsedBrowsers,
+		arg.MostFiredEventTypes,
+		arg.MostFiredEventLabels,
+		arg.AggregatedAt,
+		arg.AggregatedAtStr,
+	)
+	return err
+}
+
 const deleteProject = `-- name: DeleteProject :exec
 UPDATE projects SET deleted_at = NOW() WHERE user_id = $1 AND id = $2 AND deleted_at IS NULL
 `
@@ -134,6 +226,58 @@ func (q *Queries) FindAllProjects(ctx context.Context, userID uuid.UUID) ([]Find
 			&i.Description,
 			&i.Url,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findProjectAggr = `-- name: FindProjectAggr :many
+SELECT id, project_id, user_id, total_events, total_event_types, total_unique_users, total_locations, total_unique_page_urls, most_visited_urls, most_visited_countries, most_visited_cities, most_visited_regions, most_firing_elements, last_visited_users, most_used_browsers, most_fired_event_types, most_fired_event_labels, aggregated_at, aggregated_at_str FROM project_aggregations
+WHERE project_id = $1 AND user_id = $2
+ORDER BY aggregated_at DESC LIMIT $3
+`
+
+type FindProjectAggrParams struct {
+	ProjectID uuid.UUID
+	UserID    uuid.UUID
+	Limit     int32
+}
+
+func (q *Queries) FindProjectAggr(ctx context.Context, arg FindProjectAggrParams) ([]ProjectAggregation, error) {
+	rows, err := q.db.Query(ctx, findProjectAggr, arg.ProjectID, arg.UserID, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProjectAggregation
+	for rows.Next() {
+		var i ProjectAggregation
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProjectID,
+			&i.UserID,
+			&i.TotalEvents,
+			&i.TotalEventTypes,
+			&i.TotalUniqueUsers,
+			&i.TotalLocations,
+			&i.TotalUniquePageUrls,
+			&i.MostVisitedUrls,
+			&i.MostVisitedCountries,
+			&i.MostVisitedCities,
+			&i.MostVisitedRegions,
+			&i.MostFiringElements,
+			&i.LastVisitedUsers,
+			&i.MostUsedBrowsers,
+			&i.MostFiredEventTypes,
+			&i.MostFiredEventLabels,
+			&i.AggregatedAt,
+			&i.AggregatedAtStr,
 		); err != nil {
 			return nil, err
 		}

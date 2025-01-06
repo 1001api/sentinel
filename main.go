@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
 	gen "github.com/hubkudev/sentinel/gen"
+	"github.com/hubkudev/sentinel/internal/constants"
 	"github.com/hubkudev/sentinel/internal/middlewares"
 	"github.com/hubkudev/sentinel/internal/repositories"
 	"github.com/hubkudev/sentinel/internal/routes"
@@ -85,10 +86,25 @@ func main() {
 	// 	},
 	// }))
 
+	// app.Use("api/ai/stream/summary", limiter.New(limiter.Config{
+	// 	Next: func(c *fiber.Ctx) bool {
+	// 		path := c.OriginalURL()
+	// 		return !strings.Contains(path, "api/ai/stream/summary")
+	// 	},
+	// 	Max:        2,
+	// 	Expiration: 60 * time.Second,
+	// 	LimitReached: func(c *fiber.Ctx) error {
+	// 		return c.Status(fiber.StatusTooManyRequests).SendString("Too many request")
+	// 	},
+	// 	KeyGenerator: func(c *fiber.Ctx) string {
+	// 		return c.Get("CF-Connecting-IP")
+	// 	},
+	// }))
+
 	// init class validator
 	var validate = validator.New()
-	_ = validate.RegisterValidation("timestamp", services.IsISO8601Date)
-	_ = validate.RegisterValidation("password", services.IsStrongPassword)
+	_ = validate.RegisterValidation("timestamp", constants.IsISO8601Date)
+	_ = validate.RegisterValidation("password", constants.IsStrongPassword)
 
 	// init sessions
 	sessionStore := configs.InitSession(redisCon)
@@ -108,8 +124,8 @@ func main() {
 	downloadService := services.InitDownloadService(&utilService, &downloadRepo)
 	userService := services.InitUserService(&utilService, &userRepo)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
-	projectService := services.InitProjectService(&projectRepo)
 	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo)
+	projectService := services.InitProjectService(&projectRepo, &eventService, &utilService)
 	keyService := services.InitKeyService(&utilService, &keyRepo)
 	apiService := services.InitAPIService(
 		&projectService,

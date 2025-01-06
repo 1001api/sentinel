@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/gob"
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -19,6 +20,7 @@ import (
 
 type Middleware interface {
 	ProtectedRoute(c *fiber.Ctx) error
+	InternalRoute(c *fiber.Ctx) error
 	APIPublicRoute(c *fiber.Ctx) error
 	APIPrivateRoute(c *fiber.Ctx) error
 	UnProtectedRoute(c *fiber.Ctx) error
@@ -154,6 +156,51 @@ func (m *MiddlewareImpl) APIPrivateRoute(c *fiber.Ctx) error {
 	if exist == nil || err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
 			"error": "invalid private key",
+		})
+	}
+
+	c.Locals("user", exist)
+
+	return c.Next()
+}
+
+func (m *MiddlewareImpl) InternalRoute(c *fiber.Ctx) error {
+	// get passphrase header
+	token := string(c.Request().Header.Peek("passphrase"))
+
+	// validate token/passphrase is the same as SENTINEL_INTERNAL_PASS=
+	// please set this in .env to allow internal route to be secured internally.
+	internalPass := os.Getenv("SENTINEL_INTERNAL_PASS")
+	if token != internalPass {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	var payload dto.UserIDPayload
+	if err := c.BodyParser(&payload); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"error": "UserID field is required",
+		})
+	}
+
+	if payload.UserID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"error": "UserID field is required",
+		})
+	}
+
+	userUUID, err := uuid.Parse(payload.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
+			"error": "invalid UserID",
+		})
+	}
+
+	// check if the key is valid in the database
+	exist, err := m.UserService.FindByID(userUUID)
+	if exist == nil || err != nil {
+		log.Println(err)
+		return c.Status(fiber.StatusUnauthorized).JSON(&fiber.Map{
+			"error": "invalid UserID",
 		})
 	}
 
