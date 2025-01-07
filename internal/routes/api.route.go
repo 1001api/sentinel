@@ -34,9 +34,17 @@ func InitAPIRoute(app *fiber.App, m middlewares.Middleware, apiService services.
 	key.Post("/create", m.ProtectedRoute, apiService.CreateAPIKey)
 	key.Delete("/delete", m.ProtectedRoute, apiService.DeleteAPIKey)
 
+	ai := api.Group("ai")
+	ai.Post("/stream/summary", m.ProtectedRoute, apiService.StreamAgentSummary)
+
+	// INTERNAL ROUTES MEANS THEY ARE CONSUMED BY OTHER SYSTEM. ROUTES ARE PROTECTED BY INTERNAL KEY PASSPHRASE.
+	// EXAMPLE OF OTHER SYSTEM: SENTINEL-AGENT.
+	internal := api.Group("internal")
+	internal.Post("/project/summary/get/:id", m.InternalRoute, apiService.GetProjectSummary)
+
 	// HERE ONWARDS ARE PUBLIC APIs RETURNED AS JSON.
-	// PUBLIC MEANS THEY ARE NOT CONSUMED INTERNALLY BY THE APP.
+	// PUBLIC MEANS THEY ARE MEANT TO BE CONSUMED BY USER.
 	v1 := api.Group("v1")
-	v1.Get("/events", m.APIPrivateRoute, eventService.GetEvents)
 	v1.Post("/event", m.APIPublicRoute, eventService.CreateEvent)
+	v1.Get("/events", m.APIPrivateRoute, eventService.GetEvents)
 }
