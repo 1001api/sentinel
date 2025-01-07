@@ -32,23 +32,23 @@ type EventService interface {
 }
 
 type EventServiceImpl struct {
-	UtilService    UtilService
-	CacheService   CacheService
-	ProjectService ProjectService
-	Repo           repositories.EventRepo
+	UtilService  UtilService
+	CacheService CacheService
+	Repo         repositories.EventRepo
+	ProjectRepo  repositories.ProjectRepo
 }
 
 func InitEventService(
 	utilService UtilService,
 	cacheService CacheService,
-	projectService ProjectService,
 	repo repositories.EventRepo,
+	projectRepo repositories.ProjectRepo,
 ) EventServiceImpl {
 	return EventServiceImpl{
-		UtilService:    utilService,
-		CacheService:   cacheService,
-		ProjectService: projectService,
-		Repo:           repo,
+		UtilService:  utilService,
+		CacheService: cacheService,
+		Repo:         repo,
+		ProjectRepo:  projectRepo,
 	}
 }
 
@@ -77,7 +77,10 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 	}
 
 	// ---- DEMO ONLY -----
-	projectSize, _ := s.ProjectService.CountProjectSize(context.Background(), projectUUID, user.ID)
+	projectSize, _ := s.ProjectRepo.CountSize(context.Background(), &gen.CountProjectSizeParams{
+		UserID:    user.ID,
+		ProjectID: projectUUID,
+	})
 	// check if size is more than 10mb, if yes dont proceed further.
 	if projectSize > 10*1000 { // 10*1000 KB = 10 MB
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "DEMO NOTICE: Project already exceed maximum size of 10MB"})

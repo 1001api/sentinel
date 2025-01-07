@@ -7,3 +7,7 @@ type KeyPayload struct {
 type PrivateKeyPayload struct {
 	PrivateKey string `json:"PrivateKey"`
 }
+
+type UserIDPayload struct {
+	UserID string `json:"UserID"`
+}

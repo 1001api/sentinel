@@ -54,6 +54,28 @@ type Project struct {
 	DeletedAt   pgtype.Timestamptz
 }
 
+type ProjectAggregation struct {
+	ID                   int32
+	ProjectID            uuid.UUID
+	UserID               uuid.UUID
+	TotalEvents          int32
+	TotalEventTypes      int32
+	TotalUniqueUsers     int32
+	TotalLocations       int32
+	TotalUniquePageUrls  int32
+	MostVisitedUrls      []byte
+	MostVisitedCountries []byte
+	MostVisitedCities    []byte
+	MostVisitedRegions   []byte
+	MostFiringElements   []byte
+	LastVisitedUsers     []byte
+	MostUsedBrowsers     []byte
+	MostFiredEventTypes  []byte
+	MostFiredEventLabels []byte
+	AggregatedAt         time.Time
+	AggregatedAtStr      string
+}
+
 type User struct {
 	ID             uuid.UUID
 	Fullname       string
