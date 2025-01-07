@@ -139,7 +139,7 @@ func main() {
 	downloadService := services.InitDownloadService(&utilService, &downloadRepo)
 	userService := services.InitUserService(&utilService, &userRepo)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
-	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo)
+	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo, &projectRepo)
 	projectService := services.InitProjectService(&projectRepo, &eventService, &utilService)
 	keyService := services.InitKeyService(&utilService, &keyRepo)
 	apiService := services.InitAPIService(
