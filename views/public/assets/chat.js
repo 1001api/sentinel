@@ -88,7 +88,7 @@ function handleSubmit() {
 async function handleStreamingResponse(bubble) {
     try {
         const response = await fetch(
-            `http://localhost:8080/api/ai/stream/summary?query=${chatInput.value}&projectId=${id}`,
+            `/api/ai/stream/summary?query=${chatInput.value}&projectId=${id}`,
             {
                 method: "POST"
             }
