@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -89,7 +90,11 @@ func main() {
 	// }))
 
 	// ---- DEMO ONLY -----
-	app.Use("api/ai/stream/summary", limiter.New(limiter.Config{
+	app.Use("/api/ai/stream/summary", limiter.New(limiter.Config{
+		Next: func(c *fiber.Ctx) bool {
+			path := c.OriginalURL()
+			return !strings.Contains(path, "/api/ai/stream/summary")
+		},
 		Max:        5,
 		Expiration: 60 * time.Second,
 		LimitReached: func(c *fiber.Ctx) error {
