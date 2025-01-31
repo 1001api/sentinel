@@ -1,11 +1,14 @@
 package services
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/gob"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -37,6 +40,8 @@ type APIService interface {
 	JSONEventLabelChart(c *fiber.Ctx) error
 	CreateAPIKey(ctx *fiber.Ctx) error
 	DeleteAPIKey(ctx *fiber.Ctx) error
+	GetProjectSummary(c *fiber.Ctx) error
+	StreamAgentSummary(c *fiber.Ctx) error
 }
 
 type APIServiceImpl struct {
@@ -679,4 +684,115 @@ func (s *APIServiceImpl) DeleteAPIKey(c *fiber.Ctx) error {
 
 	c.Set("HX-Refresh", "true")
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func (s *APIServiceImpl) GetProjectSummary(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+	projectID := c.Params("id")
+	limit := c.Query("limit", "1")
+
+	if projectID == "" {
+		return c.Status(fiber.StatusBadRequest).SendString("Project ID required")
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		return c.Status(fiber.StatusBadGateway).SendString("Invalid limit")
+	}
+
+	projectUUID, err := uuid.Parse(projectID)
+	if err != nil {
+		return c.Status(fiber.StatusBadGateway).SendString("Invalid project id")
+	}
+
+	summary, err := s.ProjectService.FindProjectSummary(context.Background(), projectUUID, user.ID, int32(limitInt))
+	if err != nil {
+		return c.Status(fiber.StatusOK).SendString(err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"data": summary,
+	})
+}
+
+func (s *APIServiceImpl) StreamAgentSummary(c *fiber.Ctx) error {
+	user := c.Locals("user").(*gen.FindUserByIDRow)
+
+	query := c.Query("query")
+	projectID := c.Query("projectId")
+
+	if query == "" || projectID == "" {
+		return c.Status(fiber.StatusBadRequest).SendString("query, and projectId are required")
+	}
+
+	req, err := http.NewRequest(
+		"POST",
+		fmt.Sprintf("%s/stream/chat", os.Getenv("SENTINEL_AGENT_URL")),
+		nil,
+	)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	// add internal passphrase
+	req.Header.Add("passphrase", os.Getenv("SENTINEL_INTERNAL_PASS"))
+
+	// add URL queries
+	q := req.URL.Query()
+	q.Add("query", query)
+	q.Add("userId", user.ID.String())
+	q.Add("projectId", projectID)
+	req.URL.RawQuery = q.Encode()
+
+	// instantiate http client
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Println(err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	// check if the response is successful
+	// if the response is not successful right away, there is no use
+	// to proceed to stream the response.
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return c.Status(resp.StatusCode).Send(body)
+	}
+
+	// set streaming headers
+	c.Set("Content-Type", "text/event-stream")
+	c.Set("Cache-Control", "no-cache")
+	c.Set("Connection", "keep-alive")
+	c.Set("Transfer-Encoding", "chunked")
+
+	// start streaming the response body
+	reader := bufio.NewReader(resp.Body)
+	c.Status(fiber.StatusOK).Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+		defer resp.Body.Close()
+
+		for {
+			line, err := reader.ReadBytes('\n')
+			if err != nil {
+				// if error is end of line, just finish the loop.
+				if err == io.EOF {
+					break
+				}
+				log.Println(err)
+				break
+			}
+
+			if _, err := w.Write(line); err != nil {
+				log.Println(err)
+				return
+			}
+
+			if err := w.Flush(); err != nil {
+				log.Println(err)
+				return
+			}
+		}
+	})
+
+	return nil
 }

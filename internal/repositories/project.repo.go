@@ -19,6 +19,9 @@ type ProjectRepo interface {
 	CountSize(ctx context.Context, input *gen.CountProjectSizeParams) (int64, error)
 	Delete(ctx context.Context, input *gen.DeleteProjectParams) error
 	LastDataReceived(ctx context.Context, input *gen.LastProjectDataReceivedParams) (time.Time, error)
+	CheckProjectAggrEligibility(ctx context.Context, projectID uuid.UUID) (int64, error)
+	CreateProjectAggr(ctx context.Context, input *gen.CreateProjectAggrParams) error
+	FindProjectAggr(ctx context.Context, input *gen.FindProjectAggrParams) ([]gen.ProjectAggregation, error)
 }
 
 type ProjectRepoImpl struct {
@@ -91,4 +94,16 @@ func (r *ProjectRepoImpl) Delete(ctx context.Context, input *gen.DeleteProjectPa
 
 func (r *ProjectRepoImpl) LastDataReceived(ctx context.Context, input *gen.LastProjectDataReceivedParams) (time.Time, error) {
 	return r.Repo.LastProjectDataReceived(ctx, *input)
+}
+
+func (r *ProjectRepoImpl) CheckProjectAggrEligibility(ctx context.Context, projectID uuid.UUID) (int64, error) {
+	return r.Repo.CheckProjectAggrEligibility(ctx, projectID)
+}
+
+func (r *ProjectRepoImpl) CreateProjectAggr(ctx context.Context, input *gen.CreateProjectAggrParams) error {
+	return r.Repo.CreateProjectAggr(ctx, *input)
+}
+
+func (r *ProjectRepoImpl) FindProjectAggr(ctx context.Context, input *gen.FindProjectAggrParams) ([]gen.ProjectAggregation, error) {
+	return r.Repo.FindProjectAggr(ctx, *input)
 }
