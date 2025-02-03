@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"time"
 
 	"github.com/gofiber/storage/redis/v2"
@@ -31,10 +32,8 @@ func (s *CacheServiceImpl) SetCache(key string, value []byte, exp time.Duration)
 }
 
 func (s *CacheServiceImpl) InvalidateCaches(keys []string) error {
-	for _, v := range keys {
-		if err := s.RedisCon.Delete(v); err != nil {
-			return err
-		}
+	if len(keys) > 0 {
+		s.RedisCon.Conn().Unlink(context.Background(), keys...)
 	}
 	return nil
 }

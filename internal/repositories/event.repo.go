@@ -13,9 +13,6 @@ type EventRepo interface {
 	GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error)
 	GetEvents(ctx context.Context, input *gen.GetEventsParams) ([]gen.GetEventsRow, error)
 	GetLiveEventDetail(ctx context.Context, input *gen.GetLiveEventsDetailParams) ([]gen.GetLiveEventsDetailRow, error)
-	GetEventSummary(ctx context.Context, input *gen.GetEventSummaryParams) (gen.GetEventSummaryRow, error)
-	GetTotalEventSummary(ctx context.Context, input *gen.GetTotalEventSummaryParams) (gen.GetTotalEventSummaryRow, error)
-	GetEventDetailSummary(ctx context.Context, input *gen.GetEventDetailSummaryParams) ([]gen.GetEventDetailSummaryRow, error)
 	GetWeeklyEvents(ctx context.Context, input *gen.GetWeeklyEventsParams) ([]gen.GetWeeklyEventsRow, error)
 	GetWeeklyEventsTotal(ctx context.Context, input *gen.GetWeeklyEventsTotalParams) (int64, error)
 	GetPercentageEventsType(ctx context.Context, input *gen.GetPercentageEventsTypeParams) ([]gen.GetPercentageEventsTypeRow, error)
@@ -51,18 +48,6 @@ func (r *EventRepoImpl) GetEvents(ctx context.Context, input *gen.GetEventsParam
 
 func (r *EventRepoImpl) GetLiveEventDetail(ctx context.Context, input *gen.GetLiveEventsDetailParams) ([]gen.GetLiveEventsDetailRow, error) {
 	return r.Repo.GetLiveEventsDetail(ctx, *input)
-}
-
-func (r *EventRepoImpl) GetEventSummary(ctx context.Context, input *gen.GetEventSummaryParams) (gen.GetEventSummaryRow, error) {
-	return r.Repo.GetEventSummary(ctx, *input)
-}
-
-func (r *EventRepoImpl) GetTotalEventSummary(ctx context.Context, input *gen.GetTotalEventSummaryParams) (gen.GetTotalEventSummaryRow, error) {
-	return r.Repo.GetTotalEventSummary(ctx, *input)
-}
-
-func (r *EventRepoImpl) GetEventDetailSummary(ctx context.Context, input *gen.GetEventDetailSummaryParams) ([]gen.GetEventDetailSummaryRow, error) {
-	return r.Repo.GetEventDetailSummary(ctx, *input)
 }
 
 func (r *EventRepoImpl) GetWeeklyEvents(ctx context.Context, input *gen.GetWeeklyEventsParams) ([]gen.GetWeeklyEventsRow, error) {

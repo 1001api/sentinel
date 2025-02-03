@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"log"
-	"net"
 	"strconv"
 	"time"
 
@@ -23,8 +22,6 @@ type EventService interface {
 	GetEvents(c *fiber.Ctx) error
 	GetLiveEvents(ctx context.Context, userID uuid.UUID) ([]gen.GetLiveEventsRow, error)
 	GetLiveEventDetail(ctx context.Context, projectID uuid.UUID, userID uuid.UUID, strategy string, limit int32) ([]gen.GetLiveEventsDetailRow, error)
-	GetEventSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.GetEventSummaryRow, error)
-	GetEventDetailSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventDetail, error)
 	GetWeeklyEventsChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventSummaryChart, error)
 	GetEventTypeChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetPercentageEventsTypeRow, error)
 	GetEventLabelChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) ([]gen.GetPercentageEventsLabelRow, error)
@@ -34,17 +31,23 @@ type EventService interface {
 type EventServiceImpl struct {
 	UtilService  UtilService
 	CacheService CacheService
+	AggrService  AggrService
+	WorkerPool   WorkerPool
 	Repo         repositories.EventRepo
 }
 
 func InitEventService(
 	utilService UtilService,
 	cacheService CacheService,
+	aggrService AggrService,
+	workerPool WorkerPool,
 	repo repositories.EventRepo,
 ) EventServiceImpl {
 	return EventServiceImpl{
 		UtilService:  utilService,
 		CacheService: cacheService,
+		AggrService:  aggrService,
+		WorkerPool:   workerPool,
 		Repo:         repo,
 	}
 }
@@ -112,21 +115,54 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Invalidate all caches related to current event inside redis storage (if any)
-	go func() {
-		if err := s.CacheService.InvalidateCaches([]string{
-			configs.CACHE_LIVE_EVENTS(user.ID),
-			configs.CACHE_LIVE_EVENT_SUMMARY(user.ID, projectUUID),
-			configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastN),
-			configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastHour),
-			configs.CACHE_LIVE_EVENT_DETAIL_SUMMARY(user.ID, projectUUID),
-			configs.CACHE_JSON_WEEKLY_EVENT_CHART(user.ID, projectUUID),
-			configs.CACHE_JSON_EVENT_TYPE_CHART(user.ID, projectUUID),
-			configs.CACHE_JSON_EVENT_LABEL_CHART(user.ID, projectUUID),
-		}); err != nil {
-			log.Println("Error invalidating all event's cache:", err)
-		}
-	}()
+	s.WorkerPool.jobChan <- WorkerJob{
+		Timestamp: time.Now(),
+		UserID:    user.ID,
+		ProjectID: projectUUID,
+		Callback: func() {
+			// Invalidate all caches related to current event inside redis storage (if any)
+			if err := s.CacheService.InvalidateCaches([]string{
+				configs.CACHE_LIVE_EVENTS(user.ID),
+				configs.CACHE_LIVE_EVENT_SUMMARY(user.ID, projectUUID),
+				configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastN),
+				configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastHour),
+				configs.CACHE_LIVE_EVENT_DETAIL_SUMMARY(user.ID, projectUUID),
+				configs.CACHE_JSON_WEEKLY_EVENT_CHART(user.ID, projectUUID),
+				configs.CACHE_JSON_EVENT_TYPE_CHART(user.ID, projectUUID),
+				configs.CACHE_JSON_EVENT_LABEL_CHART(user.ID, projectUUID),
+			}); err != nil {
+				log.Println("Error invalidating all event's cache:", err)
+			}
+
+			// Save project aggregations (summary)
+			if err := s.AggrService.SaveProjectAggr(context.Background(), projectUUID, user.ID); err != nil {
+				log.Println("Error sync-ing project summary:", err)
+			}
+		},
+	}
+
+	// go func() {
+	// 	if err := s.CacheService.InvalidateCaches([]string{
+	// 		configs.CACHE_LIVE_EVENTS(user.ID),
+	// 		configs.CACHE_LIVE_EVENT_SUMMARY(user.ID, projectUUID),
+	// 		configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastN),
+	// 		configs.CACHE_LIVE_EVENT(user.ID, projectUUID, entities.EventsByLastHour),
+	// 		configs.CACHE_LIVE_EVENT_DETAIL_SUMMARY(user.ID, projectUUID),
+	// 		configs.CACHE_JSON_WEEKLY_EVENT_CHART(user.ID, projectUUID),
+	// 		configs.CACHE_JSON_EVENT_TYPE_CHART(user.ID, projectUUID),
+	// 		configs.CACHE_JSON_EVENT_LABEL_CHART(user.ID, projectUUID),
+	// 	}); err != nil {
+	// 		log.Println("Error invalidating all event's cache:", err)
+	// 	}
+	//
+	// 	// synchronize project summary
+	// 	// sync-ing project summary will only happen if the event is present
+	// 	// after the last project summarization. That means, if the event has not changed from the last
+	// 	// summarization, this function will insert nothing to db.
+	// 	if err := s.AggrService.SaveProjectAggr(context.Background(), projectUUID, user.ID); err != nil {
+	// 		log.Println("Error sync-ing project summary:", err)
+	// 	}
+	// }()
 
 	return c.SendStatus(fiber.StatusOK)
 }
@@ -182,87 +218,6 @@ func (s *EventServiceImpl) GetLiveEventDetail(ctx context.Context, projectID uui
 		Bylasthour: isNFetch == entities.EventsByLastHour,
 		LimitCount: limit,
 	})
-}
-
-func (s *EventServiceImpl) GetEventSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*gen.GetEventSummaryRow, error) {
-	row, err := s.Repo.GetEventSummary(ctx, &gen.GetEventSummaryParams{
-		ProjectID: projectID,
-		UserID:    userID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &row, nil
-}
-
-func (s *EventServiceImpl) GetEventDetailSummary(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventDetail, error) {
-	var summary entities.EventDetail
-
-	// event summary total numbering
-	tldr, err := s.Repo.GetTotalEventSummary(ctx, &gen.GetTotalEventSummaryParams{
-		ProjectID: projectID,
-		UserID:    userID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	summary.TotalEvents = int(tldr.TotalEvents)
-	summary.TotalEventType = int(tldr.TotalEventType)
-	summary.TotalUniqueUsers = int(tldr.TotalUniqueUsers)
-	summary.TotalCountryVisited = int(tldr.TotalCountryVisited)
-	summary.TotalPageURL = int(tldr.TotalPageUrl)
-
-	// event summary detail
-	sum, err := s.Repo.GetEventDetailSummary(ctx, &gen.GetEventDetailSummaryParams{
-		ProjectID: projectID,
-		UserID:    userID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	var castQueryType = map[string]*[]entities.EventTextTotal{
-		"most_visited_url":     &summary.MostVisitedURLs,
-		"most_visited_country": &summary.MostCountryVisited,
-		"most_visited_city":    &summary.MostCitiesVisited,
-		"most_used_browser":    &summary.MostUsedBrowsers,
-		"most_hit_element":     &summary.MostElementsFired,
-		"most_event_type":      &summary.MostFiredEventType,
-		"most_event_label":     &summary.MostFiredEventLabel,
-	}
-
-	for _, v := range sum {
-		switch v.QueryType {
-		// case for last visited user since the "total" field need to
-		// be converted into time.Time
-		case "last_visited_user":
-			timestamp, _ := time.Parse("2006-01-02 15:04:05.999999-07", v.Total)
-			ip, _, _ := net.ParseCIDR(v.Name.String)
-			summary.LastVisitedUsers = append(summary.LastVisitedUsers, entities.EventLastUser{
-				IP:        ip,
-				Timestamp: timestamp,
-			})
-		// otherwise, just cast them directly into a map which contains
-		// the pointer into respective fields.
-		default:
-			total, err := strconv.Atoi(v.Total)
-			if err != nil {
-				total = 0
-			}
-
-			// cast query type into corresponding type in the map
-			if slice, ok := castQueryType[v.QueryType]; ok {
-				*slice = append(*slice, entities.EventTextTotal{
-					Name:  v.Name.String,
-					Total: total,
-				})
-			}
-		}
-	}
-
-	return &summary, nil
 }
 
 func (s *EventServiceImpl) GetWeeklyEventsChart(ctx context.Context, projectID uuid.UUID, userID uuid.UUID) (*entities.EventSummaryChart, error) {

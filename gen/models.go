@@ -74,6 +74,7 @@ type ProjectAggregation struct {
 	MostFiredEventLabels []byte
 	AggregatedAt         time.Time
 	AggregatedAtStr      string
+	AggregatedTimeBucket time.Time
 }
 
 type User struct {
