@@ -33,6 +33,7 @@ type WebServiceImpl struct {
 	ProjectService ProjectService
 	EventService   EventService
 	KeyService     KeyService
+	AggrService    AggrService
 }
 
 func InitWebService(
@@ -40,12 +41,14 @@ func InitWebService(
 	projectService ProjectService,
 	eventService EventService,
 	keyService KeyService,
+	aggrService AggrService,
 ) WebServiceImpl {
 	return WebServiceImpl{
 		UserService:    userService,
 		ProjectService: projectService,
 		EventService:   eventService,
 		KeyService:     keyService,
+		AggrService:    aggrService,
 	}
 }
 
@@ -154,7 +157,7 @@ func (s *WebServiceImpl) SendEventDetailPage(c *fiber.Ctx) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectUUID, user.ID)
+		summary, err := s.AggrService.GetDetailSummary(context.Background(), projectUUID, user.ID)
 		multiChan[1] <- result{data: summary, err: err}
 	}()
 

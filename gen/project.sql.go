@@ -134,10 +134,29 @@ INSERT INTO project_aggregations (
     most_fired_event_types, 
     most_fired_event_labels,
     aggregated_at,
-    aggregated_at_str
+    aggregated_at_str,
+    aggregated_time_bucket
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, get_week_start($17)
 )
+ON CONFLICT (project_id, aggregated_time_bucket)
+DO UPDATE SET
+    total_events = EXCLUDED.total_events,
+    total_event_types = EXCLUDED.total_event_types,
+    total_unique_users = EXCLUDED.total_unique_users,
+    total_locations = EXCLUDED.total_locations,
+    total_unique_page_urls = EXCLUDED.total_unique_page_urls,
+    most_visited_urls = EXCLUDED.most_visited_urls,
+    most_visited_countries = EXCLUDED.most_visited_countries,
+    most_visited_cities = EXCLUDED.most_visited_cities,
+    most_visited_regions = EXCLUDED.most_visited_regions,
+    most_firing_elements = EXCLUDED.most_firing_elements,
+    last_visited_users = EXCLUDED.last_visited_users,
+    most_used_browsers = EXCLUDED.most_used_browsers,
+    most_fired_event_types = EXCLUDED.most_fired_event_types,
+    most_fired_event_labels = EXCLUDED.most_fired_event_labels,
+    aggregated_at = EXCLUDED.aggregated_at,
+    aggregated_at_str = EXCLUDED.aggregated_at_str
 `
 
 type CreateProjectAggrParams struct {
@@ -238,7 +257,7 @@ func (q *Queries) FindAllProjects(ctx context.Context, userID uuid.UUID) ([]Find
 }
 
 const findProjectAggr = `-- name: FindProjectAggr :many
-SELECT id, project_id, user_id, total_events, total_event_types, total_unique_users, total_locations, total_unique_page_urls, most_visited_urls, most_visited_countries, most_visited_cities, most_visited_regions, most_firing_elements, last_visited_users, most_used_browsers, most_fired_event_types, most_fired_event_labels, aggregated_at, aggregated_at_str FROM project_aggregations
+SELECT id, project_id, user_id, total_events, total_event_types, total_unique_users, total_locations, total_unique_page_urls, most_visited_urls, most_visited_countries, most_visited_cities, most_visited_regions, most_firing_elements, last_visited_users, most_used_browsers, most_fired_event_types, most_fired_event_labels, aggregated_at, aggregated_at_str, aggregated_time_bucket FROM project_aggregations
 WHERE project_id = $1 AND user_id = $2
 ORDER BY aggregated_at DESC LIMIT $3
 `
@@ -278,6 +297,7 @@ func (q *Queries) FindProjectAggr(ctx context.Context, arg FindProjectAggrParams
 			&i.MostFiredEventLabels,
 			&i.AggregatedAt,
 			&i.AggregatedAtStr,
+			&i.AggregatedTimeBucket,
 		); err != nil {
 			return nil, err
 		}

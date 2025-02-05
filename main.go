@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -121,7 +122,12 @@ func main() {
 	userRepo := repositories.InitUserRepo(repository)
 	downloadRepo := repositories.InitDownloadRepo(repository)
 	keyRepo := repositories.InitKeyRepo(repository)
+	aggrRepo := repositories.InitAggrRepo(repository)
 	ipRepo := repositories.InitIPDBRepo(ipdbCon)
+
+	// init worker pool
+	workerPool := services.InitWorkerPool(constants.WORKER_POOL_COUNT, constants.WORKER_BUFFER_SIZE)
+	workerPool.StartWorker(context.Background())
 
 	// init services
 	utilService := services.InitUtilService(validate, &ipRepo)
@@ -129,7 +135,8 @@ func main() {
 	downloadService := services.InitDownloadService(&utilService, &downloadRepo)
 	userService := services.InitUserService(&utilService, &userRepo)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
-	eventService := services.InitEventService(&utilService, &cacheService, &eventRepo, &projectRepo)
+	aggrService := services.InitAggrService(&utilService, &aggrRepo, &projectRepo)
+	eventService := services.InitEventService(&utilService, &cacheService, &aggrService, *workerPool, &eventRepo, &projectRepo)
 	projectService := services.InitProjectService(&projectRepo, &eventService, &utilService)
 	keyService := services.InitKeyService(&utilService, &keyRepo)
 	apiService := services.InitAPIService(
@@ -138,8 +145,15 @@ func main() {
 		&downloadService,
 		&cacheService,
 		&keyService,
+		&aggrService,
 	)
-	webService := services.InitWebService(&userService, &projectService, &eventService, &keyService)
+	webService := services.InitWebService(
+		&userService,
+		&projectService,
+		&eventService,
+		&keyService,
+		&aggrService,
+	)
 
 	// init middleware
 	m := middlewares.InitMiddleware(&userService, sessionStore, &cacheService)
