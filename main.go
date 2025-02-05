@@ -136,7 +136,7 @@ func main() {
 	userService := services.InitUserService(&utilService, &userRepo)
 	authService := services.InitAuthService(&utilService, &userService, sessionStore)
 	aggrService := services.InitAggrService(&utilService, &aggrRepo, &projectRepo)
-	eventService := services.InitEventService(&utilService, &cacheService, &aggrService, *workerPool, &eventRepo)
+	eventService := services.InitEventService(&utilService, &cacheService, &aggrService, *workerPool, &eventRepo, &projectRepo)
 	projectService := services.InitProjectService(&projectRepo, &eventService, &utilService)
 	keyService := services.InitKeyService(&utilService, &keyRepo)
 	apiService := services.InitAPIService(
