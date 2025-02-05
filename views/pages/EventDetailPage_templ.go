@@ -181,7 +181,7 @@ func EventDetailPage(props EventDetailPageProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"revealed, every 10s [document.visibilityState === &#39;visible&#39;], visibilitychange[document.visibilityState === &#39;visible&#39;] from:document\" hx-swap=\"innerHTML\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"revealed, every 60s [document.visibilityState === &#39;visible&#39;], visibilitychange[document.visibilityState === &#39;visible&#39;] from:document\" hx-swap=\"innerHTML\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -781,7 +781,7 @@ func EventDetailSummarySection(summary *entities.EventDetail) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		for _, v := range summary.LastVisitedUsers {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li class=\"flex gap-1 items-center justify-between line-clamp-1\"><p title=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li class=\"flex gap-1 items-center justify-between\"><p title=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -794,7 +794,7 @@ func EventDetailSummarySection(summary *entities.EventDetail) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"mb-2 tracking-tight text-gray-800 dark:text-white\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"mb-2 tracking-tight text-gray-800 dark:text-white line-clamp-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -812,9 +812,9 @@ func EventDetailSummarySection(summary *entities.EventDetail) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var49 string
-			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(v.Timestamp.Format("02/01/2006 15:04:05"))
+			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(v.Timestamp.Format("02/01/2006 15:04"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventDetailPage.templ`, Line: 427, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/pages/EventDetailPage.templ`, Line: 427, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {

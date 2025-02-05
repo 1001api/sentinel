@@ -18,6 +18,25 @@ templ ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow)
 						<h1 class="font-bold text-lg">Projects</h1>
 						<p class="text-sm text-gray-700">Manage your project and include the project ID when sending data to ensure it's correctly associated with the specific project.</p>
 					</div>
+					<!-- DEMO NOTICE ALERT -->
+					<div class="p-4 my-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
+						<div class="flex items-center">
+							<svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+								<path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"></path>
+							</svg>
+							<span class="sr-only">Info</span>
+							<h3 class="text-lg font-medium">Demo Information</h3>
+						</div>
+						<div class="mt-2 mb-4 text-sm">
+							You are accessing demo. Please be aware of the following limitations:
+							<div class="mt-2 px-2">
+								<ul class="mt-1.5 list-disc list-inside">
+									<li>Demo account can only have 3 projects at max.</li>
+									<li>Demo account can only have 10MB project size at max.</li>
+								</ul>
+							</div>
+						</div>
+					</div>
 					<div class="mt-6 bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
 						<!-- PROJECTS COUNT -->
 						<div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
@@ -186,7 +205,7 @@ templ ProjectsPage(user *gen.FindUserByIDRow, projects []gen.FindAllProjectsRow)
 }
 
 templ ProjectSizeText(size int64) {
-	{ fmt.Sprintf("%d", size) }KB
+	{ fmt.Sprintf("%d", size) }KB/<span class="text-xs">10MB</span>
 }
 
 templ ProjectLastDataText(lastTime *time.Time) {

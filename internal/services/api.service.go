@@ -93,7 +93,17 @@ func (s *APIServiceImpl) CreateProject(c *fiber.Ctx) error {
 		return c.SendString("Maximum length of url is 255 characters")
 	}
 
-	_, err := s.ProjectService.CreateProject(context.Background(), name, desc, url, user.ID)
+	// ---- DEMO ONLY -----
+	totalProject, err := s.ProjectService.GetProjectCount(context.Background(), user.ID)
+	if err != nil {
+		return c.SendString(err.Error())
+	}
+	if totalProject >= 3 {
+		return c.SendString("DEMO NOTICE: Demo account can only create 3 projects at max.")
+	}
+	// ---- DEMO ONLY -----
+
+	_, err = s.ProjectService.CreateProject(context.Background(), name, desc, url, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}

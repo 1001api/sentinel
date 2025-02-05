@@ -88,7 +88,7 @@ function handleSubmit() {
 async function handleStreamingResponse(bubble) {
     try {
         const response = await fetch(
-            `http://localhost:8080/api/ai/stream/summary?query=${chatInput.value}&projectId=${id}`,
+            `/api/ai/stream/summary?query=${chatInput.value}&projectId=${id}`,
             {
                 method: "POST"
             }
@@ -131,14 +131,14 @@ async function handleStreamingResponse(bubble) {
         console.error('Streaming error:', error);
 
         // if error is too much request (rate limited)
-        // if (error.message === "429") {
-        //     bubble.innerHTML = '<strong>Oopss, you are using DEMO account</strong>, request is limited to only 2 request per 1 minute. Sorry for inconvenience, but you can try later...';
-        //     scrollToBottom();
-        //     return;
-        // }
+        if (error.message === "429") {
+            bubble.innerHTML = "<strong>[Oopss, you are using DEMO account]</strong><br/>Requests are limited to only 5 requests per minute. Please wait for a while...";
+            scrollToBottom();
+            return;
+        }
 
-        bubble.textContent = 'Sorry, there was an error processing your request.';
+        bubble.textContent = "Sorry, there was an error processing your request.";
     }
 }
 
-addMessage('Hello! How can I help you today?');
+addMessage("Hello! How can I help you today?");

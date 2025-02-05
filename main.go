@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
 	"github.com/hubkudev/sentinel/configs"
@@ -87,20 +90,22 @@ func main() {
 	// 	},
 	// }))
 
-	// app.Use("api/ai/stream/summary", limiter.New(limiter.Config{
-	// 	Next: func(c *fiber.Ctx) bool {
-	// 		path := c.OriginalURL()
-	// 		return !strings.Contains(path, "api/ai/stream/summary")
-	// 	},
-	// 	Max:        2,
-	// 	Expiration: 60 * time.Second,
-	// 	LimitReached: func(c *fiber.Ctx) error {
-	// 		return c.Status(fiber.StatusTooManyRequests).SendString("Too many request")
-	// 	},
-	// 	KeyGenerator: func(c *fiber.Ctx) string {
-	// 		return c.Get("CF-Connecting-IP")
-	// 	},
-	// }))
+	// ---- DEMO ONLY -----
+	app.Use("/api/ai/stream/summary", limiter.New(limiter.Config{
+		Next: func(c *fiber.Ctx) bool {
+			path := c.OriginalURL()
+			return !strings.Contains(path, "/api/ai/stream/summary")
+		},
+		Max:        5,
+		Expiration: 60 * time.Second,
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.SendStatus(fiber.StatusTooManyRequests)
+		},
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.Get("CF-Connecting-IP")
+		},
+	}))
+	// ---- DEMO ONLY -----
 
 	// init class validator
 	var validate = validator.New()

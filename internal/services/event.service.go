@@ -34,6 +34,7 @@ type EventServiceImpl struct {
 	AggrService  AggrService
 	WorkerPool   WorkerPool
 	Repo         repositories.EventRepo
+	ProjectRepo  repositories.ProjectRepo
 }
 
 func InitEventService(
@@ -42,6 +43,7 @@ func InitEventService(
 	aggrService AggrService,
 	workerPool WorkerPool,
 	repo repositories.EventRepo,
+	projectRepo repositories.ProjectRepo,
 ) EventServiceImpl {
 	return EventServiceImpl{
 		UtilService:  utilService,
@@ -49,6 +51,7 @@ func InitEventService(
 		AggrService:  aggrService,
 		WorkerPool:   workerPool,
 		Repo:         repo,
+		ProjectRepo:  projectRepo,
 	}
 }
 
@@ -75,6 +78,17 @@ func (s *EventServiceImpl) CreateEvent(c *fiber.Ctx) error {
 	if !exist {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "project not found"})
 	}
+
+	// ---- DEMO ONLY -----
+	projectSize, _ := s.ProjectRepo.CountSize(context.Background(), &gen.CountProjectSizeParams{
+		UserID:    user.ID,
+		ProjectID: projectUUID,
+	})
+	// check if size is more than 10mb, if yes dont proceed further.
+	if projectSize > 10*1000 { // 10*1000 KB = 10 MB
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "DEMO NOTICE: Project already exceed maximum size of 10MB"})
+	}
+	// ---- DEMO ONLY -----
 
 	// Get user IP
 	userIP := c.IP()
