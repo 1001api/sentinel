@@ -50,6 +50,7 @@ type APIServiceImpl struct {
 	DownloadService DownloadService
 	CacheService    CacheService
 	KeyService      KeyService
+	AggrService     AggrService
 }
 
 func InitAPIService(
@@ -58,6 +59,7 @@ func InitAPIService(
 	downloadService DownloadService,
 	cacheService CacheService,
 	keyService KeyService,
+	aggrService AggrService,
 ) APIServiceImpl {
 	return APIServiceImpl{
 		ProjectService:  projectService,
@@ -65,6 +67,7 @@ func InitAPIService(
 		DownloadService: downloadService,
 		CacheService:    cacheService,
 		KeyService:      keyService,
+		AggrService:     aggrService,
 	}
 }
 
@@ -407,7 +410,7 @@ func (s *APIServiceImpl) GetEventSummary(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	summary, err := s.EventService.GetEventSummary(context.Background(), projectUUID, user.ID)
+	summary, err := s.AggrService.GetBriefSummary(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -449,7 +452,7 @@ func (s *APIServiceImpl) GetEventSummaryDetail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).SendString("ProjectID is required")
 	}
 
-	summary, err := s.EventService.GetEventDetailSummary(context.Background(), projectUUID, user.ID)
+	summary, err := s.AggrService.GetDetailSummary(context.Background(), projectUUID, user.ID)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}
@@ -705,7 +708,7 @@ func (s *APIServiceImpl) GetProjectSummary(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadGateway).SendString("Invalid project id")
 	}
 
-	summary, err := s.ProjectService.FindProjectSummary(context.Background(), projectUUID, user.ID, int32(limitInt))
+	summary, err := s.AggrService.FindProjectAggr(context.Background(), projectUUID, user.ID, int32(limitInt))
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString(err.Error())
 	}

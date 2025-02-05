@@ -22,10 +22,24 @@ CREATE TABLE IF NOT EXISTS project_aggregations (
     aggregated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     aggregated_at_str VARCHAR(255) NOT NULL,
 
+    -- store start of the week 
+    aggregated_time_bucket TIMESTAMPTZ NOT NULL,
+
     FOREIGN KEY (project_id) REFERENCES projects(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+
+    -- Ensure only one aggregation per time bucket
+    UNIQUE (project_id, aggregated_time_bucket)
 );
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_project_aggr_project_id ON project_aggregations (project_id);
 CREATE INDEX IF NOT EXISTS idx_project_aggr_user_id ON project_aggregations (user_id);
+CREATE INDEX IF NOT EXISTS idx_project_aggr_time_bucket ON project_aggregations (aggregated_time_bucket);
+
+-- Helper function to get the start of the week for a timestamp
+CREATE OR REPLACE FUNCTION get_week_start(ts TIMESTAMPTZ)
+RETURNS TIMESTAMPTZ AS $$
+    -- week start in monday
+    SELECT date_trunc('week', ts)::TIMESTAMPTZ;
+$$ LANGUAGE SQL IMMUTABLE;
