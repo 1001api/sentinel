@@ -5,6 +5,8 @@
 // but this approach has overhead. For now, direct access is used to keep things simple and efficient.
 package constants
 
+import "time"
+
 var DownloadFormats = map[string]bool{
 	"csv":  true,
 	"xlsx": true,
@@ -21,3 +23,7 @@ var Intervals = map[string]int{
 	"last_year":     360,
 	"all_time":      -1,
 }
+
+var WORKER_POOL_COUNT = 10
+var WORKER_BUFFER_SIZE = 1000
+var WORKER_TIME_TICKER = time.Second * 5

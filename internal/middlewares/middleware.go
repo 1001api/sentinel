@@ -302,7 +302,7 @@ func (m *MiddlewareImpl) LiveEventSummaryCache(c *fiber.Ctx) error {
 
 	if len(cached) > 0 {
 		// deserialize gob object from redis
-		var summary gen.GetEventSummaryRow
+		var summary gen.GetBriefAggrRow
 		if err := gob.NewDecoder(bytes.NewReader(cached)).Decode(&summary); err != nil {
 			log.Println("error decoding cached live events:", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
