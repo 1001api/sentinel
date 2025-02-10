@@ -1,5 +1,18 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 
+// history storage
+const storage = window.localStorage;
+const HISTORY_STORAGE = "HISTORY_STORAGE";
+const MESSAGE_USER = "user";
+const MESSAGE_ASSISTANT = "assistant";
+let histories = [];
+
+if (storage.getItem(HISTORY_STORAGE)) {
+    histories = JSON.parse(storage.getItem(HISTORY_STORAGE));
+} else {
+    storage.setItem(HISTORY_STORAGE, JSON.stringify([]));
+}
+
 const projectID = document.getElementById("project-id")?.textContent;
 const id = projectID ? JSON.parse(projectID) : null;
 
@@ -76,6 +89,9 @@ function handleSubmit() {
     // add AI message
     addMessage("Generating response...", false, true);
 
+    // add message to history
+    saveMessage(MESSAGE_USER, message);
+
     // clear input
     chatInput.value = '';
 
@@ -88,9 +104,15 @@ function handleSubmit() {
 async function handleStreamingResponse(bubble) {
     try {
         const response = await fetch(
-            `/api/ai/stream/summary?query=${chatInput.value}&projectId=${id}`,
+            `/api/ai/stream/summary?query=${chatInput.value}&projectId=${id}&provider=openai`,
             {
-                method: "POST"
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    history: histories,
+                })
             }
         );
         if (!response.ok) {
@@ -127,6 +149,8 @@ async function handleStreamingResponse(bubble) {
                 }
             }
         }
+
+        saveMessage(MESSAGE_ASSISTANT, accumulatedText);
     } catch (error) {
         console.error('Streaming error:', error);
 
@@ -141,4 +165,16 @@ async function handleStreamingResponse(bubble) {
     }
 }
 
+function saveMessage(role, message) {
+    const obj = { role: role, content: message };
+    histories.push(obj);
+    storage.setItem(HISTORY_STORAGE, JSON.stringify(histories));
+}
+
 addMessage("Hello! How can I help you today?");
+
+if (histories) {
+    for (const v of histories) {
+        addMessage(v.content, v.role === "user", false);
+    }
+} 
