@@ -212,7 +212,7 @@ if (histories) {
     for (const v of histories) {
         let content = v.content;
         if (v.role === MESSAGE_ASSISTANT) {
-            content = async () => await marked.parse(content)();
+            content = marked.parse(content);
         }
         addMessage(content, v.role === MESSAGE_USER, false);
     }
