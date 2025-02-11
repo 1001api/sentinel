@@ -1,4 +1,8 @@
 import { marked } from "marked";
+import CryptoJS from "crypto-js";
+
+const projectID = document.getElementById("project-id")?.textContent;
+const id = projectID ? JSON.parse(projectID) : null;
 
 interface History {
     role: string
@@ -7,19 +11,21 @@ interface History {
 
 // history storage
 const storage = window.localStorage;
-const HISTORY_STORAGE = "HISTORY_STORAGE";
+const HISTORY_STORAGE = `history-storage-${id}`;
+const HISTORY_STORAGE_COVER = `${id}-storage-cover`;
 const MESSAGE_USER = "user";
 const MESSAGE_ASSISTANT = "assistant";
 let histories: History[] = [];
 
 if (storage.getItem(HISTORY_STORAGE)) {
-    histories = JSON.parse(storage.getItem(HISTORY_STORAGE) || "[]");
+    const data = storage.getItem(HISTORY_STORAGE) || "[]";
+    const decrypted = CryptoJS.AES.decrypt(data, HISTORY_STORAGE_COVER);
+    histories = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
 } else {
-    storage.setItem(HISTORY_STORAGE, JSON.stringify([]));
+    const data = JSON.stringify([]);
+    const encrypted = CryptoJS.AES.encrypt(data, HISTORY_STORAGE_COVER);
+    storage.setItem(HISTORY_STORAGE, encrypted);
 }
-
-const projectID = document.getElementById("project-id")?.textContent;
-const id = projectID ? JSON.parse(projectID) : null;
 
 // Get DOM elements
 const chatContainer = document.querySelector<HTMLDivElement>('#chat-container');
@@ -203,7 +209,9 @@ async function handleStreamingResponse(message: string, bubble: HTMLElement) {
 function saveMessage(role: string, message: string) {
     const obj: History = { role: role, content: message };
     histories.push(obj);
-    storage.setItem(HISTORY_STORAGE, JSON.stringify(histories));
+    const raw = JSON.stringify(histories);
+    const encrypted = CryptoJS.AES.encrypt(raw, HISTORY_STORAGE_COVER);
+    storage.setItem(HISTORY_STORAGE, encrypted);
 }
 
 addMessage("Hello! How can I help you today?");
