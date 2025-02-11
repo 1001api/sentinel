@@ -65,7 +65,6 @@ function createMessageBubble(message: string, isUser = false) {
         }`;
 
     bubble.innerHTML = message;
-    console.log("QC", bubble.innerHTML);
     bubbleWrapper.appendChild(bubble);
     return bubbleWrapper;
 }
