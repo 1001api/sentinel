@@ -330,13 +330,13 @@ function updateBarChart(chart) {
 
 function handleLiveEventSelector() {
     const liveEventTable = document.getElementById("events-live-table");
-    const liveEventSelector = document.getElementById("events-live-selector");
+    const liveEventSelector: HTMLSelectElement = document.getElementById("events-live-selector");
 
     // check if there is saved already, then use that config
     const savedValue = localStorage.getItem("events-live-selector");
     if (savedValue) {
         update(savedValue);
-        liveEventSelector?.value = savedValue;
+        liveEventSelector.value = savedValue;
     };
 
     liveEventSelector?.addEventListener("change", (e: Event) => {

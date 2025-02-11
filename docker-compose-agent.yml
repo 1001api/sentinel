@@ -102,6 +102,7 @@ services:
     restart: unless-stopped
     environment:
       OPEN_AI_KEY=
+      DEEPSEEK_KEY=
       SERVER_BASE_URL=
       SENTINEL_INTERNAL_PASS=
     ports:
