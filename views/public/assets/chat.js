@@ -20,6 +20,7 @@ const id = projectID ? JSON.parse(projectID) : null;
 const chatContainer = document.getElementById('chat-container');
 const chatInput = document.getElementById('chat-input');
 const chatSubmit = document.getElementById('chat-submit');
+const chatClearBtn = document.getElementById('chat-clear-btn');
 
 function parseSSEData(data) {
     if (!data.startsWith('data: ')) return null;
@@ -74,6 +75,12 @@ chatSubmit.addEventListener('click', handleSubmit);
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSubmit();
 });
+
+chatClearBtn.addEventListener('click', () => {
+    storage.setItem(HISTORY_STORAGE, JSON.stringify([]));
+    histories = [];
+    chatContainer.innerHTML = "";
+})
 
 function handleSubmit() {
     const message = chatInput.value.trim();
