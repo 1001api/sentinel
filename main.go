@@ -96,7 +96,7 @@ func main() {
 			path := c.OriginalURL()
 			return !strings.Contains(path, "/api/ai/stream/summary")
 		},
-		Max:        5,
+		Max:        10,
 		Expiration: 60 * time.Second,
 		LimitReached: func(c *fiber.Ctx) error {
 			return c.SendStatus(fiber.StatusTooManyRequests)
