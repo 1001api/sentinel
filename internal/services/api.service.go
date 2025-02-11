@@ -741,20 +741,28 @@ func (s *APIServiceImpl) StreamAgentSummary(c *fiber.Ctx) error {
 	req, err := http.NewRequest(
 		"POST",
 		fmt.Sprintf("%s/stream/chat", os.Getenv("SENTINEL_AGENT_URL")),
-		nil,
+		bytes.NewBuffer(c.Body()),
 	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
+	// add URL queries
+	c.Request().Header.VisitAll(func(key, value []byte) {
+		req.Header.Set(string(key), string(value))
+	})
+
 	// add internal passphrase
 	req.Header.Add("passphrase", os.Getenv("SENTINEL_INTERNAL_PASS"))
 
-	// add URL queries
 	q := req.URL.Query()
-	q.Add("query", query)
-	q.Add("userId", user.ID.String())
-	q.Add("projectId", projectID)
+	q.Set("userId", user.ID.String())
+
+	// add URL queries
+	c.Request().URI().QueryArgs().VisitAll(func(key, value []byte) {
+		q.Set(string(key), string(value))
+	})
+
 	req.URL.RawQuery = q.Encode()
 
 	// instantiate http client

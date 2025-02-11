@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "build": "esbuild views/static/**/*.ts --outdir=views/public/assets --minify --bundle",
+    "watch": "esbuild views/static/**/*.ts --outdir=views/public/assets --minify --bundle --watch"
+  },
   "devDependencies": {
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/jquery": "^3.5.31",
@@ -9,6 +13,8 @@
     "tailwindcss": "^3.4.13"
   },
   "dependencies": {
-    "alpinejs": "^3.14.1"
+    "alpinejs": "^3.14.1",
+    "crypto-js": "^4.2.0",
+    "marked": "^15.0.7"
   }
 }
