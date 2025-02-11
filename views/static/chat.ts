@@ -95,7 +95,9 @@ chatInput?.addEventListener('keypress', (e) => {
 chatClearBtn?.addEventListener('click', () => {
     if (!chatContainer) return;
 
-    storage.setItem(HISTORY_STORAGE, JSON.stringify([]));
+    const data = JSON.stringify([]);
+    const encrypted = CryptoJS.AES.encrypt(data, HISTORY_STORAGE_COVER);
+    storage.setItem(HISTORY_STORAGE, encrypted);
     histories = [];
     chatContainer.innerHTML = "";
 })
