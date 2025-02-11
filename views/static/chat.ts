@@ -76,6 +76,7 @@ function addMessage(message: string, isUser = false, isStreaming = false) {
 
     if (isStreaming) {
         const textElem = bubble.querySelector("div");
+        if (!textElem) return;
         handleStreamingResponse(textElem);
     }
 }
@@ -120,10 +121,10 @@ function handleSubmit() {
     chatInput.focus();
 }
 
-async function handleStreamingResponse(bubble) {
+async function handleStreamingResponse(bubble: HTMLElement) {
     try {
         const response = await fetch(
-            `/api/ai/stream/summary?query=${chatInput.value}&projectId=${id}&provider=openai`,
+            `/api/ai/stream/summary?query=${chatInput?.value}&projectId=${id}&provider=openai`,
             {
                 method: "POST",
                 headers: {
@@ -161,7 +162,7 @@ async function handleStreamingResponse(bubble) {
                 if (content !== null) {
                     accumulatedText += content;
                     const cleanedText = cleanText(accumulatedText);
-                    const markdown = marked.parse(cleanedText);
+                    const markdown = await marked.parse(cleanedText);
                     bubble.innerHTML = markdown;
 
                     scrollToBottom();
