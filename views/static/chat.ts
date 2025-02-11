@@ -26,6 +26,7 @@ const chatContainer = document.querySelector<HTMLDivElement>('#chat-container');
 const chatInput = document.querySelector<HTMLInputElement>('#chat-input');
 const chatSubmit = document.querySelector<HTMLButtonElement>('#chat-submit');
 const chatClearBtn = document.querySelector<HTMLButtonElement>('#chat-clear-btn');
+const quickChatBtns = document.querySelectorAll<HTMLButtonElement>('.quick-chat-btn');
 
 function parseSSEData(data: string) {
     if (!data.startsWith('data: ')) return null;
@@ -63,7 +64,8 @@ function createMessageBubble(message: string, isUser = false) {
         : 'bg-gray-200 dark:bg-gray-600 text-sm text-gray-900 dark:text-white rounded-bl-none'
         }`;
 
-    bubble.textContent = message;
+    bubble.innerHTML = message;
+    console.log("QC", bubble.innerHTML);
     bubbleWrapper.appendChild(bubble);
     return bubbleWrapper;
 }
@@ -77,11 +79,11 @@ function addMessage(message: string, isUser = false, isStreaming = false) {
     if (isStreaming) {
         const textElem = bubble.querySelector("div");
         if (!textElem) return;
-        handleStreamingResponse(textElem);
+        handleStreamingResponse(message, textElem);
     }
 }
 
-chatSubmit?.addEventListener('click', handleSubmit);
+chatSubmit?.addEventListener('click', () => handleSubmit());
 chatInput?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSubmit();
 });
@@ -92,28 +94,41 @@ chatClearBtn?.addEventListener('click', () => {
     histories = [];
     chatContainer.innerHTML = "";
 })
+for (const btn of quickChatBtns) {
+    btn.addEventListener('click', (e) => {
+        const message = btn.dataset.label;
+        handleSubmit(true, message);
+    });
+}
 
-function handleSubmit() {
+function handleSubmit(isQuickChat: boolean = false, quickChatMessage: string = "") {
     if (!chatInput || !chatSubmit) return;
 
     const message = chatInput.value.trim();
-    if (message === '') return;
+    if (!isQuickChat && message === '') return;
 
     // Disable input and button while processing
     chatInput.disabled = true;
     chatSubmit.disabled = true;
 
-    // add user message
-    addMessage(message, true);
+    // if the message is coming from quick chat
+    if (isQuickChat) {
+        addMessage(quickChatMessage, true);
+    } else {
+        // add user message from input
+        addMessage(message, true);
+    }
 
     // add AI message
     addMessage("Generating response...", false, true);
 
     // add message to history
-    saveMessage(MESSAGE_USER, message);
+    saveMessage(MESSAGE_USER, isQuickChat ? quickChatMessage : message);
 
     // clear input
-    chatInput.value = '';
+    if (!isQuickChat) {
+        chatInput.value = '';
+    }
 
     // Re-enable input and button
     chatInput.disabled = false;
@@ -121,10 +136,10 @@ function handleSubmit() {
     chatInput.focus();
 }
 
-async function handleStreamingResponse(bubble: HTMLElement) {
+async function handleStreamingResponse(message: string, bubble: HTMLElement) {
     try {
         const response = await fetch(
-            `/api/ai/stream/summary?query=${chatInput?.value}&projectId=${id}&provider=openai`,
+            `/api/ai/stream/summary?query=${message}&projectId=${id}&provider=openai`,
             {
                 method: "POST",
                 headers: {
@@ -142,6 +157,7 @@ async function handleStreamingResponse(bubble: HTMLElement) {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let accumulatedText = '';
+        let cleanedText = '';
         let buffer = '';
 
         while (true) {
@@ -161,7 +177,7 @@ async function handleStreamingResponse(bubble: HTMLElement) {
 
                 if (content !== null) {
                     accumulatedText += content;
-                    const cleanedText = cleanText(accumulatedText);
+                    cleanedText = cleanText(accumulatedText);
                     const markdown = await marked.parse(cleanedText);
                     bubble.innerHTML = markdown;
 
@@ -170,7 +186,7 @@ async function handleStreamingResponse(bubble: HTMLElement) {
             }
         }
 
-        saveMessage(MESSAGE_ASSISTANT, accumulatedText);
+        saveMessage(MESSAGE_ASSISTANT, cleanedText);
     } catch (error) {
         console.error('Streaming error:', error);
 
@@ -195,6 +211,10 @@ addMessage("Hello! How can I help you today?");
 
 if (histories) {
     for (const v of histories) {
-        addMessage(v.content, v.role === "user", false);
+        let content = v.content;
+        if (v.role === MESSAGE_ASSISTANT) {
+            content = async () => await marked.parse(content)();
+        }
+        addMessage(content, v.role === MESSAGE_USER, false);
     }
 }
