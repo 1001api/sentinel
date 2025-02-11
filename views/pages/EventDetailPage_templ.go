@@ -225,7 +225,7 @@ func EventDetailPage(props EventDetailPageProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script src=\"/static/assets/event-detail.js\"></script><script src=\"/static/assets/chat.js\" type=\"module\"></script></body>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script src=\"/static/assets/event-detail.js\"></script><script src=\"/static/assets/chat.js\"></script></body>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
