@@ -16,6 +16,7 @@ const HISTORY_STORAGE_COVER = `${id}-storage-cover`;
 const MESSAGE_USER = "user";
 const MESSAGE_ASSISTANT = "assistant";
 let histories: History[] = [];
+let selectedQCMessage;
 
 if (storage.getItem(HISTORY_STORAGE)) {
     const data = storage.getItem(HISTORY_STORAGE) || "[]";
@@ -75,7 +76,7 @@ function createMessageBubble(message: string, isUser = false) {
     return bubbleWrapper;
 }
 
-function addMessage(message: string, isUser = false, isStreaming = false) {
+function addMessage(message: string, isUser = false, isStreaming = false, isQuickChat = false) {
     if (!chatContainer) return;
 
     const bubble = createMessageBubble(message, isUser);
@@ -84,11 +85,11 @@ function addMessage(message: string, isUser = false, isStreaming = false) {
     if (isStreaming) {
         const textElem = bubble.querySelector("div");
         if (!textElem) return;
-        handleStreamingResponse(message, textElem);
+        handleStreamingResponse(isQuickChat, textElem);
     }
 }
 
-chatSubmit?.addEventListener('click', () => handleSubmit());
+chatSubmit?.addEventListener('click', () => handleSubmit);
 chatInput?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSubmit();
 });
@@ -104,11 +105,12 @@ chatClearBtn?.addEventListener('click', () => {
 for (const btn of quickChatBtns) {
     btn.addEventListener('click', (e) => {
         const message = btn.dataset.label;
-        handleSubmit(true, message);
+        selectedQCMessage = message;
+        handleSubmit(true);
     });
 }
 
-function handleSubmit(isQuickChat: boolean = false, quickChatMessage: string = "") {
+function handleSubmit(isQuickChat: boolean = false) {
     if (!chatInput || !chatSubmit) return;
 
     const message = chatInput.value.trim();
@@ -119,18 +121,13 @@ function handleSubmit(isQuickChat: boolean = false, quickChatMessage: string = "
     chatSubmit.disabled = true;
 
     // if the message is coming from quick chat
-    if (isQuickChat) {
-        addMessage(quickChatMessage, true);
-    } else {
-        // add user message from input
-        addMessage(message, true);
-    }
+    addMessage(message, true);
 
     // add AI message
-    addMessage("Generating response...", false, true);
+    addMessage("Generating response...", false, true, isQuickChat);
 
     // add message to history
-    saveMessage(MESSAGE_USER, isQuickChat ? quickChatMessage : message);
+    saveMessage(MESSAGE_USER, isQuickChat ? selectedQCMessage : message);
 
     // clear input
     if (!isQuickChat) {
@@ -143,10 +140,10 @@ function handleSubmit(isQuickChat: boolean = false, quickChatMessage: string = "
     chatInput.focus();
 }
 
-async function handleStreamingResponse(message: string, bubble: HTMLElement) {
+async function handleStreamingResponse(isQuickChat: boolean, bubble: HTMLElement) {
     try {
         const response = await fetch(
-            `/api/ai/stream/summary?query=${message}&projectId=${id}&provider=openai`,
+            `/api/ai/stream/summary?query=${isQuickChat ? selectedQCMessage : chatInput?.value}&projectId=${id}&provider=openai`,
             {
                 method: "POST",
                 headers: {
