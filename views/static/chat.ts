@@ -121,7 +121,14 @@ function handleSubmit(isQuickChat: boolean = false) {
     chatSubmit.disabled = true;
 
     // if the message is coming from quick chat
-    addMessage(message, true);
+    if (isQuickChat) {
+        // send selected qc message.
+        // if for however the reason the qc message is not present (which should not be)
+        // use default template qc message.
+        addMessage(selectedQCMessage ?? "Hi!, summarize my data please.", true);
+    } else {
+        addMessage(message, true);
+    }
 
     // add AI message
     addMessage("Generating response...", false, true, isQuickChat);
