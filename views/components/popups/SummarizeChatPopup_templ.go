@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 var qcMessages = []string{
 	"Summarize the key website activity from my event data",
-	"Show me the most visited URLs and frequently fired events",
-	"Highlight the most active users, browsers, and locations",
+	"Show me the percentage increase or decrease in weekly event activity",
+	"Compare this week's event trends with last week's, highlighting major changes",
 	"What are the key trends in my website event data?",
 	"What areas need attention based on user behavior and activity?",
 	"Recommend immediate actions based on website event data",
