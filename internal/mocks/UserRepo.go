@@ -16,6 +16,11 @@ type UserRepo struct {
 	mock.Mock
 }
 
+// FindUserByPrivateKey implements repositories.UserRepo.
+func (_m *UserRepo) FindUserByPrivateKey(ctx context.Context, key string) (gen.FindUserByPrivateKeyRow, error) {
+	panic("unimplemented")
+}
+
 // CheckAdminExist provides a mock function with given fields: ctx
 func (_m *UserRepo) CheckAdminExist(ctx context.Context) (bool, error) {
 	ret := _m.Called(ctx)
