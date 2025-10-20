@@ -1,5 +1,4 @@
 tmp/
-.env
 node_modules/
 bin/
 backups/
