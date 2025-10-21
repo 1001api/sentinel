@@ -43,7 +43,24 @@ templ SummarizeChatPopup() {
 				</div>
 				<!-- Modal body -->
 				<div class="p-4 md:p-5 space-y-4">
-					<div class="h-[70vh] overflow-y-auto px-4" id="chat-container"></div>
+					<div class="h-[40vh] overflow-y-auto px-4" id="chat-container"></div>
+
+					<!-- DEMO NOTICE ALERT -->
+					<div class="p-4 my-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
+						<div class="flex items-center">
+							<svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+								<path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"></path>
+							</svg>
+							<span class="sr-only">Info</span>
+							<h3 class="text-lg font-medium">Demo Alert!</h3>
+						</div>
+						<div class="mt-2 mb-4 text-sm">
+							You are currently accessing demo mode. Agentive AI is not available in demo mode.
+							If you want to use Agentive AI, please download the code and host for yourself.
+
+							Learn more <a href="https://github.com/1001api/sentinel-agent" target="_blank" class="text-blue-600 hover:underline">here</a>.
+						</div>
+					</div>
 				</div>
 				<!-- Modal footer -->
 				<div>
@@ -59,7 +76,7 @@ templ SummarizeChatPopup() {
 					</div>
 					<div class="w-full gap-2 flex items-center p-4 border-t border-gray-200 rounded-b dark:border-gray-600">
 						<input type="text" id="chat-input" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"/>
-						<button id="chat-submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+						<button id="chat-submit" disabled class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
 								<path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"></path>
 							</svg>

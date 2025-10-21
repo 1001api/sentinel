@@ -208,7 +208,9 @@ async function handleStreamingResponse(isQuickChat: boolean, bubble: HTMLElement
             return;
         }
 
-        bubble.textContent = "Sorry, there was an error processing your request.";
+        // DEMO ALERT
+        bubble.textContent = "You are using DEMO account. Agentive AI is not available in demo mode.";
+        // bubble.textContent = "Sorry, there was an error processing your request.";
     }
 }
 
