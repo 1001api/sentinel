@@ -19,8 +19,10 @@ func InitDBCon() *pgxpool.Pool {
 	dbUser := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	dbName := os.Getenv("POSTGRES_DB")
+	dbSSLMode := os.Getenv("PGSSLMODE")
+	dbChannelBinding := os.Getenv("PGCHANNELBINDING")
 
-	DSN := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbPort, dbName)
+	DSN := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s&channel_binding=%s", dbUser, dbPassword, dbHost, dbPort, dbName, dbSSLMode, dbChannelBinding)
 
 	db, err := pgxpool.New(context.Background(), DSN)
 	if err != nil {
