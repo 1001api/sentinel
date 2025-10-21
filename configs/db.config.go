@@ -47,13 +47,10 @@ func InitDBCon() *pgxpool.Pool {
 }
 
 func InitRedis() *redis.Storage {
-	dbHost := os.Getenv("REDIS_HOST")
-	dbPort := os.Getenv("REDIS_PORT")
-
-	DSN := fmt.Sprintf("redis://%s:%s", dbHost, dbPort)
+	redisURL := os.Getenv("REDIS_URL")
 
 	store := redis.New(redis.Config{
-		URL:   DSN,
+		URL:   redisURL,
 		Reset: false,
 	})
 
